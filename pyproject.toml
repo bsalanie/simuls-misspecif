@@ -1,0 +1,44 @@
+[project]
+name = "simuls-misspecif"
+version = "0.1.0"
+description = "Simulations for what-if misspecif"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "bs-python-utils>=0.8.2",
+    "altair>=5.5.0",
+    "altair-saver>=0.5.0",
+    "emcee>=3.1.6",
+    "matplotlib>=3.10.6",
+    "mkdocs>=1.6.1",
+    "mkdocs-material>=9.6.20",
+    "mkdocstrings-python>=1.18.2",
+    "numpy>=2.3.3",
+    "pandas>=2.3.2",
+    "pre-commit>=4.3.0",
+    "pytest>=8.4.2",
+    "mypy>=1.18",
+    "ruff>=0.14.0",
+    "scikit-learn>=1.7.2",
+    "scipy>=1.16.2",
+    "seaborn>=0.13.2",
+    "statsmodels>=0.14.5",
+    "streamlit>=1.49.1",
+    "vega-datasets>=0.9.0",
+    "colorama>=0.4.6",
+    "pyarrow>=23.0.0",
+    "plotly>=6.7.0",
+]
+
+[project.optional-dependencies]
+jax = ["jax[cpu]>=0.4.0"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["simuls_misspecif/*"]
+
+[tool.setuptools.package-data]
+"simuls_misspecif" = ["GaussHermiteSparseGrids/*"]
+
+[tool.ruff]
+line-length = 88

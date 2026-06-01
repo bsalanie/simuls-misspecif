@@ -1,0 +1,20 @@
+Bernard Salanie
+
+Started June 1, 2026
+
+# simuls_misspecif
+
+Simulations of a symmetric mutinomial logit for the what-if misspecif paper.
+
+The specification has
+\[
+U_{ijt} = \beta_0 + x_{jt} (\beta_1 + \nu_{i}) + \xi_{jt} + u_{ijt}
+\]
+
+
+where 
+* $\nu_i=\sigma \varepsilon_i$ with $\varepsilon_i = N(0,1)$,
+* $x_{jt}=N(0,\sigma_x^2)$ iid.
+* $\xi_{jt} = N(0,\sigma_{\xi}^2)$ iid in the exogenous case; in the endogenous case, see MLOR.
+
+
