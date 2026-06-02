@@ -1,0 +1,105 @@
+site_name: simuls-misspecif
+repo_url: https://github.com/bsalanie/simuls-misspecif
+site_url: https://bsalanie.github.io/simuls-misspecif
+site_description: simulations for what-if misspecification
+site_author: Bernard Salanie
+edit_uri: edit/main/docs/
+repo_name: bsalanie/simuls-misspecif
+copyright: Maintained by <a href="https://bsalanie.github.io">Bernard Salanie</a>.
+
+nav:
+  - Home: index.md
+  - API Reference:
+    - core:
+      - main driver: simuls_large_T.md
+      - compute statistics: compute_stats.md
+      - extract results: extract_from_results.md
+    - multinomial mixed logit:
+      - MNL integrals: MNL_integrals.md
+      - parameters for MNL: MNL_params.md
+      - utilities for MNL: MNL_utils.md
+      - create samples: create_samples.md
+    - plots:
+      - plot results: plot_simuls_results.md
+      - plots for paper: plot_papers.md
+    - opt:
+      - optimization: bs_opt.md
+    - stats:
+      - statistics: bsstats.md
+      - nonlinear dependence: distance_covariances.md
+      - bivariate quantiles and ranks: bivariate_quantiles.md
+    - data_anal:
+      - Pandas: pandas_utils.md
+      - scikit-learn: sklearn_utils.md
+    - viz:
+      - plotting interface: bs_plots.md
+      - Matplotlib: bsmplutils.md
+      - Seaborn: bs_seaborn.md
+      - Altair: bs_altair.md
+      - Streamlit: streamlit_utils.md
+
+plugins:
+  - search:
+  - mkdocstrings:
+      handlers:
+        python:
+          paths:
+
+
+# theme:
+#   palette:
+#     scheme: preference
+
+
+# to navigate with `/site` content correctly
+use_directory_urls: false
+
+theme:
+  name: material
+  features:
+    - search.highlight
+    - navigation.instant
+    - navigation.expand
+    - navigation.tabs
+    - navigation.indexed
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: white
+      accent: deep orange
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: black
+      accent: deep orange
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  icon:
+    repo: fontawesome/brands/github
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/bsalanie/simuls-misspecif
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/simuls-misspecif
+
+markdown_extensions:
+  - attr_list
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      linenums: true
+  - toc:
+      permalink: true
+  - admonition # add notes, warnings...
+  - codehilite
+  - toc
+  - pymdownx.arithmatex: # for LaTeX
+      generic: true  
+extra_javascript: # for arithmatex
+  - javascripts/mathjax.js
+  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
