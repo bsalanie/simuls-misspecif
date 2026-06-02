@@ -53,8 +53,7 @@ def create_sample(
     stream: np.random.Generator,
     pars: TrueParams = true_pars,
     dpars: DataParams = data_pars,
-    ndraws: int = 10000,
-):
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """Create one sample.
 
     Args:
@@ -63,7 +62,6 @@ def create_sample(
         stream: Random generator.
         pars: Parameters for the DGP.
         dpars: Data parameters for the DGP.
-        ndraws: Number of draws for the random coefficients.
 
     Returns:
         A tuple of xi, x, z, and the simulated market shares.
@@ -84,21 +82,20 @@ def create_sample(
     shares = make_shares(mean_utils_xi, x, sigma_tot)
     # describe_array(shares, "shares")
 
-    return (xi, x, z, shares, Dbar)
+    return (xi, x, z, shares)
 
 
 if __name__ == "__main__":
     stream = np.random.default_rng()
     print_stars("Without randomness")
-    xi, x, z, shares, Dbar = create_sample(100, 4, stream, true_pars, data_pars, 0)
+    xi, x, z, shares = create_sample(100, 4, stream, true_pars, data_pars)
     describe_array(xi, "xi")
     describe_array(x, "x")
     describe_array(z, "z")
-    describe_array(Dbar, "Dbar")
     describe_array(shares, "shares")
 
     print_stars("Without micromoment")
-    xi, x, z, shares, Dbar = create_sample(100, 4, stream, true_pars, data_pars, 1000)
+    xi, x, z, shares = create_sample(100, 4, stream, true_pars, data_pars)
     describe_array(xi, "xi")
     describe_array(x, "x")
     describe_array(z, "z")

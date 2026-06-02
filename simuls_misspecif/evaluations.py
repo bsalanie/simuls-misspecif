@@ -5,8 +5,13 @@ from typing import Iterable, List, Tuple, cast
 
 import numpy as np
 import scipy.linalg as spla
-from blp_utils import make_K_T1, make_QW_T1, simulated_mean_shares  # type: ignore[import-not-found]
+from blp_utils import (  # type: ignore[import-not-found]
+    make_K_T1,
+    make_QW_T1,
+    simulated_mean_shares,
+)
 from bs_python_utils.bsnputils import (
+    ThreeArrays,
     check_vector,
     check_vector_or_matrix,
     npexp,
@@ -512,7 +517,7 @@ def estimated_xi_infty(
     nodes: np.ndarray,
     weights: np.ndarray,
     verbose: bool = False,
-):
+) -> ThreeArrays:
     """Estimate the limit xi values using Berry inversion.
 
     Args:
@@ -526,7 +531,7 @@ def estimated_xi_infty(
         verbose: Whether to print progress information.
 
     Returns:
-        A `(T, J)` matrix and a vector of return codes.
+        A `(T, J)` matrix,  a vector of return codes, and numbers of evaluations.
     """
     nmarkets = observed_shares.shape[0]
 

@@ -11,7 +11,7 @@ nav:
   - Home: index.md
   - API Reference:
     - core:
-      - main driver: simuls_large_T.md
+      - main driver: simuls_driver.md
       - compute statistics: compute_stats.md
       - extract results: extract_from_results.md
     - multinomial mixed logit:
@@ -21,8 +21,8 @@ nav:
       - create samples: create_samples.md
       - evaluate: evaluations.md
     - plots:
-      - plot results: plot_simuls_results.md
-      - plots for paper: plot_papers.md
+      - plot results: plot_simul_results.md
+      - plots for paper: plots_paper.md
 
 plugins:
   - search:

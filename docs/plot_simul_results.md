@@ -1,3 +1,3 @@
-# plot_simul_results module
+# plot_simuls_results module
 
-::: simuls_misspecif.plot_simul_results 
+::: simuls_misspecif.plot_simuls_results 

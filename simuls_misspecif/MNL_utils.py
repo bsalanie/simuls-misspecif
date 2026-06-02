@@ -73,8 +73,7 @@ class DataParams:
             stream: Random generator.
 
         Returns:
-            A tuple `(xi_d, z_d, u_d, dbar)`; if there is no micromoment,
-            `dbar = 0`.
+            A tuple `(xi_d, z_d, u_d)`.
         """
         xi_d = stream.normal(size=(nmarkets, nproducts))
         z_d = stream.normal(size=(nmarkets, nproducts))
