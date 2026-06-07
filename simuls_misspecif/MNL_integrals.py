@@ -185,7 +185,8 @@ def _dshares_dx(
     Estjstk = _exp_stj_stk(mean_utils, x, s_val, nodes1, weights1)
     Estjstk_eps = _exp_stj_stk_eps(mean_utils, x, s_val, nodes1, weights1)
 
-    dsh_dx = -np.einsum("tjk, t->tjk", Estjstk, beta1) - s_val * Estjstk_eps
+    # dsh_dx = -np.einsum("tjk, t->tjk", Estjstk, beta1) - s_val * Estjstk_eps
+    dsh_dx = -Estjstk * beta1 - s_val * Estjstk_eps
     diag_plus = Estj * beta1 + s_val * Estj_eps
 
     for j in range(nproducts):
@@ -261,7 +262,7 @@ def _d2shares_dx_dtheta(
     s_val = true_p[-1]
     nmarkets, nproducts = x.shape
 
-    d2sh_dx_dth = np.zeros((nmarkets, nproducts, nproducts, 4))
+    d2sh_dx_dth = np.zeros((nmarkets, nproducts, nproducts, 3))
     n_nodes = nodes1.size
     s_tjl = np.zeros((nmarkets, nproducts, n_nodes))
     s_t0l = np.zeros((nmarkets, n_nodes))
@@ -308,7 +309,6 @@ if __name__ == "__main__":
     n = 1
     iprec = 17
     nodes1, weights1 = setup_sparse_gaussian(n, iprec)
-    nodes1 = nodes1[:, 0]
 
     true_p = np.array([0.2, 0.4, 0.5])
 
@@ -358,7 +358,7 @@ if __name__ == "__main__":
             xtj[t, j] += EPS
             mean_utils_tj = b0 + xtj * b1 + xi
             shares_tj = _exp_stj(mean_utils_tj, xtj, sigma, nodes1, weights1)
-            for c in range(4):
+            for c in range(3):
                 pars_c = true_p.copy()
                 pars_c[c] += EPS
                 sig_val_c = pars_c[-1]

@@ -5,11 +5,6 @@ from typing import Iterable, List, Tuple, cast
 
 import numpy as np
 import scipy.linalg as spla
-from blp_utils import (  # type: ignore[import-not-found]
-    make_K_T1,
-    make_QW_T1,
-    simulated_mean_shares,
-)
 from bs_python_utils.bsnputils import (
     ThreeArrays,
     check_vector,
@@ -21,6 +16,11 @@ from bs_python_utils.bsnputils import (
 )
 from bs_python_utils.bsstats import flexible_reg
 from bs_python_utils.bsutils import bs_error_abort, print_stars
+from frac_blp.artificial_regressors import (
+    make_K_and_y,
+    make_V,
+    make_W,
+)
 
 from simuls_misspecif.MNL_integrals import (
     _dshares_dx,
@@ -29,64 +29,65 @@ from simuls_misspecif.MNL_integrals import (
     _exp_stj_stk_eps,
 )
 
-
-def sqrt_kludge(sq):
-    return sqrt(max(sq, 1e-9))
-
-
-def berry_xis(
-    shares: np.ndarray,
-    mean_u: np.ndarray,
-    x: np.ndarray,
-    xi: np.ndarray,
-    s2: float,
-    tol: float = 1e-9,
-    maxiter: int = 10000,
-    ndraws: int = 10000,
-    verbose: bool = False,
-) -> Tuple[np.ndarray, int, int]:
-    """Invert product effects xi from market shares on one market.
-
-    Args:
-        shares: `nproducts` vector of observed shares.
-        mean_u: `nproducts` vector of mean utilities.
-        x: `nproducts` vector of covariates.
-        xi: `nproducts` vector of an initial estimate of xi.
-        s2: Variance of the random coefficient.
-        tol: Tolerance.
-        maxiter: Maximum number of iterations.
-        ndraws: Number of draws for simulation.
-        verbose: Whether to print progress information.
-
-    Returns:
-        A tuple containing the estimated xi vector, the return code, and the
-        number of evaluations.
-    """
-
-    s = sqrt_kludge(s2)
-    xi_cur = xi.copy()
-    max_err = np.inf
-    retcode = 0
-    iter = 0
-    eps = np.random.normal(size=ndraws)
-    while max_err > tol:
-        utils = s * np.outer(x, eps) + (mean_u + xi_cur).reshape((-1, 1))
-        shares_sim = simulated_mean_shares(utils)
-        err_shares = np.log(shares) - np.log(shares_sim)
-        max_err = npmaxabs(err_shares)
-        if verbose and iter % 1000 == 1:
-            print(f"berry_xis: error {max_err} after {iter - 1} iterations")
-        xi_cur += err_shares
-        iter += 1
-        if iter > maxiter:
-            print_stars(
-                f"berry_xis: stuck with error {max_err} after {iter} iterations"
-            )
-            retcode = 1
-            break
-    if verbose:
-        print_stars(f"berry_xis: error {max_err} after {iter} iterations")
-    return xi_cur, retcode, iter
+#
+# def simulated_mean_shares(utils: np.ndarray) -> np.ndarray:
+#     pass
+#
+#
+#
+# def berry_xis(
+#     shares: np.ndarray,
+#     mean_u: np.ndarray,
+#     x: np.ndarray,
+#     xi: np.ndarray,
+#     s2: float,
+#     tol: float = 1e-9,
+#     maxiter: int = 10000,
+#     ndraws: int = 10000,
+#     verbose: bool = False,
+# ) -> Tuple[np.ndarray, int, int]:
+#     """Invert product effects xi from market shares on one market.
+#
+#     Args:
+#         shares: `nproducts` vector of observed shares.
+#         mean_u: `nproducts` vector of mean utilities.
+#         x: `nproducts` vector of covariates.
+#         xi: `nproducts` vector of an initial estimate of xi.
+#         s2: Variance of the random coefficient.
+#         tol: Tolerance.
+#         maxiter: Maximum number of iterations.
+#         ndraws: Number of draws for simulation.
+#         verbose: Whether to print progress information.
+#
+#     Returns:
+#         A tuple containing the estimated xi vector, the return code, and the
+#         number of evaluations.
+#     """
+#
+#     s = sqrt_kludge(s2)
+#     xi_cur = xi.copy()
+#     max_err = np.inf
+#     retcode = 0
+#     iter = 0
+#     eps = np.random.normal(size=ndraws)
+#     while max_err > tol:
+#         utils = s * np.outer(x, eps) + (mean_u + xi_cur).reshape((-1, 1))
+#         shares_sim = simulated_mean_shares(utils)
+#         err_shares = np.log(shares) - np.log(shares_sim)
+#         max_err = npmaxabs(err_shares)
+#         if verbose and iter % 1000 == 1:
+#             print(f"berry_xis: error {max_err} after {iter - 1} iterations")
+#         xi_cur += err_shares
+#         iter += 1
+#         if iter > maxiter:
+#             print_stars(
+#                 f"berry_xis: stuck with error {max_err} after {iter} iterations"
+#             )
+#             retcode = 1
+#             break
+#     if verbose:
+#         print_stars(f"berry_xis: error {max_err} after {iter} iterations")
+#     return xi_cur, retcode, iter
 
 
 def _integrand_shares(values, pars):
@@ -94,10 +95,14 @@ def _integrand_shares(values, pars):
     utils = np.outer(values, sx) + mean_u_xi_cur
     max_utils = np.max(utils, 1)
     dutils = utils - max_utils.reshape((-1, 1))
-    exp_d = npexp(dutils)
+    exp_d = cast(np.ndarray, npexp(dutils))
     denom = np.sum(exp_d, 1) + npexp(-max_utils)
     shares = exp_d.T / denom
     return shares
+
+
+def sqrt_kludge(sq):
+    return sqrt(max(sq, 1e-9))
 
 
 def berry_xis_GQ(
@@ -160,27 +165,30 @@ def berry_xis_GQ(
     return xi_cur, retcode, iter
 
 
-def _artificial_regressors(observed_shares: np.ndarray, x: np.ndarray):
+def _artificial_regressors(
+    observed_shares: np.ndarray, x: np.ndarray, J: int
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """Compute the artificial regressors at order 2 and 4.
 
     Args:
-        observed_shares: Observed market shares.
+        observed_shares: Observed market shares, a `T*J` vector
         x: Covariates.
+        J: Number of products.
 
     Returns:
         Artificial regressors of order 2 and 4.
     """
-    K = make_K_T1(x, observed_shares)
-    Q, W = make_QW_T1(x, observed_shares)
-    return K, Q, W
+    K, y = make_K_and_y(x, observed_shares, J)
+    V = make_V(x, observed_shares, J)
+    W = make_W(x, observed_shares, J)
+    return K, y, V, W
 
 
-def _make_quadratic_instruments(z: np.ndarray, Dbar: np.ndarray | None = None):
+def _make_quadratic_instruments(z: np.ndarray):
     """Build quadratic instruments.
 
     Args:
         z: The `(T, J)` matrix of instruments.
-        Dbar: The micromoment market means, if any.
 
     Returns:
         A `(T, 7)` or `(T, 11)` matrix.
@@ -261,7 +269,7 @@ def _make_quartic_instruments(z: np.ndarray):
 
 
 def _projection_instruments(
-    var: np.ndarray, z_instruments: np.ndarray, mode1: str = "NP", mode2: str = "NP"
+    var: np.ndarray, z_instruments: np.ndarray, mode: str = "NP"
 ):
     check_vector(var, "_projection_instruments")
     ndims_z = check_vector_or_matrix(z_instruments, "_projection_instruments")
@@ -274,64 +282,70 @@ def _projection_instruments(
         bs_error_abort(
             f"var has {nobs_v} observations, while z_instruments has {nobs_z}"
         )
-    if n_z == 1:
-        return flexible_reg(var, z_instruments, mode=mode1)
-    else:
-        return flexible_reg(var, z_instruments, mode=mode2)
+    return flexible_reg(var, z_instruments, mode=mode)
 
 
 def _project_variables(
     y: np.ndarray,
     x: np.ndarray,
-    K: np.ndarray,
-    Q: np.ndarray,
-    W: np.ndarray,
     z: np.ndarray,
-    Dbar: np.ndarray | None = None,
-    mode1: str = "NP",
-    mode2: str = "NP",
+    K: np.ndarray,
+    V: np.ndarray | None = None,
+    W: np.ndarray | None = None,
+    mode: str = "NP",
+) -> (
+    ThreeArrays
+    | tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]
+    | tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]
+    | None
 ):
-    """Project the variables onto z, and onto Dbar when present.
+    """Project the variables onto z.
 
     Args:
         y: Should be `(T, J)`.
         x: Should be `(T, J)`.
-        K: Should be `(T, J)`.
-        Q: Should be `(T, J)`.
-        W: Should be `(T, J)`.
         z: Should be `(T, J)`.
-        Dbar: If there is a micromoment, its mean as a `T`-vector.
-        mode1: Projection mode without a micromoment.
-        mode2: Projection mode with a micromoment.
+        K: Should be `(T, J)`.
+        V: Should be `(T, J)` if not None.
+        W: Should be `(T, J)` if not None.
+        mode: Projection mode without a micromoment. Default: `NP`.
 
     Returns:
-        The projections of the five variables as `T`-vectors.
+        The projections of the 3, 4, or 5 variables as `T`-vectors.
     """
-    nmarkets, nproducts = y.shape
     npts = y.size
     Kvec = K.reshape(npts)
     xvec = x.reshape(npts)
     yvec = y.reshape(npts)
     zvec = z.reshape(npts)
-    Qvec = Q.reshape(npts)
-    Wvec = W.reshape(npts)
 
-    if Dbar is None:  # no micromoment
-        y_proj = _projection_instruments(yvec, zvec, mode1=mode1)
-        x_proj = _projection_instruments(xvec, zvec, mode1=mode1)
-        K_proj = _projection_instruments(Kvec, zvec, mode1=mode1)
-        Q_proj = _projection_instruments(Qvec, zvec, mode1=mode1)
-        W_proj = _projection_instruments(Wvec, zvec, mode1=mode1)
-    else:  # we have a micromoment
-        Dbarvec = np.repeat(Dbar, nproducts)
-        zDbar = np.column_stack((zvec, Dbarvec))
-        y_proj = _projection_instruments(yvec, zDbar, mode2=mode2)
-        x_proj = _projection_instruments(xvec, zDbar, mode2=mode2)
-        K_proj = _projection_instruments(Kvec, zDbar, mode2=mode2)
-        Q_proj = _projection_instruments(Qvec, zDbar, mode2=mode2)
-        W_proj = _projection_instruments(Wvec, zDbar, mode2=mode2)
+    y_proj = _projection_instruments(yvec, zvec, mode=mode)
+    x_proj = _projection_instruments(xvec, zvec, mode=mode)
+    K_proj = _projection_instruments(Kvec, zvec, mode=mode)
 
-    return y_proj, x_proj, K_proj, Q_proj, W_proj
+    match (V, W):
+        case (None, None):
+            return y_proj, x_proj, K_proj
+        case (np.ndarray, None):
+            V = cast(np.ndarray, V)
+            Vvec = V.reshape(npts)
+            V_proj = _projection_instruments(Vvec, zvec, mode=mode)
+            return y_proj, x_proj, K_proj, V_proj
+        case (None, np.ndarray):
+            W = cast(np.ndarray, W)
+            Wvec = W.reshape(npts)
+            W_proj = _projection_instruments(Wvec, zvec, mode=mode)
+            return y_proj, x_proj, K_proj, W_proj
+        case (np.ndarray, np.ndarray):
+            V = cast(np.ndarray, V)
+            W = cast(np.ndarray, W)
+            Vvec = V.reshape(npts)
+            V_proj = _projection_instruments(Vvec, zvec, mode=mode)
+            Wvec = W.reshape(npts)
+            W_proj = _projection_instruments(Wvec, zvec, mode=mode)
+            return y_proj, x_proj, K_proj, V_proj, W_proj
+
+    return None
 
 
 def _reshape_proj(var_proj: np.ndarray, nproducts: int) -> np.ndarray:
@@ -343,21 +357,29 @@ def _reshape_proj(var_proj: np.ndarray, nproducts: int) -> np.ndarray:
         return var_proj.reshape((nmarkets, nproducts))
 
 
-def _our_tsls(
+def _our_tsls0(
+    y_proj: np.ndarray,
+    x_proj: np.ndarray,
+):
+    #  the "optimal" instruments will be in Zstar0
+    npts = y_proj.size
+    Zstar0 = np.zeros((npts, 2))
+    Zstar0[:, 0] = np.ones(npts)
+    Zstar0[:, 1] = x_proj
+
+    nonrandom_vals, _, _, s = spla.lstsq(Zstar0, y_proj)
+    cond_number = abs(s[0] / s[-1])
+    return Zstar0, nonrandom_vals, cond_number
+
+
+def _our_tsls2(
     y_proj: np.ndarray,
     x_proj: np.ndarray,
     K_proj: np.ndarray,
-    Dbar: np.ndarray | None = None,
 ):
     #  the "optimal" instruments will be in Zstar2
     npts = y_proj.size
-    if Dbar is None:
-        Zstar2 = np.zeros((npts, 3))
-    else:  # we have a micromoment
-        Zstar2 = np.zeros((npts, 4))
-        nproducts = y_proj.size // Dbar.size
-        Dbarvec = np.repeat(Dbar, nproducts)
-        Zstar2[:, 2] = x_proj * Dbarvec
+    Zstar2 = np.zeros((npts, 3))
     Zstar2[:, 0] = np.ones(npts)
     Zstar2[:, 1] = x_proj
     Zstar2[:, -1] = K_proj
@@ -365,6 +387,45 @@ def _our_tsls(
     pseudo_vals, _, _, s = spla.lstsq(Zstar2, y_proj)
     cond_number = abs(s[0] / s[-1])
     return Zstar2, pseudo_vals, cond_number
+
+
+def _reformat_Zstar(Zstar: np.ndarray, nproducts: int) -> np.ndarray:
+    """reformats the optimal instruments
+    from a `(T*J, n_instr)` matrix to a `(J, n_instr, T)` matrix.
+
+    Args:
+        Zstar: The `(T*J, n_instr)` matrix of optimal instruments, rows in
+            market-major order: row ``t*J + j`` corresponds to market ``t``,
+            product ``j``.
+        nproducts: The number of products `J`.
+
+    Returns:
+        The `(J, n_instr, T)` array of optimal instruments.
+    """
+    nmarkets = Zstar.shape[0] // nproducts
+    n_instr = Zstar.shape[1]
+    return Zstar.reshape(nmarkets, nproducts, n_instr).transpose(1, 2, 0)
+
+
+def _reformat_varcov(v: np.ndarray) -> np.ndarray:
+    """Reformat a variance-covariance matrix from the order of variables to the order of markets.
+
+    Args:
+        v: The `(J, n_instr, J, n_instr)` variance-covariance array.
+
+    Returns:
+        The `(J*n_instr, J*n_instr)` variance-covariance matrix.
+    """
+    J, n_instr, _, _ = v.shape
+    m = J * n_instr
+    v2 = np.zeros((m, m))
+    for j in range(J):
+        for j2 in range(J):
+            block = v[j, :, j2, :]
+            v2[j * n_instr : (j + 1) * n_instr, j2 * n_instr : (j2 + 1) * n_instr] = (
+                block
+            )
+    return v2
 
 
 def _print_pseudo_true_errors(
@@ -387,125 +448,51 @@ def _print_pseudo_true_errors(
             print(f"on {names_ptv[i]}: {pseudo_vals[i] - true_p[i]: >10.4f}")
 
 
-def _print_semi_elast(
-    mean_pseudo_own_semi_elast,
-    stderr_pseudo_own_semi_elast,
-    mean_true_own_semi_elast,
-    stderr_true_own_semi_elast,
-    mean_corrected_own_semi_elast,
-    stderr_corrected_own_semi_elast,
-    mean_pseudo_cross_semi_elast=None,
-    stderr_pseudo_cross_semi_elast=None,
-    mean_true_cross_semi_elast=None,
-    stderr_true_cross_semi_elast=None,
-    mean_corrected_cross_semi_elast=None,
-    stderr_corrected_cross_semi_elast=None,
+def _print_set_semi_elast(
+    semi_elasts: tuple[float, float] | tuple[float, float, float, float],
+    name_elasts: str,
     verbose=False,
 ):
-    do_cross = False if mean_pseudo_cross_semi_elast is None else True
+    """Print a set of semi-elasticities and returns it.
+
+    Args:
+        semi_elasts: the mean and stderr of own semi-elasticities,\
+        or a tuple of 4 floats also containing the mean and stderr of the cross semi-elasticities.
+        name_elasts: Name of the set of semi-elasticities, for printing.
+        verbose: Whether to print the semi-elasticities.
+
+    Returns:
+
+    """
+    do_cross = len(semi_elasts) == 4
     if do_cross:
-        resus_pseudo_semi_elast = np.array(
+        semi_elasts = cast(tuple[float, float, float, float], semi_elasts)
+        resus_semi_elast = np.array(
             [
-                mean_pseudo_own_semi_elast,
-                stderr_pseudo_own_semi_elast,
-                mean_pseudo_cross_semi_elast,
-                stderr_pseudo_cross_semi_elast,
-            ]
-        )
-        resus_true_semi_elast = np.array(
-            [
-                mean_true_own_semi_elast,
-                stderr_true_own_semi_elast,
-                mean_true_cross_semi_elast,
-                stderr_true_cross_semi_elast,
-            ]
-        )
-        resus_corrected_semi_elast = np.array(
-            [
-                mean_corrected_own_semi_elast,
-                stderr_corrected_own_semi_elast,
-                mean_corrected_cross_semi_elast,
-                stderr_corrected_cross_semi_elast,
+                semi_elasts[0],
+                semi_elasts[1],
+                semi_elasts[2],
+                semi_elasts[3],
             ]
         )
     else:
-        resus_pseudo_semi_elast = np.array(
-            [mean_pseudo_own_semi_elast, stderr_pseudo_own_semi_elast]
+        resus_semi_elast = np.array(
+            [
+                semi_elasts[0],
+                semi_elasts[1],
+            ]
         )
-        resus_true_semi_elast = np.array(
-            [mean_true_own_semi_elast, stderr_true_own_semi_elast]
-        )
-        resus_corrected_semi_elast = np.array(
-            [mean_corrected_own_semi_elast, stderr_corrected_own_semi_elast]
-        )
-
     if verbose:
-        print_stars("True semi-elasticities")
+        print_stars(name_elasts + " semi-elasticities")
         print(
-            f"   own: mean = {mean_true_own_semi_elast: 10.3f} and stderr = {stderr_true_own_semi_elast: 10.3f}"
+            f"   own: mean = {semi_elasts[0]: 10.3f} and stderr = {semi_elasts[1]: 10.3f}"
         )
         if do_cross:
+            semi_elasts = cast(tuple[float, float, float, float], semi_elasts)
             print(
-                f"   cross: mean = {mean_true_cross_semi_elast: > 10.3f} and stderr = {stderr_true_cross_semi_elast: 10.3f}"
+                f"   cross: mean = {semi_elasts[2]: 10.3f} and stderr = {semi_elasts[3]: 10.3f}"
             )
-        print_stars("Pseudo semi-elasticities")
-        print(
-            f"   own: mean = {mean_pseudo_own_semi_elast: 10.3f} and stderr = {stderr_pseudo_own_semi_elast: 10.3f}"
-        )
-        if do_cross:
-            print(
-                f"   cross: mean = {mean_pseudo_cross_semi_elast: > 10.3f} and stderr = {stderr_pseudo_cross_semi_elast: 10.3f}"
-            )
-        print_stars("Corrected semi-elasticities")
-        print(
-            f"   own: mean = {mean_corrected_own_semi_elast: 10.3f} and stderr = {stderr_corrected_own_semi_elast: 10.3f}"
-        )
-        if do_cross:
-            print(
-                f"   cross: mean = {mean_corrected_cross_semi_elast: > 10.3f} and stderr = {stderr_corrected_cross_semi_elast: 10.3f}"
-            )
-
-    return resus_pseudo_semi_elast, resus_true_semi_elast, resus_corrected_semi_elast
-
-
-def _newton_raphson_step(
-    Q_proj: np.ndarray,
-    W_proj: np.ndarray,
-    xi_2: np.ndarray,
-    Zstar2: np.ndarray,
-    pseudo_vals: np.ndarray,
-    true_p: np.ndarray,
-    verbose: bool = False,
-):
-    s2_2 = pseudo_vals[-1]
-    n_params = true_p.size
-
-    sig2_2 = s2_2
-    sig2 = sig2_2
-    s4_2 = s2_2 * s2_2
-
-    Zstar2_T = Zstar2.T
-    xi2_T = xi_2.T
-    ZZ = Zstar2_T @ Zstar2
-
-    f_val = s4_2
-    f_der_s2 = 2.0 * s2_2
-    add_term_Q = np.zeros(n_params)
-    add_term_Q[-1] = f_der_s2
-    add_term_W = np.zeros(n_params)
-    add_term_W[-1] = 2.0 * s2_2
-    xi_prime_Q = xi2_T @ Q_proj
-    xi_prime_W = xi2_T @ W_proj
-    d4 = spla.solve(ZZ, xi_prime_Q * add_term_Q - f_val * (Zstar2_T @ Q_proj))
-    dp4 = spla.solve(ZZ, xi_prime_W * add_term_W - s4_2 * (Zstar2_T @ W_proj))
-
-    if verbose:
-        print_stars(f"Correction d4 for sigma2={sig2: 10.4f}:")
-        print(d4)
-        print_stars(f"Correction dp4 for sigma2={sig2: 10.4f}:")
-        print(dp4)
-
-    return d4, dp4
+    return resus_semi_elast
 
 
 def estimated_xi_infty(
@@ -568,9 +555,7 @@ def _true_optimal_instruments(
     z: np.ndarray,
     nodes1: np.ndarray,
     weights1: np.ndarray,
-    mode1: str = "NP",
-    mode2: str = "NP",
-    quad_instr: np.ndarray | None = None,
+    mode: str = "NP",
 ):
     n_params = true_p.size
 
@@ -606,11 +591,7 @@ def _true_optimal_instruments(
         dxi_ds[sli_t] = spla.solve(Mbar_t, Nbar_t, assume_a="sym")
         start_t = end_t
 
-    if mode1 == "2":
-        coeffs, _, _, _ = spla.lstsq(quad_instr, dxi_ds)
-        Edxi_ds = quad_instr @ coeffs
-    else:
-        Edxi_ds = flexible_reg(dxi_ds, zvec, mode=mode1)
+    Edxi_ds = flexible_reg(dxi_ds, zvec, mode=mode)
     # we want bounds for sigma**2
     Zstar[:, 2] = Edxi_ds / (2.0 * sigma_val)
 
@@ -636,8 +617,28 @@ def _true_semi_elasticities(
     return true_own_semi, true_cross_semi, dshares_dx
 
 
+def _nonrandom_semi_elasticities(
+    nonrandom_vals: np.ndarray,
+    observed_shares: np.ndarray,
+    x: np.ndarray,
+):
+    beta1_0 = nonrandom_vals[1]
+
+    nmarkets, nproducts = observed_shares.shape
+    nonrandom_own_semi = np.zeros(nmarkets)
+    nonrandom_cross_semi = np.zeros(nmarkets)
+
+    for t in range(nmarkets):
+        sh_t = observed_shares[t, :]
+        # own semi-elasticity
+        nonrandom_own_semi[t] = beta1_0 * (1.0 - sh_t[0])
+        if nproducts > 1:  # cross semi-elasticity
+            nonrandom_cross_semi[t] = -beta1_0 * sh_t[1]
+
+    return nonrandom_own_semi, nonrandom_cross_semi
+
+
 def _pseudo_semi_elasticities(
-    Dbar: np.ndarray,
     pseudo_vals: np.ndarray,
     observed_shares: np.ndarray,
     x: np.ndarray,
@@ -670,6 +671,52 @@ def _pseudo_semi_elasticities(
         pseudo_own_semi[t] = semi_elast_t[0, 0]
         if nproducts > 1:  # cross semi-elasticity
             pseudo_cross_semi[t] = semi_elast_t[0, 1]
+
+    return pseudo_own_semi, pseudo_cross_semi
+
+
+def _pseudo_semi_elasticities_anal(
+    pseudo_vals: np.ndarray,
+    observed_shares: np.ndarray,
+    x: np.ndarray,
+):
+    beta1_2 = pseudo_vals[1]
+    s2 = pseudo_vals[-1]
+    s4 = s2 * s2
+
+    nmarkets, nproducts = observed_shares.shape
+    pseudo_own_semi = np.zeros(nmarkets)
+    pseudo_cross_semi = np.zeros(nmarkets)
+    e_S_x = np.sum(observed_shares * x, 1)
+    v_S_x = np.sum(observed_shares * x * x, 1) - e_S_x * e_S_x
+    tilde_x = x - e_S_x.reshape((-1, 1))
+
+    for t in range(nmarkets):
+        tilde_x_t, sh_t, e_t, v_t = (
+            tilde_x[t, :],
+            observed_shares[t, :],
+            e_S_x[t],
+            v_S_x[t],
+        )
+        denom_t = 1.0 + s2 * v_t
+        txt0 = tilde_x_t[0]
+        sht0 = sh_t[0]
+        dvt0 = v_t - txt0 * e_t
+        pseudo_own_semi[t] = (
+            beta1_2 * (1.0 - sht0)
+            + s2 * txt0
+            - s2 * sht0 * (2.0 * txt0 + beta1_2 * dvt0) / denom_t
+            - s4 * sht0 * (2.0 * txt0 * v_t - (txt0 + v_t) * e_t) / denom_t
+        )
+        if nproducts > 1:  # cross semi-elasticity
+            sht1 = sh_t[1]
+            txt1 = tilde_x_t[1]
+            dvt1 = v_t - txt1 * e_t
+            pseudo_cross_semi[t] = (
+                -beta1_2 * sht1
+                - s2 * sht1 * (txt0 + txt1 + beta1_2 * dvt1) / denom_t
+                - s4 * sht1 * ((txt0 + txt1) * v_t - (txt1 + v_t) * e_t) / denom_t
+            )
 
     return pseudo_own_semi, pseudo_cross_semi
 

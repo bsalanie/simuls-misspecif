@@ -112,13 +112,15 @@ def new_plots_paper(
 
         n_sigmas = sigma_range.size
 
-        print_stars(f"Model {str_model}")
+        print_stars(f"Model {str_model}_J={nproducts}_v{i_scenario}_T={nmarkets}")
+        nonrandom_vals = _get_result(dict_results, "non-random values")
         pseudo_vals = _get_result(dict_results, "pseudo true values")
-        pseudo_vals_infty = _get_result(dict_results, "correc_infty")
+        whatif_vals = _get_result(dict_results, "whatif values")
         spb = _get_result(dict_results, "SPE variance bounds")
+        nonrandom_semi = _get_result(dict_results, "non-random semi-elasticities")
         true_semi = _get_result(dict_results, "true semi-elasticities")
         pseudo_semi = _get_result(dict_results, "pseudo semi-elasticities")
-        corrected_semi = _get_result(dict_results, "corrected semi-elasticities")
+        whatif_semi = _get_result(dict_results, "whatif semi-elasticities")
 
         n_pars = pseudo_vals.shape[-1]
 
@@ -139,10 +141,11 @@ def new_plots_paper(
         ptitle = suffix
         uni_string2 = uni_sigma2
 
-        ordered_colors = ["black"] * 3 + ["red", "green"]
-        estimated_values = np.zeros((n_sigmas, 4, n_pars))
-        estimated_values[:, 2, :] = pseudo_vals
-        estimated_values[:, 3, :] = pseudo_vals_infty[:, :, 0]
+        ordered_colors = ["black"] * 3 + ["red", "green", "blue"]
+        estimated_values = np.zeros((n_sigmas, 5, n_pars))
+        estimated_values[:, 2, :] = nonrandom_vals
+        estimated_values[:, 3, :] = pseudo_vals
+        estimated_values[:, 4, :] = whatif_vals
 
         if plot_pseudo_with_bounds:
             df1 = [None] * n_pars
@@ -157,14 +160,20 @@ def new_plots_paper(
                 estimated_values[:, 0, ipar] = df_i["True value"] - 1.96 * bound_i
                 estimated_values[:, 1, ipar] = df_i["True value"] + 1.96 * bound_i
                 df1_ipar, ordered_estimates = _stack_estimates(
-                    [lower_bound_str, upper_bound_str, "2SLS", "Corrected"],
+                    [
+                        lower_bound_str,
+                        upper_bound_str,
+                        "Non-random",
+                        "With K",
+                        "What if",
+                    ],
                     estimated_values[..., ipar],
                     df_i,
                 )
                 df1_ipar["Coefficient"] = par_name
                 df1[ipar] = df1_ipar
 
-            df2 = pd.concat((df1[ipar] for ipar in range(n_pars)))
+            df2: pd.DataFrame = pd.concat((df1[ipar] for ipar in range(n_pars)))
             df2m = pd.melt(
                 df2,
                 id_vars=[uni_string2, "Coefficient"],
@@ -180,7 +189,7 @@ def new_plots_paper(
                 color="Estimate",
                 color_discrete_sequence=ordered_colors,
                 line_dash="Estimate",
-                line_dash_sequence=["solid"] + ["dot"] * 2 + ["solid"] * 2,
+                line_dash_sequence=["solid"] + ["dot"] * 2 + ["solid"] * 4,
                 template="plotly_white",
                 facet_col_spacing=0.12,
                 title=f"Pseudo-true values and efficiency bounds<br><sup>{ptitle}</sup>",
@@ -201,15 +210,17 @@ def new_plots_paper(
 
             if plot_semi_elast:
                 true_semi_elast = true_semi
+                nonrandom_semi_elast = nonrandom_semi
                 pseudo_semi_elast = pseudo_semi
-                corrected_semi_elast = corrected_semi
+                whatif_semi_elast = whatif_semi
 
                 df_mean_own = pd.DataFrame(
                     {
                         uni_string2: true_values[:, -1],
                         "True value": true_semi_elast[:, 0],
-                        "2SLS": pseudo_semi_elast[:, 0],
-                        "Corrected": corrected_semi_elast[:, 0],
+                        "Non-random value": nonrandom_semi_elast[:, 0],
+                        "With K": pseudo_semi_elast[:, 0],
+                        "What-if": whatif_semi_elast[:, 0],
                         "Statistic": "Mean own semi-elasticity",
                     }
                 )
@@ -217,9 +228,10 @@ def new_plots_paper(
                     {
                         uni_string2: true_values[:, -1],
                         "True value": true_semi_elast[:, 1],
-                        "2SLS": pseudo_semi_elast[:, 1],
-                        "Corrected": corrected_semi_elast[:, 1],
-                        "Statistic": "Dispersion of own semi-elasticity",
+                        "Non-random value": nonrandom_semi_elast[:, 1],
+                        "With K": pseudo_semi_elast[:, 1],
+                        "What-if": whatif_semi_elast[:, 1],
+                        "Statistic": "Cross-market dispersion of own semi-elasticity",
                     }
                 )
                 df_semi = pd.concat((df_mean_own, df_disp_own))
@@ -228,8 +240,9 @@ def new_plots_paper(
                         {
                             uni_string2: true_values[:, -1],
                             "True value": true_semi_elast[:, 2],
-                            "2SLS": pseudo_semi_elast[:, 2],
-                            "Corrected": corrected_semi_elast[:, 2],
+                            "Non-random value": nonrandom_semi_elast[:, 2],
+                            "With K": pseudo_semi_elast[:, 2],
+                            "What-if": whatif_semi_elast[:, 2],
                             "Statistic": "Mean cross semi-elasticity",
                         }
                     )
@@ -237,9 +250,10 @@ def new_plots_paper(
                         {
                             uni_string2: true_values[:, -1],
                             "True value": true_semi_elast[:, 3],
-                            "2SLS": pseudo_semi_elast[:, 3],
-                            "Corrected": corrected_semi_elast[:, 3],
-                            "Statistic": "Dispersion of cross semi-elasticity",
+                            "Non-random value": nonrandom_semi_elast[:, 3],
+                            "With K": pseudo_semi_elast[:, 3],
+                            "What-if": whatif_semi_elast[:, 3],
+                            "Statistic": "Cross-market dispersion of cross semi-elasticity",
                         }
                     )
                     df_semi = pd.concat((df_semi, df_mean_cross, df_disp_cross))
@@ -259,8 +273,9 @@ def new_plots_paper(
                     color="Estimate",
                     color_discrete_map={
                         "True value": "black",
-                        "2SLS": "red",
-                        "Corrected": "green",
+                        "Non-random": "red",
+                        "With K": "green",
+                        "What-if": "blue",
                     },
                     template="plotly_white",
                 )
@@ -277,7 +292,7 @@ if __name__ == "__main__":
 
     selected_scenario_numbers = [3, 4]
     nmarkets = 5000
-    number_products = [100]
+    number_products = [1, 2, 5, 10, 25, 50, 100]
 
     for nproducts in number_products:
         for str_model in model_strings:

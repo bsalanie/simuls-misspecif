@@ -18,6 +18,13 @@ data_pars = DataParams(
     do_exo=True,
 )
 
+# True to use the second derivative (fourth order W regressor)
+do_a_second = False
+
+# whether we compute SPE bounds for the semi elasticities (costly)
+do_bounds_semi_elast = False
+
+
 # ranges of values of sigma and pi
 basic_sigma_range = np.sqrt(np.arange(0.1, 2.05, 0.1))
 large_sigma_range = np.arange(1.00, 2.00, 0.05)

@@ -73,7 +73,7 @@ class DataParams:
             stream: Random generator.
 
         Returns:
-            A tuple `(xi_d, z_d, u_d)`.
+            A tuple `(xi_d, z_d, u_d)`, all `N(0,1)` arrays of shape `(nmarkets, nproducts)`.
         """
         xi_d = stream.normal(size=(nmarkets, nproducts))
         z_d = stream.normal(size=(nmarkets, nproducts))
@@ -87,7 +87,7 @@ class DataParams:
             draws: Random draws.
 
         Returns:
-            A tuple `(xi, x, z)`.
+            A tuple `(xi, x, z)` of arrays of shape `(nmarkets, nproducts)`.
         """
         xi_d, z_d, u_d = draws
         xi = self.sigxi * xi_d
@@ -121,8 +121,7 @@ class ModelData:
         nproducts: Number of products.
         scenario: Scenario number.
         sigma_range: Values of sigma explored.
-        mode1: How flexible regressions are run in dimension 1.
-        mode2: How flexible regressions are run in dimension 2.
+        mode: How flexible regressions are run.
         iprec: Precision for sparse integration.
     """
 
@@ -135,8 +134,7 @@ class ModelData:
     nproducts: Union[int, None]
     scenario: Union[int, None]
     sigma_range: Union[np.ndarray, None]
-    mode1: Union[str, None]
-    mode2: Union[str, None]
+    mode: Union[str, None]
     iprec: Union[int, None]
 
     def print(self):
@@ -174,8 +172,7 @@ if __name__ == "__main__":
         sigma_range=np.arange(0.01, 1.00, 0.02),
         nmarkets=1000,
         nproducts=4,
-        mode1="NP",
-        mode2="NP",
+        mode="NP",
         iprec=17,
     )
 

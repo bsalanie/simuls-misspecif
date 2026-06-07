@@ -11,12 +11,11 @@ import dataclasses as dc
 import multiprocessing as mp
 import pickle
 from pathlib import Path
-from typing import Dict, List, Tuple, cast
+from typing import cast
 
 import numpy as np
 from bs_python_utils.bsnputils import TwoArrays, npexp
 from bs_python_utils.bsutils import mkdir_if_needed, print_stars
-from numpy.random import SeedSequence, default_rng
 
 from simuls_misspecif.compute_stats import get_the_stats
 from simuls_misspecif.extract_from_results import extract_from_results
@@ -28,31 +27,21 @@ from simuls_misspecif.MNL_params import (
 )
 from simuls_misspecif.MNL_utils import DataParams, ModelData, TrueParams, names_params
 from simuls_misspecif.plots_paper import new_plots_paper
+from simuls_misspecif.utils import generate_RNG_streams
 
 
-# Numpy parallel RNG
-def generate_RNG_streams(
-    nsim: int, initial_seed: int = 13091962
-) -> List[np.random.Generator]:
-    ss = SeedSequence(initial_seed)
-    # Spawn off child SeedSequences to pass to child processes.
-    child_seeds = ss.spawn(nsim)
-    streams = [default_rng(s) for s in child_seeds]
-    return streams
-
-
-def run_model(
+def setup_model(
     model_root: str,
     base_model: ModelData,
-    scenario: Dict,
-    str_roots: List,
-    long_names: List,
-) -> Tuple[ModelData, Path]:
+    scenario: dict,
+    str_roots: list,
+    long_names: list,
+) -> tuple[ModelData, Path]:
     scenario_number = base_model.scenario
     do_exo = True if "exo" in model_root else False
     data_p = dc.replace(scenario["data"], do_exo=do_exo)
-    str_long = long_names[0] if do_exo else long_names[2]
-    str_root = str_roots[0] if do_exo else str_roots[2]
+    str_long = long_names[0] if do_exo else long_names[1]
+    str_root = str_roots[0] if do_exo else str_roots[1]
     str_model = f"{str_root}_J={nproducts}_v{scenario_number}"
     new_model = dc.replace(
         base_model, data_pars=data_p, model_string=str_model, long_name=str_long
@@ -63,7 +52,7 @@ def run_model(
 
 def adjust_beta0_S0(
     S0: float, nproducts: int, data_pars: DataParams, true_pars: TrueParams
-) -> Tuple[float, float]:
+) -> tuple[float, float]:
     """Find the beta0 that makes the expected outside share equal S0.
 
     Args:
@@ -95,7 +84,7 @@ def adjust_beta0_S0(
 
     # Newton iterations to solve `compute_ES0(beta0) = S0`
     beta0i = np.log((1.0 - S0) / (S0 * nproducts))  # solution when utils0 = 0
-    errS0 = np.inf
+    errS0 = ES0i = np.inf
     tol = 1e-6
     while errS0 > tol:
         ES0i, der_ES0i = compute_ES0(beta0i)
@@ -108,7 +97,7 @@ def adjust_beta0_S0(
 if __name__ == "__main__":
     # what we run
     nmarkets = 5000
-    number_products = [1, 2, 5, 10, 25]
+    number_products = [1, 2, 5, 10, 25, 50, 100]
     selected_scenario_numbers = [3, 4]
     selected_models = ["exo", "endo"]
 
@@ -175,7 +164,7 @@ if __name__ == "__main__":
     for nproducts in number_products:
         beta0_3, ES0_3 = adjust_beta0_S0(0.5, nproducts, data_pars, true_pars)
         scenarii[3]["coeffs"] = dc.replace(scenarii[3]["coeffs"], beta0=beta0_3)
-        beta0_4, ES0_4 = adjust_beta0_S0(0.9, nproducts, data_pars, true_pars)
+        beta0_4, ES0_4 = adjust_beta0_S0(target_S0, nproducts, data_pars, true_pars)
         scenarii[4]["coeffs"] = dc.replace(scenarii[4]["coeffs"], beta0=beta0_4)
 
         root_dir = mkdir_if_needed(Path.cwd() / f"J{nproducts}")
@@ -192,13 +181,12 @@ if __name__ == "__main__":
                 names_pars=names_params,
                 nproducts=nproducts,
                 nmarkets=nmarkets,
-                mode1="2",
-                mode2="2",
+                mode="2",
                 iprec=17,
                 sigma_range=sigma_range,
             )
             for model_root in selected_models:
-                models[isim], pickle_subdir = run_model(
+                models[isim], pickle_subdir = setup_model(
                     model_root, base_model, scenario, str_roots, long_names
                 )
                 pickles_dir[isim] = mkdir_if_needed(root_dir / pickle_subdir)
@@ -216,6 +204,7 @@ if __name__ == "__main__":
             res = pool.map(get_the_stats, list_cases)
     else:
         for isim in range(nsim):
+            print_stars(f"Calling model {isim}")
             res[isim] = get_the_stats(list_cases[isim])
 
     # just to be sure
@@ -225,21 +214,20 @@ if __name__ == "__main__":
 
     # now extract what we need for the plots
     keys_extract = [
+        "non-random values",
         "pseudo true values",
-        "correc_d4",
-        "correc_dprime4",
-        "correc_infty",
+        "whatif values",
         "SPE variance bounds",
         "true semi-elasticities",
         "pseudo semi-elasticities",
-        "corrected semi-elasticities",
+        "whatif semi-elasticities",
         "model",
     ]
 
     for scenario_number, scenario in selected_scenarii.items():
         for nproducts in number_products:
             for model in selected_models:
-                extract_from_results(
+                resmod: dict = extract_from_results(
                     model, nproducts, nmarkets, scenario_number, keys_extract
                 )
                 new_plots_paper(model, nproducts, nmarkets, selected_scenario_numbers)

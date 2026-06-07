@@ -28,6 +28,10 @@ dependencies = [
     "colorama>=0.4.6",
     "pyarrow>=23.0.0",
     "plotly>=6.7.0",
+    "frac-blp>=0.4.0",
+    "scipy-stubs~=1.17.1",
+    "pandas-stubs~=3.0.3",
+    "kaleido>=1.3.0",
 ]
 
 [project.optional-dependencies]
