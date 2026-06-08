@@ -5,6 +5,9 @@ build/
 dist/
 wheels/
 *.egg-info
+*.out
+res.pkl
+site/
 
 # Virtual environments
 .venv
