@@ -389,45 +389,6 @@ def _our_tsls2(
     return Zstar2, pseudo_vals, cond_number
 
 
-def _reformat_Zstar(Zstar: np.ndarray, nproducts: int) -> np.ndarray:
-    """reformats the optimal instruments
-    from a `(T*J, n_instr)` matrix to a `(J, n_instr, T)` matrix.
-
-    Args:
-        Zstar: The `(T*J, n_instr)` matrix of optimal instruments, rows in
-            market-major order: row ``t*J + j`` corresponds to market ``t``,
-            product ``j``.
-        nproducts: The number of products `J`.
-
-    Returns:
-        The `(J, n_instr, T)` array of optimal instruments.
-    """
-    nmarkets = Zstar.shape[0] // nproducts
-    n_instr = Zstar.shape[1]
-    return Zstar.reshape(nmarkets, nproducts, n_instr).transpose(1, 2, 0)
-
-
-def _reformat_varcov(v: np.ndarray) -> np.ndarray:
-    """Reformat a variance-covariance matrix from the order of variables to the order of markets.
-
-    Args:
-        v: The `(J, n_instr, J, n_instr)` variance-covariance array.
-
-    Returns:
-        The `(J*n_instr, J*n_instr)` variance-covariance matrix.
-    """
-    J, n_instr, _, _ = v.shape
-    m = J * n_instr
-    v2 = np.zeros((m, m))
-    for j in range(J):
-        for j2 in range(J):
-            block = v[j, :, j2, :]
-            v2[j * n_instr : (j + 1) * n_instr, j2 * n_instr : (j2 + 1) * n_instr] = (
-                block
-            )
-    return v2
-
-
 def _print_pseudo_true_errors(
     true_p: np.ndarray,
     pseudo_vals: np.ndarray,

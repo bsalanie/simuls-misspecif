@@ -96,7 +96,7 @@ def adjust_beta0_S0(
 
 if __name__ == "__main__":
     # what we run
-    nmarkets = 5000
+    nmarkets = 10_000
     number_products = [1, 2, 5, 10, 25, 50, 100]
     selected_scenario_numbers = [3, 4]
     selected_models = ["exo", "endo"]
@@ -216,12 +216,13 @@ if __name__ == "__main__":
     keys_extract = [
         "non-random values",
         "pseudo true values",
-        "whatif values",
+        "whatif just values",
+        "whatif over values",
         "SPE variance bounds",
         "true semi-elasticities",
         "pseudo semi-elasticities",
-        "whatif semi-elasticities",
-        "model",
+        "whatif just semi-elasticities",
+        "whatif over semi-elasticities",
     ]
 
     for scenario_number, scenario in selected_scenarii.items():

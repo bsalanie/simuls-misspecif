@@ -112,15 +112,19 @@ def new_plots_paper(
 
         n_sigmas = sigma_range.size
 
-        print_stars(f"Model {str_model}_J={nproducts}_v{i_scenario}_T={nmarkets}")
+        print_stars(
+            f"Plotting model {str_model}_J={nproducts}_v{i_scenario}_T={nmarkets}"
+        )
         nonrandom_vals = _get_result(dict_results, "non-random values")
         pseudo_vals = _get_result(dict_results, "pseudo true values")
-        whatif_vals = _get_result(dict_results, "whatif values")
+        whatif_just_vals = _get_result(dict_results, "whatif just values")
+        whatif_over_vals = _get_result(dict_results, "whatif over values")
         spb = _get_result(dict_results, "SPE variance bounds")
         nonrandom_semi = _get_result(dict_results, "non-random semi-elasticities")
         true_semi = _get_result(dict_results, "true semi-elasticities")
         pseudo_semi = _get_result(dict_results, "pseudo semi-elasticities")
-        whatif_semi = _get_result(dict_results, "whatif semi-elasticities")
+        whatif_just_semi = _get_result(dict_results, "whatif just semi-elasticities")
+        whatif_over_semi = _get_result(dict_results, "whatif over semi-elasticities")
 
         n_pars = pseudo_vals.shape[-1]
 
@@ -141,11 +145,20 @@ def new_plots_paper(
         ptitle = suffix
         uni_string2 = uni_sigma2
 
-        ordered_colors = ["black"] * 3 + ["red", "green", "blue"]
-        estimated_values = np.zeros((n_sigmas, 5, n_pars))
-        estimated_values[:, 2, :] = nonrandom_vals
-        estimated_values[:, 3, :] = pseudo_vals
-        estimated_values[:, 4, :] = whatif_vals
+        ordered_colors = ["black"] * 3 + ["red", "green", "blue", "purple"]
+        estimates_names = [
+            "True value",
+            "Non-random",
+            "Salanie-Wolak",
+            "What if - just",
+            "What if - over",
+        ]
+        estimated_values = np.zeros((n_sigmas, 7, n_pars))
+        estimated_values[:, 2, :] = true_values
+        estimated_values[:, 3, :] = nonrandom_vals
+        estimated_values[:, 4, :] = pseudo_vals
+        estimated_values[:, 5, :] = whatif_just_vals
+        estimated_values[:, 6, :] = whatif_over_vals
 
         if plot_pseudo_with_bounds:
             df1 = [None] * n_pars
@@ -163,10 +176,8 @@ def new_plots_paper(
                     [
                         lower_bound_str,
                         upper_bound_str,
-                        "Non-random",
-                        "With K",
-                        "What if",
-                    ],
+                    ]
+                    + estimates_names,
                     estimated_values[..., ipar],
                     df_i,
                 )
@@ -209,28 +220,25 @@ def new_plots_paper(
             fig.write_html(f"{fig_save_ptv_root}.html")
 
             if plot_semi_elast:
-                true_semi_elast = true_semi
-                nonrandom_semi_elast = nonrandom_semi
-                pseudo_semi_elast = pseudo_semi
-                whatif_semi_elast = whatif_semi
-
                 df_mean_own = pd.DataFrame(
                     {
                         uni_string2: true_values[:, -1],
-                        "True value": true_semi_elast[:, 0],
-                        "Non-random value": nonrandom_semi_elast[:, 0],
-                        "With K": pseudo_semi_elast[:, 0],
-                        "What-if": whatif_semi_elast[:, 0],
+                        estimates_names[0]: true_semi[:, 0],
+                        estimates_names[1]: nonrandom_semi[:, 0],
+                        estimates_names[2]: pseudo_semi[:, 0],
+                        estimates_names[3]: whatif_just_semi[:, 0],
+                        estimates_names[4]: whatif_over_semi[:, 0],
                         "Statistic": "Mean own semi-elasticity",
                     }
                 )
                 df_disp_own = pd.DataFrame(
                     {
                         uni_string2: true_values[:, -1],
-                        "True value": true_semi_elast[:, 1],
-                        "Non-random value": nonrandom_semi_elast[:, 1],
-                        "With K": pseudo_semi_elast[:, 1],
-                        "What-if": whatif_semi_elast[:, 1],
+                        estimates_names[0]: true_semi[:, 1],
+                        estimates_names[1]: nonrandom_semi[:, 1],
+                        estimates_names[2]: pseudo_semi[:, 1],
+                        estimates_names[3]: whatif_just_semi[:, 1],
+                        estimates_names[4]: whatif_over_semi[:, 1],
                         "Statistic": "Cross-market dispersion of own semi-elasticity",
                     }
                 )
@@ -239,20 +247,22 @@ def new_plots_paper(
                     df_mean_cross = pd.DataFrame(
                         {
                             uni_string2: true_values[:, -1],
-                            "True value": true_semi_elast[:, 2],
-                            "Non-random value": nonrandom_semi_elast[:, 2],
-                            "With K": pseudo_semi_elast[:, 2],
-                            "What-if": whatif_semi_elast[:, 2],
+                            estimates_names[0]: true_semi[:, 2],
+                            estimates_names[1]: nonrandom_semi[:, 2],
+                            estimates_names[2]: pseudo_semi[:, 2],
+                            estimates_names[3]: whatif_just_semi[:, 2],
+                            estimates_names[4]: whatif_over_semi[:, 2],
                             "Statistic": "Mean cross semi-elasticity",
                         }
                     )
                     df_disp_cross = pd.DataFrame(
                         {
                             uni_string2: true_values[:, -1],
-                            "True value": true_semi_elast[:, 3],
-                            "Non-random value": nonrandom_semi_elast[:, 3],
-                            "With K": pseudo_semi_elast[:, 3],
-                            "What-if": whatif_semi_elast[:, 3],
+                            estimates_names[0]: true_semi[:, 3],
+                            estimates_names[1]: nonrandom_semi[:, 3],
+                            estimates_names[2]: pseudo_semi[:, 3],
+                            estimates_names[3]: whatif_just_semi[:, 3],
+                            estimates_names[4]: whatif_over_semi[:, 3],
                             "Statistic": "Cross-market dispersion of cross semi-elasticity",
                         }
                     )
@@ -272,10 +282,11 @@ def new_plots_paper(
                     facet_col_spacing=0.2,
                     color="Estimate",
                     color_discrete_map={
-                        "True value": "black",
-                        "Non-random": "red",
-                        "With K": "green",
-                        "What-if": "blue",
+                        estimates_names[0]: "black",
+                        estimates_names[1]: "red",
+                        estimates_names[2]: "green",
+                        estimates_names[3]: "blue",
+                        estimates_names[4]: "purple",
                     },
                     template="plotly_white",
                 )
