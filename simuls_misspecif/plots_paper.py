@@ -104,6 +104,7 @@ def new_plots_paper(
             dict_results = pickle.load(f)
 
         figures_dir = mkdir_if_needed(case_dir / "figures_paper")
+        # print_stars(f"Figures will be saved in {figures_dir}")
 
         model = dict_results["model"]
         data_pars = model.data_pars
@@ -144,6 +145,7 @@ def new_plots_paper(
         suffix = _make_suffix(nproducts, do_exo)
         ptitle = suffix
         uni_string2 = uni_sigma2
+        margin = 5.0
 
         ordered_colors = ["black"] * 3 + ["red", "green", "blue", "purple"]
         estimates_names = [
@@ -155,10 +157,26 @@ def new_plots_paper(
         ]
         estimated_values = np.zeros((n_sigmas, 7, n_pars))
         estimated_values[:, 2, :] = true_values
-        estimated_values[:, 3, :] = nonrandom_vals
-        estimated_values[:, 4, :] = pseudo_vals
-        estimated_values[:, 5, :] = whatif_just_vals
-        estimated_values[:, 6, :] = whatif_over_vals
+        estimated_values[:, 3, :] = np.clip(
+            nonrandom_vals,
+            true_values - margin,
+            true_values + margin,
+        )
+        estimated_values[:, 4, :] = np.clip(
+            pseudo_vals,
+            true_values - margin,
+            true_values + margin,
+        )
+        estimated_values[:, 5, :] = np.clip(
+            whatif_just_vals,
+            true_values - margin,
+            true_values + margin,
+        )
+        estimated_values[:, 6, :] = np.clip(
+            whatif_over_vals,
+            true_values - margin,
+            true_values + margin,
+        )
 
         if plot_pseudo_with_bounds:
             df1 = [None] * n_pars

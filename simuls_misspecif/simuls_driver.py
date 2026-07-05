@@ -97,9 +97,9 @@ def adjust_beta0_S0(
 if __name__ == "__main__":
     # what we run
     nmarkets = 10_000
-    number_products = [1, 2, 5, 10, 25, 50, 100]
+    number_products = [2, 5, 10, 25, 50, 100]
     selected_scenario_numbers = [3, 4]
-    selected_models = ["exo", "endo"]
+    selected_models = ["endo"]
 
     # multiprocessing
     use_mp = True

@@ -233,6 +233,13 @@ def get_the_stats(case: list, save_more: bool = False) -> dict:
         Wmat = (
             x * (-x + 2.0 * eS_x.reshape((-1, 1))) * (eS_x2 - sq_eS_x).reshape((-1, 1))
         )
+        # Wmat = 2.0 * x * (eS_x * (eS_x2 - sq_eS_x)).reshape((-1, 1))
+        # for t in range(nmarkets):
+        #     eSxt = x[t, :] @ observed_shares_mat[t, :]
+        #     eSx2t = (x[t, :] * x[t, :]) @ observed_shares_mat[t, :]
+        #     for j in range(nproducts):
+        #         Wmat[t, j] = x[t, j] * (2.0 * eSxt - x[t, j]) * (eSx2t - eSxt * eSxt)
+        # Wmat[t, :] = x[t, j] * (2.0 * eSxt - x[t, j]) * (eSx2t - eSxt * eSxt)
         Wvec = Wmat.reshape(npts) / 2.0
 
         Z_used = Zstar2
@@ -264,9 +271,14 @@ def get_the_stats(case: list, save_more: bool = False) -> dict:
             xvec, Kvec, Wvec, beta0_0, beta1_0, xi_0_vec, Z_used, Omega
         )
 
-        print_stars("Estimates SW, just, over:")
-        print(np.column_stack((pseudo_vals, whatif_just_vals, whatif_over_vals)))
-
+        print_stars("True ; estimates SW, just, over:")
+        for i in range(n_params):
+            print(
+                f"{true_p[i]: .3f};",
+                f"  {pseudo_vals[i]: .3f},",
+                f"  {whatif_just_vals[i]: .3f},",
+                f"  {whatif_over_vals[i]: .3f}",
+            )
         ##              now we work on the semi-elasticities                           ##
         #################################################################################
 
