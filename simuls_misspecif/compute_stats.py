@@ -22,7 +22,7 @@ from simuls_misspecif.evaluations import (
     _true_semi_elasticities,
 )
 from simuls_misspecif.MNL_params import do_a_second, do_bounds_semi_elast
-from simuls_misspecif.MNL_utils import _mean_utils
+from simuls_misspecif.MNL_utils import SimulationCase, _mean_utils
 from simuls_misspecif.utils import (
     estimate_what_if,
     f_print_stars,
@@ -31,12 +31,13 @@ from simuls_misspecif.utils import (
 )
 
 
-def get_the_stats(case: list, save_more: bool = False) -> dict:
+def get_the_stats(case: SimulationCase | list, save_more: bool = False) -> dict:
     """Evaluate the various statistics needed for one simulation case.
 
     Args:
-        case: A five-element list containing the random generator, model,
-            simulation number, pickle directory, and multiprocessing flag.
+        case: A `SimulationCase` dataclass (or 5-element list for backwards compatibility)
+            containing the random generator, model, simulation number, pickle directory,
+            and multiprocessing flag.
         save_more: Whether to save the xi values and related intermediates.
 
     Returns:
@@ -49,10 +50,19 @@ def get_the_stats(case: list, save_more: bool = False) -> dict:
         tracemalloc.start()
 
     verbose = False
-    stream, model, isim, pickle_dir, use_mp = case
+    if isinstance(case, SimulationCase):
+        stream, model, isim, pickle_dir, use_mp = (
+            case.stream,
+            case.model,
+            case.isim,
+            case.pickle_dir,
+            case.use_mp,
+        )
+    else:
+        stream, model, isim, pickle_dir, use_mp = case
 
     if use_mp:
-        fout_name = str(os.getpid()) + ".out"
+        fout_name = os.path.join("logs", f"{os.getpid()}.out")
     else:
         fout_name = None
 

@@ -6,8 +6,11 @@ dist/
 wheels/
 *.egg-info
 *.out
+*.pkl
 res.pkl
 site/
+J*/
+logs/
 
 # Virtual environments
 .venv
@@ -15,5 +18,7 @@ site/
 # Editor backup files
 *~
 
-# Mypy cache
+# Mypy & pytest cache
 .mypy_cache/
+.pytest_cache/
+

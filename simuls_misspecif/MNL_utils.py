@@ -2,6 +2,7 @@
 
 from dataclasses import dataclass, replace
 from math import sqrt
+from pathlib import Path
 from pprint import pprint
 from typing import List, Union
 
@@ -139,6 +140,25 @@ class ModelData:
 
     def print(self):
         pprint(self.__dict__)
+
+
+@dataclass
+class SimulationCase:
+    """A single simulation configuration case.
+
+    Attributes:
+        stream: Random generator or seed sequence.
+        model: Model parameter dataclass.
+        isim: Simulation index.
+        pickle_dir: Path to directory where results are stored.
+        use_mp: Whether multiprocessing is enabled.
+    """
+
+    stream: Union[np.random.SeedSequence, np.random.Generator]
+    model: ModelData
+    isim: int
+    pickle_dir: Path
+    use_mp: bool
 
 
 def _mean_utils(beta0: float, beta1: float, x: np.ndarray) -> np.ndarray:

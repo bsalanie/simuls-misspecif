@@ -7,11 +7,12 @@ We simulate a large number of markets from the true DGP and compute:
 * the semiparametric efficiency bounds
 """
 
+import argparse
 import dataclasses as dc
 import multiprocessing as mp
 import pickle
 from pathlib import Path
-from typing import cast
+from typing import TypedDict, cast
 
 import numpy as np
 from bs_python_utils.bsnputils import TwoArrays, npexp
@@ -25,15 +26,27 @@ from simuls_misspecif.MNL_params import (
     large_sigma_range,
     true_pars,
 )
-from simuls_misspecif.MNL_utils import DataParams, ModelData, TrueParams, names_params
+from simuls_misspecif.MNL_utils import (
+    DataParams,
+    ModelData,
+    SimulationCase,
+    TrueParams,
+    names_params,
+)
 from simuls_misspecif.plots_paper import new_plots_paper
 from simuls_misspecif.utils import generate_RNG_streams
+
+
+class ScenarioDict(TypedDict):
+    data: DataParams
+    coeffs: TrueParams
+    sigma_range: np.ndarray
 
 
 def setup_model(
     model_root: str,
     base_model: ModelData,
-    scenario: dict,
+    scenario: ScenarioDict,
     str_roots: list,
     long_names: list,
 ) -> tuple[ModelData, Path]:
@@ -42,6 +55,7 @@ def setup_model(
     data_p = dc.replace(scenario["data"], do_exo=do_exo)
     str_long = long_names[0] if do_exo else long_names[1]
     str_root = str_roots[0] if do_exo else str_roots[1]
+    nproducts = base_model.nproducts
     str_model = f"{str_root}_J={nproducts}_v{scenario_number}"
     new_model = dc.replace(
         base_model, data_pars=data_p, model_string=str_model, long_name=str_long
@@ -95,24 +109,62 @@ def adjust_beta0_S0(
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Run symmetric mixed MNL misspecification simulations."
+    )
+    parser.add_argument(
+        "-s",
+        "--scenarios",
+        nargs="+",
+        type=int,
+        default=[3, 4],
+        help="Scenario numbers to run (default: 3 4)",
+    )
+    parser.add_argument(
+        "-j",
+        "--products",
+        nargs="+",
+        type=int,
+        default=[2, 5, 10, 25, 50, 100],
+        help="List of product numbers J (default: 2 5 10 25 50 100)",
+    )
+    parser.add_argument(
+        "-t",
+        "--markets",
+        type=int,
+        default=10_000,
+        help="Number of markets T (default: 10000)",
+    )
+    parser.add_argument(
+        "-m",
+        "--models",
+        nargs="+",
+        choices=["endo", "exo"],
+        default=["endo"],
+        help="Model types to run (choices: endo exo, default: endo)",
+    )
+    parser.add_argument("--no-mp", action="store_true", help="Disable multiprocessing")
+    parser.add_argument(
+        "--cpus", type=int, default=None, help="Number of CPU cores to use"
+    )
+    args = parser.parse_args()
+
     # what we run
-    nmarkets = 10_000
-    number_products = [2, 5, 10, 25, 50, 100]
-    selected_scenario_numbers = [3, 4]
-    selected_models = ["endo"]
+    nmarkets = args.markets
+    number_products = args.products
+    selected_scenario_numbers = args.scenarios
+    selected_models = args.models
 
     # multiprocessing
-    use_mp = True
-    n_cpus = mp.cpu_count()  # number of CPUs
-    nb_cpus = n_cpus - 2  # we reserve 2
+    use_mp = not args.no_mp
+    if args.cpus is not None:
+        nb_cpus = args.cpus
+    else:
+        n_cpus = mp.cpu_count()
+        nb_cpus = max(1, n_cpus - 2)
 
-    # we may use different scenarii
-    # 0 is the central scenario from MNL_params.py;  the others modify some of its parameters
-    central_scenario = {
-        "data": data_pars,
-        "coeffs": true_pars,
-        "sigma_range": basic_sigma_range,
-    }
+    # create logs directory
+    mkdir_if_needed(Path.cwd() / "logs")
 
     str_roots = ["exo", "endo"]
     long_names = [
@@ -122,7 +174,13 @@ if __name__ == "__main__":
 
     target_S0 = 0.9
 
-    scenarii = {
+    central_scenario: ScenarioDict = {
+        "data": data_pars,
+        "coeffs": true_pars,
+        "sigma_range": basic_sigma_range,
+    }
+
+    scenarii: dict[int, ScenarioDict] = {
         0: central_scenario,
         1: {
             "data": data_pars,
@@ -133,17 +191,17 @@ if __name__ == "__main__":
             "data": data_pars,
             "coeffs": true_pars,
             "sigma_range": basic_sigma_range,
-        },  # we will make S0 close to 1/2
+        },
         3: {
             "data": data_pars,
-            "coeffs": dc.replace(true_pars, beta1=-4.0),  # to get elasticity about -2
+            "coeffs": dc.replace(true_pars, beta1=-4.0),
             "sigma_range": basic_sigma_range,
         },
         4: {
             "data": data_pars,
-            "coeffs": dc.replace(true_pars, beta1=-4.0),  # to get elasticity about -2
+            "coeffs": dc.replace(true_pars, beta1=-4.0),
             "sigma_range": basic_sigma_range,
-        },  # we will make S0 close to target_S0
+        },
     }
 
     n_scenarii = len(selected_scenario_numbers)
@@ -162,10 +220,12 @@ if __name__ == "__main__":
     isim = 0
 
     for nproducts in number_products:
-        beta0_3, ES0_3 = adjust_beta0_S0(0.5, nproducts, data_pars, true_pars)
-        scenarii[3]["coeffs"] = dc.replace(scenarii[3]["coeffs"], beta0=beta0_3)
-        beta0_4, ES0_4 = adjust_beta0_S0(target_S0, nproducts, data_pars, true_pars)
-        scenarii[4]["coeffs"] = dc.replace(scenarii[4]["coeffs"], beta0=beta0_4)
+        if 3 in selected_scenarii:
+            beta0_3, ES0_3 = adjust_beta0_S0(0.5, nproducts, data_pars, true_pars)
+            scenarii[3]["coeffs"] = dc.replace(scenarii[3]["coeffs"], beta0=beta0_3)
+        if 4 in selected_scenarii:
+            beta0_4, ES0_4 = adjust_beta0_S0(target_S0, nproducts, data_pars, true_pars)
+            scenarii[4]["coeffs"] = dc.replace(scenarii[4]["coeffs"], beta0=beta0_4)
 
         root_dir = mkdir_if_needed(Path.cwd() / f"J{nproducts}")
 
@@ -186,15 +246,22 @@ if __name__ == "__main__":
                 sigma_range=sigma_range,
             )
             for model_root in selected_models:
-                models[isim], pickle_subdir = setup_model(
+                model_inst, pickle_subdir = setup_model(
                     model_root, base_model, scenario, str_roots, long_names
                 )
+                models[isim] = model_inst
                 pickles_dir[isim] = mkdir_if_needed(root_dir / pickle_subdir)
                 isim += 1
 
     list_cases = [
-        [streams[isim], models[isim], isim, pickles_dir[isim], use_mp]
-        for isim in range(nsim)
+        SimulationCase(
+            stream=streams[i],
+            model=cast(ModelData, models[i]),
+            isim=i,
+            pickle_dir=cast(Path, pickles_dir[i]),
+            use_mp=use_mp,
+        )
+        for i in range(nsim)
     ]
 
     # run the simulation
@@ -203,9 +270,9 @@ if __name__ == "__main__":
         with mp.Pool(processes=nb_cpus) as pool:
             res = pool.map(get_the_stats, list_cases)
     else:
-        for isim in range(nsim):
-            print_stars(f"Calling model {isim}")
-            res[isim] = get_the_stats(list_cases[isim])
+        for i in range(nsim):
+            print_stars(f"Calling model {i}")
+            res[i] = get_the_stats(list_cases[i])
 
     # just to be sure
     with open("res.pkl", "wb") as f:
@@ -225,7 +292,7 @@ if __name__ == "__main__":
         "whatif over semi-elasticities",
     ]
 
-    for scenario_number, scenario in selected_scenarii.items():
+    for scenario_number in selected_scenarii.keys():
         for nproducts in number_products:
             for model in selected_models:
                 resmod: dict = extract_from_results(

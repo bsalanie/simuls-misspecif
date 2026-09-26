@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import numpy as np
 from bs_python_utils.bsutils import bs_error_abort, file_print_stars, print_stars
 from numpy.random import SeedSequence, default_rng
@@ -32,7 +34,10 @@ def f_print_stars(use_mp: bool, what: str, fout_name: str | None = None):
         fout_name (str | None, optional): where we print, if not to screen. Defaults to None.
     """
     if use_mp and fout_name is not None:
-        with open(fout_name, "a") as fout:
+        fout_path = Path(fout_name)
+        if fout_path.parent:
+            fout_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(fout_path, "a") as fout:
             file_print_stars(fout, what)
     elif use_mp:
         bs_error_abort("use_mp is True but fout_name is None")
