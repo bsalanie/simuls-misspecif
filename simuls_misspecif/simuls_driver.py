@@ -370,7 +370,7 @@ if __name__ == "__main__":
                     model,
                     nproducts,
                     nmarkets,
-                    selected_scenario_numbers,
+                    [scenario_number],
                     do_bounds=do_bounds,
                     n_x=n_x,
                 )

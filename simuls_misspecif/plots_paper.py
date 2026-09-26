@@ -297,13 +297,15 @@ def new_plots_paper(
                         lower_bound_str,
                         upper_bound_str,
                     ] + estimates_names
+                    values_to_plot = estimated_values[..., ipar]
                 else:
-                    # Skip bounds, just plot the estimates
+                    # Skip bounds, just plot the estimates (indices 2-6)
                     estimates_to_plot = estimates_names
+                    values_to_plot = estimated_values[:, 2:, ipar]
 
                 df1_ipar, ordered_estimates = _stack_estimates(
                     estimates_to_plot,
-                    estimated_values[..., ipar],
+                    values_to_plot,
                     df_i,
                 )
                 df1_ipar["Coefficient"] = par_name
