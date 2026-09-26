@@ -183,90 +183,6 @@ def _artificial_regressors(
     return K, y, V, W
 
 
-def _make_quadratic_instruments(z: np.ndarray):
-    """Build quadratic instruments.
-
-    Args:
-        z: The `(T, J)` matrix of instruments.
-
-    Returns:
-        A `(T, 7)` or `(T, 11)` matrix.
-    """
-    nmarkets, nproducts = z.shape
-    npts = z.size  # we will stack observations in the order of markets
-    n_instr = 7
-    quad_instr = np.zeros((npts, n_instr))
-    mean_z = np.mean(z, axis=1)
-    z2 = z * z
-    mean_z2 = np.mean(z2, axis=1)
-    market_means_z = np.repeat(mean_z, nproducts)
-    market_means_z2 = np.repeat(mean_z2, nproducts)
-    quad_instr[:, 0] = 1.0
-    quad_instr[:, 1] = market_means_z
-    quad_instr[:, 2] = market_means_z * market_means_z
-    quad_instr[:, 3] = market_means_z2
-    for j in range(nproducts):
-        slice_j = slice(j, npts, nproducts)
-        z_j = z[:, j]
-        quad_instr[slice_j, 4] = z_j
-        quad_instr[slice_j, 5] = z_j * z_j
-        quad_instr[slice_j, 6] = z_j * mean_z
-    return quad_instr
-
-
-def _make_quartic_instruments(z: np.ndarray):
-    """Build quartic instruments.
-
-    Args:
-        z: The `(T, J)` matrix of instruments.
-
-    Returns:
-        A `(T, 20)` or `(T, 49)` matrix.
-    """
-    nmarkets, nproducts = z.shape
-    npts = z.size  # we will stack observations in the order of markets
-    n_instr = 20
-    quartic_instr = np.zeros((npts, n_instr))
-    mean_z = np.mean(z, axis=1)
-    z2 = z * z
-    mean_z2 = np.mean(z2, axis=1)
-    z3 = z2 * z
-    mean_z3 = np.mean(z3, axis=1)
-    z4 = z2 * z2
-    mean_z4 = np.mean(z4, axis=1)
-    market_means_z = np.repeat(mean_z, nproducts)
-    market_means_z2 = np.repeat(mean_z2, nproducts)
-    market_means_z3 = np.repeat(mean_z3, nproducts)
-    market_means_z4 = np.repeat(mean_z4, nproducts)
-    quartic_instr[:, 0] = 1.0
-    quartic_instr[:, 1] = market_means_z
-    quartic_instr[:, 2] = market_means_z * market_means_z
-    quartic_instr[:, 3] = market_means_z2
-    quartic_instr[:, 4] = market_means_z3
-    quartic_instr[:, 5] = market_means_z * market_means_z2
-    quartic_instr[:, 6] = market_means_z2 * market_means_z2
-    quartic_instr[:, 7] = market_means_z * market_means_z3
-    quartic_instr[:, 8] = market_means_z4
-    for j in range(nproducts):
-        slice_j = slice(j, npts, nproducts)
-        z_j = z[:, j]
-        zj_2 = z_j * z_j
-        zj_3 = zj_2 * z_j
-        zj_4 = zj_2 * zj_2
-        quartic_instr[slice_j, 9] = z_j
-        quartic_instr[slice_j, 10] = zj_2
-        quartic_instr[slice_j, 11] = z_j * mean_z
-        quartic_instr[slice_j, 12] = zj_2 * mean_z2
-        quartic_instr[slice_j, 13] = z_j * mean_z2
-        quartic_instr[slice_j, 14] = z_j * mean_z * mean_z
-        quartic_instr[slice_j, 15] = zj_3
-        quartic_instr[slice_j, 16] = zj_4
-        quartic_instr[slice_j, 17] = zj_3 * mean_z
-        quartic_instr[slice_j, 18] = zj_2 * mean_z * mean_z
-        quartic_instr[slice_j, 19] = zj_2 * mean_z2
-    return quartic_instr
-
-
 def _projection_instruments(
     var: np.ndarray, z_instruments: np.ndarray, mode: str = "NP"
 ):
@@ -344,15 +260,6 @@ def _project_variables(
     return y_proj, X_proj, K_proj, V_proj, W_proj
 
 
-def _reshape_proj(var_proj: np.ndarray, nproducts: int) -> np.ndarray:
-    nmarkets = var_proj.size // nproducts
-    if var_proj.ndim == 2:
-        v_proj = var_proj[:, 0]
-        return v_proj.reshape((nmarkets, nproducts))
-    else:
-        return var_proj.reshape((nmarkets, nproducts))
-
-
 def _our_tsls0(
     y_proj: np.ndarray,
     X_proj: np.ndarray,
@@ -409,53 +316,6 @@ def _print_pseudo_true_errors(
         print_stars(f"Pseudo-true errors for true sigma2={true_p[1 + n_x :]}:")
         for i in range(n_params):
             print(f"on {names_ptv[i]}: {pseudo_vals[i] - true_p[i]: >10.4f}")
-
-
-def _print_set_semi_elast(
-    semi_elasts: tuple[float, float] | tuple[float, float, float, float],
-    name_elasts: str,
-    verbose=False,
-):
-    """Print a set of semi-elasticities and returns it.
-
-    Args:
-        semi_elasts: the mean and stderr of own semi-elasticities,\
-        or a tuple of 4 floats also containing the mean and stderr of the cross semi-elasticities.
-        name_elasts: Name of the set of semi-elasticities, for printing.
-        verbose: Whether to print the semi-elasticities.
-
-    Returns:
-
-    """
-    do_cross = len(semi_elasts) == 4
-    if do_cross:
-        semi_elasts = cast(tuple[float, float, float, float], semi_elasts)
-        resus_semi_elast = np.array(
-            [
-                semi_elasts[0],
-                semi_elasts[1],
-                semi_elasts[2],
-                semi_elasts[3],
-            ]
-        )
-    else:
-        resus_semi_elast = np.array(
-            [
-                semi_elasts[0],
-                semi_elasts[1],
-            ]
-        )
-    if verbose:
-        print_stars(name_elasts + " semi-elasticities")
-        print(
-            f"   own: mean = {semi_elasts[0]: 10.3f} and stderr = {semi_elasts[1]: 10.3f}"
-        )
-        if do_cross:
-            semi_elasts = cast(tuple[float, float, float, float], semi_elasts)
-            print(
-                f"   cross: mean = {semi_elasts[2]: 10.3f} and stderr = {semi_elasts[3]: 10.3f}"
-            )
-    return resus_semi_elast
 
 
 def estimated_xi_infty(

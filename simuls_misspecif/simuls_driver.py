@@ -70,7 +70,11 @@ def setup_model(
 
 
 def adjust_beta0_S0(
-    S0: float, nproducts: int, data_pars: DataParams, true_pars: TrueParams
+    S0: float,
+    nproducts: int,
+    data_pars: DataParams,
+    true_pars: TrueParams,
+    seed: int = 5514557,
 ) -> tuple[float, float]:
     """Find the beta0 that makes the expected outside share equal S0.
 
@@ -79,13 +83,15 @@ def adjust_beta0_S0(
         nproducts: Number of products `J`.
         data_pars: The data parameters.
         true_pars: The true coefficients.
+        seed: for the random number generator.
 
     Returns:
         The fitted beta0 and the achieved expected outside share.
     """
     ndraws = 1000
-    x = np.random.normal(scale=data_pars.sigx, size=(nproducts, ndraws, data_pars.n_x))
-    xi = np.random.normal(scale=data_pars.sigxi, size=ndraws * nproducts).reshape(
+    rng = np.random.default_rng(seed)
+    x = rng.normal(scale=data_pars.sigx, size=(nproducts, ndraws, data_pars.n_x))
+    xi = rng.normal(scale=data_pars.sigxi, size=ndraws * nproducts).reshape(
         (nproducts, ndraws)
     )
     utils0 = x @ true_pars.beta + xi

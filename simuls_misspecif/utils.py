@@ -46,26 +46,6 @@ def f_print_stars(use_mp: bool, what: str, fout_name: str | None = None):
         print_stars(what)
 
 
-def angle_product_with_Z(
-    a: np.ndarray, b: np.ndarray, omega: np.ndarray, Z_used: np.ndarray
-) -> float:
-    """Compute the angle product of a and b with respect to the Z_used moments and omega.
-
-    Args:
-        a: A 1D array of shape (npts,) representing the first vector.
-        b: A 1D array of shape (npts,) representing the second vector.
-        omega: A 2D array of shape (n_instr, n_instr) representing the weighting matrix.
-        Z_used: A 2D array of shape (npts, n_instr) containing the moments used in the what-if estimation.
-
-    Returns:
-        A scalar representing the angle product of a and b with respect to Z_used and omega.
-    """
-    npts = Z_used.shape[0]
-    Z_a = Z_used.T @ a / npts
-    Z_b = Z_used.T @ b / npts
-    return float(Z_a.T @ omega @ Z_b)
-
-
 def center_moments(moments_used: np.ndarray, nproducts: int) -> np.ndarray:
     """Center the moments used in the what-if estimation by subtracting the mean across products.
 
