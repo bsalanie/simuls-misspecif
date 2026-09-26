@@ -367,5 +367,10 @@ if __name__ == "__main__":
                     model, nproducts, nmarkets, scenario_number, KEYS_EXTRACT, n_x=n_x
                 )
                 new_plots_paper(
-                    model, nproducts, nmarkets, selected_scenario_numbers, n_x=n_x
+                    model,
+                    nproducts,
+                    nmarkets,
+                    selected_scenario_numbers,
+                    do_bounds=do_bounds,
+                    n_x=n_x,
                 )

@@ -137,6 +137,7 @@ def new_plots_paper(
     plot_pseudo_with_bounds: bool = True,
     plot_semi_elast: bool = True,
     simuls_dir: Path | None = None,
+    do_bounds: bool = True,
     n_x: int = 1,
     select_seed: int | None = None,
 ):
@@ -208,11 +209,6 @@ def new_plots_paper(
         n_pars = pseudo_vals.shape[-1]
         n_x_res = (n_pars - 1) // 2
 
-        # Check if bounds were actually computed (not all zeros/NaN)
-        bounds_computed = not (
-            np.allclose(spb, 0.0, atol=1e-10) or np.all(np.isnan(spb))
-        )
-
         # we compute standard errors for SPE bounds, putting in zero if the variance is negative
         stb = np.zeros((n_sigmas, n_pars))
         for isig in range(n_sigmas):
@@ -229,8 +225,6 @@ def new_plots_paper(
         order_parameters = _param_labels(n_x_res)
 
         # Add note if bounds were not computed
-        bounds_suffix = "" if bounds_computed else " (no bounds)"
-
         # with many covariates, we only plot the coefficients of a few of them
         if n_x_res > MAX_X_PLOTTED:
             rng = np.random.default_rng(select_seed)
@@ -238,18 +232,18 @@ def new_plots_paper(
             str_plotted = ", ".join(str(m + 1) for m in x_plotted)
             ptitle_pars = (
                 f"{_make_suffix(nproducts, do_exo)}; covariates {str_plotted}"
-                f" out of M = {n_x_res}{bounds_suffix}"
+                f" out of M = {n_x_res}"
             )
         else:
             x_plotted = np.arange(n_x_res)
-            ptitle_pars = _make_suffix(nproducts, do_exo) + bounds_suffix
+            ptitle_pars = _make_suffix(nproducts, do_exo)
         pars_plotted = (
             [0] + [1 + m for m in x_plotted] + [1 + n_x_res + m for m in x_plotted]
         )
         n_pars_plotted = len(pars_plotted)
 
         suffix = _make_suffix(nproducts, do_exo)
-        ptitle = suffix + bounds_suffix
+        ptitle = suffix
         uni_string2 = uni_sigma2
         margin = 5.0
 
@@ -284,7 +278,7 @@ def new_plots_paper(
             true_values + margin,
         )
 
-        if plot_pseudo_with_bounds and bounds_computed:
+        if plot_pseudo_with_bounds:
             df1 = []
             for ipar in pars_plotted:
                 par_name = order_parameters[ipar]
@@ -294,15 +288,21 @@ def new_plots_paper(
                         "True value": true_values[:, ipar],
                     }
                 )
-                bound_i = stb[:, ipar] / sqrt(spe_bounds_nmarkets)
-                estimated_values[:, 0, ipar] = df_i["True value"] - 1.96 * bound_i
-                estimated_values[:, 1, ipar] = df_i["True value"] + 1.96 * bound_i
-                df1_ipar, ordered_estimates = _stack_estimates(
-                    [
+                # Only add bounds if they were computed
+                if do_bounds:
+                    bound_i = stb[:, ipar] / sqrt(spe_bounds_nmarkets)
+                    estimated_values[:, 0, ipar] = df_i["True value"] - 1.96 * bound_i
+                    estimated_values[:, 1, ipar] = df_i["True value"] + 1.96 * bound_i
+                    estimates_to_plot = [
                         lower_bound_str,
                         upper_bound_str,
-                    ]
-                    + estimates_names,
+                    ] + estimates_names
+                else:
+                    # Skip bounds, just plot the estimates
+                    estimates_to_plot = estimates_names
+
+                df1_ipar, ordered_estimates = _stack_estimates(
+                    estimates_to_plot,
                     estimated_values[..., ipar],
                     df_i,
                 )
@@ -340,8 +340,8 @@ def new_plots_paper(
                 facet_col_spacing=0.12,
                 title=(
                     f"Pseudo-true values and efficiency bounds<br><sup>{ptitle_pars}</sup>"
-                    if bounds_computed
-                    else f"Pseudo-true values<br><sup>{ptitle_pars}</sup>"
+                    if do_bounds
+                    else f"Pseudo-true values<br><sup>{_make_suffix(nproducts, do_exo)}</sup>"
                 ),
             )
 
@@ -440,15 +440,3 @@ def new_plots_paper(
                 fig_save_semis_root = f"{figures_dir}/new_semi_elast_{full_str}"
                 fig.write_image(f"{fig_save_semis_root}.{fig_fmt}")
                 fig.write_html(f"{fig_save_semis_root}.html")
-
-
-if __name__ == "__main__":
-    model_strings = ["exo", "endo"]
-
-    selected_scenario_numbers = [3, 4]
-    nmarkets = 5000
-    number_products = [1, 2, 5, 10, 25, 50, 100]
-
-    for nproducts in number_products:
-        for str_model in model_strings:
-            new_plots_paper(str_model, nproducts, nmarkets, selected_scenario_numbers)
