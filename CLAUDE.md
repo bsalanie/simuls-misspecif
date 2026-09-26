@@ -41,9 +41,16 @@ uv run pytest tests/test_multi_covariates.py   # single test file
 ### Running simulations
 The main entry point is `simuls_misspecif/simuls_driver.py`:
 ```bash
-uv run python simuls_misspecif/simuls_driver.py -s 3 4 -J 2 5 10 -T 10000 -m endo exo -M 2 --sigma-profile 1 0.5
+# Basic run (M=1, no bounds)
+uv run python simuls_misspecif/simuls_driver.py -s 3 4 -J 2 5 10 -T 10000 -m endo exo
+
+# With multiple covariates and bounds (M ≤ 2 only)
+uv run python simuls_misspecif/simuls_driver.py -M 2 --sigma-profile 1 0.5 --bounds
+
+# Large M: bounds auto-disabled (saves ~5 min/case)
+uv run python simuls_misspecif/simuls_driver.py -M 3
 ```
-Options: `-s/--scenarios`, `-J/--products`, `-T/--markets`, `-m/--models` (`endo`, `exo`), `-M/--n-x` (number of covariates, default 1), `--sigma-profile` (`ω`, default all ones), `--no-mp`, `--cpus`. `J = 1` is supported (no cross semi-elasticities).
+Options: `-s/--scenarios`, `-J/--products`, `-T/--markets`, `-m/--models` (`endo`, `exo`), `-M/--n-x` (number of covariates, default 1), `--sigma-profile` (`ω`, default all ones), `--bounds` (compute SPE bounds and true semi-elasticities; auto-disabled for M > 2), `--no-mp`, `--cpus`. `J = 1` is supported (no cross semi-elasticities).
 
 To re-extract from existing pickles without re-running simulations, use `simuls_misspecif/extract_from_results.py` as a script.
 
@@ -93,6 +100,7 @@ The main configuration file is **`MNL_params.py`**, which defines:
 - Multiprocessing: each worker process logs to `logs/{pid}.out` instead of stdout.
 - Scenarios 0–4 differ in `true_pars` (β values) and `sigma_range`; scenarios 3 and 4 set `β_m = −4` and call `adjust_beta0_S0` to target a specific outside share (it uses the unseeded global `np.random`, so β₀ varies across runs).
 - The `frac_blp` package provides `make_K_and_y`, `make_V`, `make_W` (artificial regressors for the BLP expansion).
+- **Bounds computation is optional**: use `--bounds` flag to compute SPE variance bounds and true semi-elasticities (default: skip). When M > 2, bounds are auto-disabled. The non-random and pseudo-true estimates do not depend on bounds and run regardless. The what-if estimate runs regardless (uses half of `frac_blp.make_W`, not full integrals).
 
 ## Output structure
 
@@ -116,11 +124,11 @@ The result pickles do not store the simulated shares or data, so anything comput
 
 ## Debugging
 
-- **Multiprocessing logs**: when multiprocessing is on, worker logs go to `logs/{pid}.out` rather than stdout. Check these for per-worker errors, or rerun with `--no-mp`.
+- **Multiprocessing logs**: when multiprocessing is on, worker logs go to `logs/{pid}.out` rather of stdout. Check these for per-worker errors, or rerun with `--no-mp`.
 - **Type checking**: run `uv run mypy simuls_misspecif/` before running simulations.
 - **Checking a change at `M = 1`**: run the driver on the old and new code with the same seed (`np.random.seed` before running the driver, because of `adjust_beta0_S0`) and compare the pickles. Parameter values and SPE bounds should agree to about 1e-10. At `J = 1` the bounds matrix is badly conditioned, so expect up to about 1e-6.
 - **Checking derivatives**: validate any new share derivative or semi-elasticity formula against finite differences (see `tests/test_multi_covariates.py`); both semi-elasticity bugs were found this way.
-- **Runtime**: the integrals for the bounds and true semi-elasticities cost O(T·J²·M) per node; with `M = 3` at T = 2000, J = 25 one case takes about 5 minutes and 4.4 GB. Regenerating all 21 stored `M = 1` cases (up to T = 100,000) took about 10 minutes on 6 processes.
+- **Runtime**: the integrals for the bounds and true semi-elasticities cost O(T·J²·M) per node. Quadrature uses `n_gh_integrals^M` nodes (tensor product), so: M=1 has 16 nodes (fast), M=2 has 64 nodes, M=3 has 512 nodes (~5 min, 4.4 GB per case). Use `--no-mp` to skip bounds when M > 2 (auto-disabled by default). Regenerating all 21 stored `M = 1` cases (up to T = 100,000) took about 10 minutes on 6 processes.
 
 ## Key dependencies
 
