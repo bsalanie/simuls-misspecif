@@ -11,6 +11,7 @@ import argparse
 import dataclasses as dc
 import multiprocessing as mp
 import pickle
+from functools import partial
 from pathlib import Path
 from typing import TypedDict, cast
 
@@ -196,6 +197,11 @@ if __name__ == "__main__":
         default=None,
         help="Number of CPU cores to use, default: n_cpus-2",
     )
+    parser.add_argument(
+        "--bounds",
+        action="store_true",
+        help="Compute SPE variance bounds and true semi-elasticities (costly for M>2)",
+    )
     args = parser.parse_args()
 
     # what we run
@@ -209,6 +215,15 @@ if __name__ == "__main__":
     )
     if sigma_profile.size != n_x:
         parser.error(f"--sigma-profile needs {n_x} values")
+
+    # Handle bounds flag: disable if M > 2 to avoid excessive computation
+    do_bounds = args.bounds
+    if do_bounds and n_x > 2:
+        print_stars(
+            f"Warning: disabling bounds (M={n_x} > 2) to avoid excessive computation.\n"
+            "Bounds grow as n_gh_integrals^M nodes, so M=3 at 8 nodes/dim = 512 nodes."
+        )
+        do_bounds = False
 
     # multiprocessing
     use_mp = not args.no_mp
@@ -330,13 +345,14 @@ if __name__ == "__main__":
 
     # run the simulation
     res: list[dict | None] = [None] * nsim
+    get_stats_with_bounds = partial(get_the_stats, do_bounds_override=do_bounds)
     if use_mp:
         with mp.Pool(processes=nb_cpus) as pool:
-            res = pool.map(get_the_stats, list_cases)
+            res = pool.map(get_stats_with_bounds, list_cases)
     else:
         for i in range(nsim):
             print_stars(f"Calling model {i}")
-            res[i] = get_the_stats(list_cases[i])
+            res[i] = get_stats_with_bounds(list_cases[i])
 
     # just to be sure
     with open("res.pkl", "wb") as f:

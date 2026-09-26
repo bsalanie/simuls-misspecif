@@ -45,7 +45,11 @@ from simuls_misspecif.utils import (
 )
 
 
-def get_the_stats(case: SimulationCase | list, save_more: bool = False) -> dict:
+def get_the_stats(
+    case: SimulationCase | list,
+    save_more: bool = False,
+    do_bounds_override: bool | None = None,
+) -> dict:
     """Evaluate the various statistics needed for one simulation case.
 
     Args:
@@ -53,12 +57,17 @@ def get_the_stats(case: SimulationCase | list, save_more: bool = False) -> dict:
             containing the random generator, model, simulation number, pickle directory,
             and multiprocessing flag.
         save_more: Whether to save the xi values and related intermediates.
+        do_bounds_override: If provided, override the do_bounds_semi_elast flag from MNL_params.
 
     Returns:
         The model and the simulation results in a dictionary.
     """
 
     do_trace_memory = False
+    # Use override if provided, otherwise use the value from MNL_params
+    bounds_flag = (
+        do_bounds_override if do_bounds_override is not None else do_bounds_semi_elast
+    )
 
     if do_trace_memory:
         tracemalloc.start()
@@ -141,8 +150,6 @@ def get_the_stats(case: SimulationCase | list, save_more: bool = False) -> dict:
     values_whatif_just_semi_elast = np.zeros(shape_elast)
     values_whatif_over_semi_elast = np.zeros(shape_elast)
     values_true_semi_elast = np.zeros(shape_elast)
-    if do_bounds_semi_elast:
-        pass
 
     mean_squared_residuals = np.zeros(coeffs_shape + (5,))
 
@@ -319,10 +326,6 @@ def get_the_stats(case: SimulationCase | list, save_more: bool = False) -> dict:
             whatif_over_vals, observed_shares_mat, x
         )
 
-        true_own_semi, true_cross_semi, dshares_dx = _true_semi_elasticities(
-            true_p, observed_shares_mat, x, true_mean_utils_xi, nodes, weights
-        )
-
         resus_nonrandom_semi_elast = get_semi_elast_stats(
             nonrandom_own_semi, nonrandom_cross_semi, nproducts
         )
@@ -335,9 +338,18 @@ def get_the_stats(case: SimulationCase | list, save_more: bool = False) -> dict:
         resus_whatif_over_semi_elast = get_semi_elast_stats(
             whatif_over_own_semi, whatif_over_cross_semi, nproducts
         )
-        resus_true_semi_elast = get_semi_elast_stats(
-            true_own_semi, true_cross_semi, nproducts
-        )
+
+        if bounds_flag:
+            true_own_semi, true_cross_semi, dshares_dx = _true_semi_elasticities(
+                true_p, observed_shares_mat, x, true_mean_utils_xi, nodes, weights
+            )
+            resus_true_semi_elast = get_semi_elast_stats(
+                true_own_semi, true_cross_semi, nproducts
+            )
+        else:
+            true_own_semi = np.zeros((nmarkets, n_x))
+            true_cross_semi = np.zeros((nmarkets, n_x))
+            resus_true_semi_elast = np.zeros((4,)) if nproducts > 1 else np.zeros((2,))
 
         # end = time.time()
         # print(f"semi-elast took {end - start} seconds")
@@ -347,36 +359,39 @@ def get_the_stats(case: SimulationCase | list, save_more: bool = False) -> dict:
         #################################################################################
 
         # start = time.time()
-        Zstar = _true_optimal_instruments(
-            true_p,
-            true_mean_utils_xi,
-            observed_shares_mat,
-            x,
-            X_proj,
-            z,
-            nodes,
-            weights,
-            mode=mode,
-        )
-        Zstar_T = Zstar.T
-        exp_dxi_zstar = (Zstar_T @ Zstar) / npts
-        s = np.linalg.svd(exp_dxi_zstar, compute_uv=False)
-        cond_bounds = abs(s[0] / s[-1])
-        exp_dxi_zstar_inv = np.linalg.inv(exp_dxi_zstar)
-        spb = sigxi * sigxi * exp_dxi_zstar_inv
+        if bounds_flag:
+            Zstar = _true_optimal_instruments(
+                true_p,
+                true_mean_utils_xi,
+                observed_shares_mat,
+                x,
+                X_proj,
+                z,
+                nodes,
+                weights,
+                mode=mode,
+            )
+            Zstar_T = Zstar.T
+            exp_dxi_zstar = (Zstar_T @ Zstar) / npts
+            s = np.linalg.svd(exp_dxi_zstar, compute_uv=False)
+            cond_bounds = abs(s[0] / s[-1])
+            exp_dxi_zstar_inv = np.linalg.inv(exp_dxi_zstar)
+            spb = sigxi * sigxi * exp_dxi_zstar_inv
+
+            if verbose:
+                print_stars(
+                    (
+                        f"          {model.long_name}\n"
+                        f"   variance bounds for true sigma2={sig2_vec}"
+                        f" with {nproducts} products:"
+                    )
+                )
+                for i in range(n_params):
+                    print(f"on {names_spb[i]}: {spb[i, i]: 10.4f}")
+        else:
+            spb = np.zeros((n_params, n_params))
 
         sp_bounds[isig, :, :] = spb
-        if verbose:
-            print_stars(
-                (
-                    f"          {model.long_name}\n"
-                    f"   variance bounds for true sigma2={sig2_vec}"
-                    f" with {nproducts} products:"
-                )
-            )
-            for i in range(n_params):
-                print(f"on {names_spb[i]}: {spb[i, i]: 10.4f}")
-
         # end = time.time()
         # print(f"spe bounds took {end - start} seconds")
 
