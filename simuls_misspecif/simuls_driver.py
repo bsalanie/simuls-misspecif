@@ -165,8 +165,8 @@ if __name__ == "__main__":
         "-T",
         "--markets",
         type=int,
-        default=10_000,
-        help="Number of markets T (default: 10000)",
+        default=1_000,
+        help="Number of markets T (default: 1,000)",
     )
     parser.add_argument(
         "-m",

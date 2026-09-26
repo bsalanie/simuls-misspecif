@@ -208,6 +208,11 @@ def new_plots_paper(
         n_pars = pseudo_vals.shape[-1]
         n_x_res = (n_pars - 1) // 2
 
+        # Check if bounds were actually computed (not all zeros/NaN)
+        bounds_computed = not (
+            np.allclose(spb, 0.0, atol=1e-10) or np.all(np.isnan(spb))
+        )
+
         # we compute standard errors for SPE bounds, putting in zero if the variance is negative
         stb = np.zeros((n_sigmas, n_pars))
         for isig in range(n_sigmas):
@@ -223,6 +228,9 @@ def new_plots_paper(
 
         order_parameters = _param_labels(n_x_res)
 
+        # Add note if bounds were not computed
+        bounds_suffix = "" if bounds_computed else " (no bounds)"
+
         # with many covariates, we only plot the coefficients of a few of them
         if n_x_res > MAX_X_PLOTTED:
             rng = np.random.default_rng(select_seed)
@@ -230,18 +238,18 @@ def new_plots_paper(
             str_plotted = ", ".join(str(m + 1) for m in x_plotted)
             ptitle_pars = (
                 f"{_make_suffix(nproducts, do_exo)}; covariates {str_plotted}"
-                f" out of M = {n_x_res}"
+                f" out of M = {n_x_res}{bounds_suffix}"
             )
         else:
             x_plotted = np.arange(n_x_res)
-            ptitle_pars = _make_suffix(nproducts, do_exo)
+            ptitle_pars = _make_suffix(nproducts, do_exo) + bounds_suffix
         pars_plotted = (
             [0] + [1 + m for m in x_plotted] + [1 + n_x_res + m for m in x_plotted]
         )
         n_pars_plotted = len(pars_plotted)
 
         suffix = _make_suffix(nproducts, do_exo)
-        ptitle = suffix
+        ptitle = suffix + bounds_suffix
         uni_string2 = uni_sigma2
         margin = 5.0
 
@@ -276,7 +284,7 @@ def new_plots_paper(
             true_values + margin,
         )
 
-        if plot_pseudo_with_bounds:
+        if plot_pseudo_with_bounds and bounds_computed:
             df1 = []
             for ipar in pars_plotted:
                 par_name = order_parameters[ipar]
@@ -330,7 +338,11 @@ def new_plots_paper(
                 line_dash_sequence=["solid"] + ["dot"] * 2 + ["solid"] * 4,
                 template="plotly_white",
                 facet_col_spacing=0.12,
-                title=f"Pseudo-true values and efficiency bounds<br><sup>{ptitle_pars}</sup>",
+                title=(
+                    f"Pseudo-true values and efficiency bounds<br><sup>{ptitle_pars}</sup>"
+                    if bounds_computed
+                    else f"Pseudo-true values<br><sup>{ptitle_pars}</sup>"
+                ),
             )
 
             # show only the symbol for the coefficient on top of each panel
