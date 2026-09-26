@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import cast
 
 import numpy as np
 from bs_python_utils.bsutils import bs_error_abort, file_print_stars, print_stars
@@ -49,22 +50,19 @@ def angle_product_with_Z(
     a: np.ndarray, b: np.ndarray, omega: np.ndarray, Z_used: np.ndarray
 ) -> float:
     """Compute the angle product of a and b with respect to the Z_used moments and omega.
+
     Args:
         a: A 1D array of shape (npts,) representing the first vector.
         b: A 1D array of shape (npts,) representing the second vector.
-        omega: A
-        n_instr = Z_used.shape[1]2D array of shape (n_instr, n_instr) representing the weighting matrix.
+        omega: A 2D array of shape (n_instr, n_instr) representing the weighting matrix.
         Z_used: A 2D array of shape (npts, n_instr) containing the moments used in the what-if estimation.
 
     Returns:
         A scalar representing the angle product of a and b with respect to Z_used and omega.
     """
-    n_instr = Z_used.shape[1]
-    Z_a = np.zeros(n_instr)
-    Z_b = np.zeros(n_instr)
-    for k in range(n_instr):
-        Z_a[k] = np.mean(Z_used[:, k] * a)
-        Z_b[k] = np.mean(Z_used[:, k] * b)
+    npts = Z_used.shape[0]
+    Z_a = Z_used.T @ a / npts
+    Z_b = Z_used.T @ b / npts
     return float(Z_a.T @ omega @ Z_b)
 
 
@@ -98,77 +96,79 @@ def make_omega_inv(moments_used: np.ndarray) -> np.ndarray:
     Returns:
         A 2D array of shape (n_instr, n_instr) representing the omega_inv matrix.
     """
-    n_instr = moments_used.shape[1]
-    omega_inv = np.zeros((n_instr, n_instr))
-    for k in range(n_instr):
-        for kp in range(n_instr):
-            omega_inv[k, kp] = np.mean(moments_used[:, k] * moments_used[:, kp])
-    return omega_inv
+    npts = moments_used.shape[0]
+    return cast(np.ndarray, moments_used.T @ moments_used / npts)
 
 
 def estimate_what_if(
-    xvec: np.ndarray,
-    Kvec: np.ndarray,
-    Wvec: np.ndarray,
+    X: np.ndarray,
+    K: np.ndarray,
+    W: np.ndarray,
     beta0_0: float,
-    beta1_0: float,
+    beta_0: np.ndarray,
     xi_0_vec: np.ndarray,
     Z_used: np.ndarray,
     Omega: np.ndarray,
 ) -> np.ndarray:
-    npts = xvec.shape[0]
-    ones = np.ones(npts)
+    """The what-if estimator of `[beta0, beta, sigma2]`.
 
-    lhs_mat = np.zeros((3, 3))
-    lhs_mat[0, 0] = angle_product_with_Z(ones, ones, Omega, Z_used)
-    lhs_mat[0, 1] = angle_product_with_Z(ones, xvec, Omega, Z_used)
-    lhs_mat[1, 0] = angle_product_with_Z(xvec, ones, Omega, Z_used)
-    lhs_mat[1, 1] = angle_product_with_Z(xvec, xvec, Omega, Z_used)
-    lhs_mat[0, 2] = angle_product_with_Z(ones, Kvec, Omega, Z_used)
-    lhs_mat[2, 0] = angle_product_with_Z(Kvec, ones, Omega, Z_used)
-    lhs_mat[1, 2] = angle_product_with_Z(xvec, Kvec, Omega, Z_used)
-    lhs_mat[2, 1] = angle_product_with_Z(Kvec, xvec, Omega, Z_used)
-    lhs_mat[2, 2] = angle_product_with_Z(
-        Kvec, Kvec, Omega, Z_used
-    ) - 2.0 * angle_product_with_Z(Wvec, xi_0_vec, Omega, Z_used)
+    We use `xi(sigma2) = xi_0 - X dbeta - sum_m sigma2_m K_m
+    + sum_{m,n} sigma2_m sigma2_n W_mn` and linearize the GMM first-order conditions
+    around the non-random estimates.
 
-    # print_stars(
-    #     f"{angle_product_with_Z(Kvec, Kvec, Omega, Z_used)=}  and {-2.0 * angle_product_with_Z(Wvec, xi_0_vec, Omega, Z_used)=}"
-    # )
+    Args:
+        X: `(TJ, M)` covariates.
+        K: `(TJ, M)` second-order artificial regressors.
+        W: `(TJ, M, M)` fourth-order artificial regressors (half of `frac_blp.make_W`).
+        beta0_0: Non-random estimate of beta0.
+        beta_0: `(M,)` non-random estimates of beta.
+        xi_0_vec: `(TJ,)` residuals of the non-random model.
+        Z_used: `(TJ, n_instr)` instruments.
+        Omega: `(n_instr, n_instr)` weighting matrix.
 
-    rhs_vec = np.zeros(3)
-    rhs_vec[2] = angle_product_with_Z(Kvec, xi_0_vec, Omega, Z_used)
+    Returns:
+        The `(1 + 2M)` what-if estimates.
+    """
+    npts, n_x = K.shape
+    R = np.column_stack((np.ones(npts), X, K))
+    Z_R = Z_used.T @ R / npts
+    Z_xi0 = Z_used.T @ xi_0_vec / npts
+    Omega_Z_xi0 = Omega @ Z_xi0
+
+    lhs_mat = Z_R.T @ Omega @ Z_R
+    Z_W = np.einsum("il,imn->lmn", Z_used, W) / npts
+    lhs_mat[1 + n_x :, 1 + n_x :] -= 2.0 * np.einsum("lmn,l->mn", Z_W, Omega_Z_xi0)
+
+    rhs_vec = np.zeros(1 + 2 * n_x)
+    rhs_vec[1 + n_x :] = Z_R[:, 1 + n_x :].T @ Omega_Z_xi0
 
     dbeta_s2_whatif = np.linalg.solve(lhs_mat, rhs_vec)
     dbeta_whatif, s2_whatif = (
-        dbeta_s2_whatif[:2],
-        dbeta_s2_whatif[2],
+        dbeta_s2_whatif[: 1 + n_x],
+        dbeta_s2_whatif[1 + n_x :],
     )
 
-    # print_stars(f"{dbeta_whatif=}, {s2_whatif=}")
-
-    beta0_whatif = beta0_0 + dbeta_whatif[0]
-    beta1_whatif = beta1_0 + dbeta_whatif[1]
-    whatif_vals = np.array([beta0_whatif, beta1_whatif, s2_whatif])
+    beta_whatif = np.concatenate(([beta0_0], beta_0)) + dbeta_whatif
+    whatif_vals = np.concatenate((beta_whatif, s2_whatif))
 
     return whatif_vals
 
 
 def get_semi_elast_stats(
     own_semi: np.ndarray, cross_semi: np.ndarray, nproducts: int
-) -> tuple[float, float] | tuple[float, float, float, float]:
+) -> np.ndarray:
+    """Means and standard deviations across markets of the semi-elasticities.
+
+    Args:
+        own_semi: `(T, M)` own semi-elasticities.
+        cross_semi: `(T, M)` cross semi-elasticities.
+        nproducts: Number of products.
+
+    Returns:
+        An `(M, 4)` array (mean own, std own, mean cross, std cross),
+        or `(M, 2)` if `nproducts = 1`.
+    """
+    stats = [np.mean(own_semi, 0), np.std(own_semi, 0)]
     if nproducts > 1:
-        mean_own_semi_elast = float(np.mean(own_semi))
-        stderr_own_semi_elast = float(np.std(own_semi))
-        mean_cross_semi_elast = float(np.mean(cross_semi))
-        stderr_cross_semi_elast = float(np.std(cross_semi))
-        return (
-            mean_own_semi_elast,
-            stderr_own_semi_elast,
-            mean_cross_semi_elast,
-            stderr_cross_semi_elast,
-        )
-    else:
-        mean_own_semi_elast = float(np.mean(own_semi))
-        stderr_own_semi_elast = float(np.std(own_semi))
-        return mean_own_semi_elast, stderr_own_semi_elast
+        stats += [np.mean(cross_semi, 0), np.std(cross_semi, 0)]
+    return np.column_stack(stats)

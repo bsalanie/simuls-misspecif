@@ -12,7 +12,6 @@ from bs_python_utils.bsnputils import (
     npexp,
     nplog,
     npmaxabs,
-    nprepeat_row,
 )
 from bs_python_utils.bsstats import flexible_reg
 from bs_python_utils.bsutils import bs_error_abort, print_stars
@@ -172,11 +171,11 @@ def _artificial_regressors(
 
     Args:
         observed_shares: Observed market shares, a `T*J` vector
-        x: Covariates.
+        x: `(T*J, M)` covariates.
         J: Number of products.
 
     Returns:
-        Artificial regressors of order 2 and 4.
+        `K` `(T*J, M)`, `y` `(T*J,)`, `V` `(T*J, M)`, and `W` `(T*J, M, M)`.
     """
     K, y = make_K_and_y(x, observed_shares, J)
     V = make_V(x, observed_shares, J)
@@ -285,67 +284,64 @@ def _projection_instruments(
     return flexible_reg(var, z_instruments, mode=mode)
 
 
+def _instruments_matrix(z: np.ndarray) -> np.ndarray:
+    """Flatten `(T, J, M)` instruments to `(T*J, M)`, or `(T*J,)` if `M = 1`."""
+    npts = z.shape[0] * z.shape[1]
+    z_mat = z.reshape((npts, -1))
+    return z_mat[:, 0] if z_mat.shape[1] == 1 else z_mat
+
+
+def _project_columns(var: np.ndarray, z_instr: np.ndarray, mode: str) -> np.ndarray:
+    """Project each column of a `(T*J, M)` matrix on the instruments."""
+    var_proj = np.zeros_like(var)
+    for m in range(var.shape[1]):
+        var_proj[:, m] = _projection_instruments(var[:, m], z_instr, mode=mode)
+    return var_proj
+
+
 def _project_variables(
     y: np.ndarray,
-    x: np.ndarray,
+    X: np.ndarray,
     z: np.ndarray,
     K: np.ndarray,
     V: np.ndarray | None = None,
     W: np.ndarray | None = None,
     mode: str = "NP",
-) -> (
-    ThreeArrays
-    | tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]
-    | tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]
-    | None
-):
-    """Project the variables onto z.
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray | None, np.ndarray | None]:
+    """Project the variables onto the instruments z.
 
     Args:
-        y: Should be `(T, J)`.
-        x: Should be `(T, J)`.
-        z: Should be `(T, J)`.
-        K: Should be `(T, J)`.
-        V: Should be `(T, J)` if not None.
-        W: Should be `(T, J)` if not None.
-        mode: Projection mode without a micromoment. Default: `NP`.
+        y: `(T*J,)` vector.
+        X: `(T*J, M)` covariates.
+        z: `(T, J, M)` instruments.
+        K: `(T*J, M)` second-order artificial regressors.
+        V: `(T*J, M)` if not None.
+        W: `(T*J, M, M)` if not None.
+        mode: Projection mode. Default: `NP`.
 
     Returns:
-        The projections of the 3, 4, or 5 variables as `T`-vectors.
+        The projections of y `(T*J,)`, X and K `(T*J, M)`, V `(T*J, M)` or None,
+        and W `(T*J, M, M)` or None.
     """
-    npts = y.size
-    Kvec = K.reshape(npts)
-    xvec = x.reshape(npts)
-    yvec = y.reshape(npts)
-    zvec = z.reshape(npts)
+    z_instr = _instruments_matrix(z)
 
-    y_proj = _projection_instruments(yvec, zvec, mode=mode)
-    x_proj = _projection_instruments(xvec, zvec, mode=mode)
-    K_proj = _projection_instruments(Kvec, zvec, mode=mode)
+    y_proj = _projection_instruments(y, z_instr, mode=mode)
+    X_proj = _project_columns(X, z_instr, mode)
+    K_proj = _project_columns(K, z_instr, mode)
 
-    match (V, W):
-        case (None, None):
-            return y_proj, x_proj, K_proj
-        case (np.ndarray, None):
-            V = cast(np.ndarray, V)
-            Vvec = V.reshape(npts)
-            V_proj = _projection_instruments(Vvec, zvec, mode=mode)
-            return y_proj, x_proj, K_proj, V_proj
-        case (None, np.ndarray):
-            W = cast(np.ndarray, W)
-            Wvec = W.reshape(npts)
-            W_proj = _projection_instruments(Wvec, zvec, mode=mode)
-            return y_proj, x_proj, K_proj, W_proj
-        case (np.ndarray, np.ndarray):
-            V = cast(np.ndarray, V)
-            W = cast(np.ndarray, W)
-            Vvec = V.reshape(npts)
-            V_proj = _projection_instruments(Vvec, zvec, mode=mode)
-            Wvec = W.reshape(npts)
-            W_proj = _projection_instruments(Wvec, zvec, mode=mode)
-            return y_proj, x_proj, K_proj, V_proj, W_proj
+    V_proj = None if V is None else _project_columns(V, z_instr, mode)
+    W_proj = None
+    if W is not None:
+        n_x = W.shape[1]
+        W_proj = np.zeros_like(W)
+        for m in range(n_x):
+            for n in range(m, n_x):
+                W_proj[:, m, n] = _projection_instruments(
+                    W[:, m, n], z_instr, mode=mode
+                )
+                W_proj[:, n, m] = W_proj[:, m, n]
 
-    return None
+    return y_proj, X_proj, K_proj, V_proj, W_proj
 
 
 def _reshape_proj(var_proj: np.ndarray, nproducts: int) -> np.ndarray:
@@ -359,13 +355,19 @@ def _reshape_proj(var_proj: np.ndarray, nproducts: int) -> np.ndarray:
 
 def _our_tsls0(
     y_proj: np.ndarray,
-    x_proj: np.ndarray,
+    X_proj: np.ndarray,
 ):
-    #  the "optimal" instruments will be in Zstar0
+    """Regress `y_proj` on a constant and `X_proj` (the non-random model).
+
+    Args:
+        y_proj: `(T*J,)` projected LHS.
+        X_proj: `(T*J, M)` (or `(T*J,)`) projected covariates.
+
+    Returns:
+        The instruments, the `1 + M` coefficients, and the condition number.
+    """
     npts = y_proj.size
-    Zstar0 = np.zeros((npts, 2))
-    Zstar0[:, 0] = np.ones(npts)
-    Zstar0[:, 1] = x_proj
+    Zstar0 = np.column_stack((np.ones(npts), X_proj))
 
     nonrandom_vals, _, _, s = spla.lstsq(Zstar0, y_proj)
     cond_number = abs(s[0] / s[-1])
@@ -374,15 +376,21 @@ def _our_tsls0(
 
 def _our_tsls2(
     y_proj: np.ndarray,
-    x_proj: np.ndarray,
+    X_proj: np.ndarray,
     K_proj: np.ndarray,
 ):
-    #  the "optimal" instruments will be in Zstar2
+    """Regress `y_proj` on a constant, `X_proj`, and `K_proj` (Salanie-Wolak).
+
+    Args:
+        y_proj: `(T*J,)` projected LHS.
+        X_proj: `(T*J, M)` (or `(T*J,)`) projected covariates.
+        K_proj: `(T*J, M)` (or `(T*J,)`) projected artificial regressors.
+
+    Returns:
+        The instruments, the `1 + 2M` coefficients, and the condition number.
+    """
     npts = y_proj.size
-    Zstar2 = np.zeros((npts, 3))
-    Zstar2[:, 0] = np.ones(npts)
-    Zstar2[:, 1] = x_proj
-    Zstar2[:, -1] = K_proj
+    Zstar2 = np.column_stack((np.ones(npts), X_proj, K_proj))
 
     pseudo_vals, _, _, s = spla.lstsq(Zstar2, y_proj)
     cond_number = abs(s[0] / s[-1])
@@ -395,16 +403,10 @@ def _print_pseudo_true_errors(
     names_ptv: List[str],
     verbose: bool = False,
 ):
-    n_params = true_p.size
-    if n_params == 4:  # we have a micromoment
-        _, _, sig2 = true_p
-        if verbose:
-            print_stars(f"Pseudo-true errors for true sigma2={sig2: 10.4f}:")
-    else:
-        sig2 = true_p[2]
-        if verbose:
-            print_stars(f"Pseudo-true errors for true sigma2={sig2: 10.4f}:")
     if verbose:
+        n_params = true_p.size
+        n_x = (n_params - 1) // 2
+        print_stars(f"Pseudo-true errors for true sigma2={true_p[1 + n_x :]}:")
         for i in range(n_params):
             print(f"on {names_ptv[i]}: {pseudo_vals[i] - true_p[i]: >10.4f}")
 
@@ -507,54 +509,66 @@ def estimated_xi_infty(
     return xi_infty_est, rcodes, nevals
 
 
+def _split_params(pars: np.ndarray, n_x: int) -> ThreeArrays:
+    """Split `[beta0, beta_1..beta_M, sigma2_1..sigma2_M]` into its three parts."""
+    return pars[:1], pars[1 : 1 + n_x], pars[1 + n_x : 1 + 2 * n_x]
+
+
 def _true_optimal_instruments(
     true_p: np.ndarray,
     true_mean_utils_xi: np.ndarray,
     observed_shares: np.ndarray,
     x: np.ndarray,
-    x_proj: np.ndarray,
+    X_proj: np.ndarray,
     z: np.ndarray,
-    nodes1: np.ndarray,
-    weights1: np.ndarray,
+    nodes: np.ndarray,
+    weights: np.ndarray,
     mode: str = "NP",
 ):
+    """Optimal instruments for `[beta0, beta, sigma2]` at the true values.
+
+    Args:
+        true_p: `(1 + 2M)` true values of the parameters.
+        true_mean_utils_xi: `(T, J)` true mean utilities with the product effects.
+        observed_shares: `(T, J)` market shares.
+        x: `(T, J, M)` covariates.
+        X_proj: `(T*J, M)` projected covariates.
+        z: `(T, J, M)` instruments.
+        nodes: `(L, M)` nodes for Gaussian integration.
+        weights: `(L,)` weights for Gaussian integration.
+        mode: Projection mode.
+
+    Returns:
+        A `(T*J, 1 + 2M)` matrix.
+    """
     n_params = true_p.size
-
-    nmarkets, nproducts = observed_shares.shape
+    n_x = x.shape[2]
     npts = observed_shares.size
-    shares_vec = observed_shares.reshape(npts)
-    xvec = x.reshape(npts)
-    zvec = z.reshape(npts)
+    z_instr = _instruments_matrix(z)
 
-    s2 = true_p[-1]
-    sigma_val = sqrt_kludge(s2)
+    _, _, s2 = _split_params(true_p, n_x)
+    sig_vec = np.array([sqrt_kludge(s2_m) for s2_m in s2])
 
     Zstar = np.zeros((npts, n_params))
     Zstar[:, 0] = -1.0
-    Zstar[:, 1] = -x_proj
+    Zstar[:, 1 : 1 + n_x] = -X_proj.reshape((npts, n_x))
 
-    sig_val = sqrt_kludge(s2)
-    E_stj_stk = _exp_stj_stk(true_mean_utils_xi, x, sig_val, nodes1, weights1)
-    E_stj_stk_eps = _exp_stj_stk_eps(true_mean_utils_xi, x, sig_val, nodes1, weights1)
-    E_stj_eps = _exp_stj_eps(true_mean_utils_xi, x, sig_val, nodes1, weights1).reshape(
-        npts
-    )
-    dxi_ds = np.zeros(npts)
+    E_stj_stk = _exp_stj_stk(true_mean_utils_xi, x, sig_vec, nodes, weights)
+    E_stj_stk_eps = _exp_stj_stk_eps(true_mean_utils_xi, x, sig_vec, nodes, weights)
+    E_stj_eps = _exp_stj_eps(true_mean_utils_xi, x, sig_vec, nodes, weights)
 
-    Nbar = -xvec * E_stj_eps
-    start_t = 0
-    for t in range(nmarkets):
-        end_t = start_t + nproducts
-        sli_t = slice(start_t, end_t)
-        Mbar_t = np.diag(shares_vec[sli_t])
-        Mbar_t -= E_stj_stk[t, :, :]
-        Nbar_t = Nbar[sli_t] + (E_stj_stk_eps[t, :, :] @ xvec[sli_t])
-        dxi_ds[sli_t] = spla.solve(Mbar_t, Nbar_t, assume_a="sym")
-        start_t = end_t
+    # Mbar = ds/dxi, Nbar = -ds/dsigma
+    Mbar = -E_stj_stk
+    nproducts = x.shape[1]
+    for j in range(nproducts):
+        Mbar[:, j, j] += observed_shares[:, j]
+    Nbar = -x * E_stj_eps + np.einsum("tjkm,tkm->tjm", E_stj_stk_eps, x)
+    dxi_ds = np.linalg.solve(Mbar, Nbar)  # (T, J, M)
 
-    Edxi_ds = flexible_reg(dxi_ds, zvec, mode=mode)
-    # we want bounds for sigma**2
-    Zstar[:, 2] = Edxi_ds / (2.0 * sigma_val)
+    for m in range(n_x):
+        Edxi_ds_m = flexible_reg(dxi_ds[:, :, m].reshape(npts), z_instr, mode=mode)
+        # we want bounds for sigma**2
+        Zstar[:, 1 + n_x + m] = Edxi_ds_m / (2.0 * sig_vec[m])
 
     return Zstar
 
@@ -564,17 +578,32 @@ def _true_semi_elasticities(
     observed_shares: np.ndarray,
     x: np.ndarray,
     true_mean_utils_xi: np.ndarray,
-    nodes1: np.ndarray,
-    weights1: np.ndarray,
+    nodes: np.ndarray,
+    weights: np.ndarray,
 ):
-    nmarkets, nproducts = observed_shares.shape
-    dshares_dx = _dshares_dx(true_mean_utils_xi, x, true_p, nodes1, weights1)
-    observed_shares_0 = observed_shares[:, 0]
-    dsh_dx0 = dshares_dx[:, 0] if dshares_dx.ndim == 2 else dshares_dx[:, 0, 0]
-    true_own_semi = dsh_dx0 / observed_shares_0
-    true_cross_semi = np.zeros(nmarkets)
+    """True semi-elasticities of the share of product 0 with respect to each x_m.
+
+    Args:
+        true_p: `(1 + 2M)` true values of `[beta0, beta, sigma2]`.
+        observed_shares: `(T, J)` market shares.
+        x: `(T, J, M)` covariates.
+        true_mean_utils_xi: `(T, J)` true mean utilities with the product effects.
+        nodes: `(L, M)` nodes for Gaussian integration.
+        weights: `(L,)` weights for Gaussian integration.
+
+    Returns:
+        Own and cross semi-elasticities, both `(T, M)`, and the `(T, J, J, M)`
+        derivatives of the shares in x.
+    """
+    nmarkets, nproducts, n_x = x.shape
+    _, beta, s2 = _split_params(true_p, n_x)
+    sig_vec = np.sqrt(np.maximum(s2, 0.0))
+    dshares_dx = _dshares_dx(true_mean_utils_xi, x, beta, sig_vec, nodes, weights)
+    observed_shares_0 = observed_shares[:, 0].reshape((-1, 1))
+    true_own_semi = dshares_dx[:, 0, 0, :] / observed_shares_0
+    true_cross_semi = np.zeros((nmarkets, n_x))
     if nproducts > 1:  # cross semi-elasticity
-        true_cross_semi = dshares_dx[:, 0, 1] / observed_shares_0
+        true_cross_semi = dshares_dx[:, 0, 1, :] / observed_shares_0
     return true_own_semi, true_cross_semi, dshares_dx
 
 
@@ -583,101 +612,75 @@ def _nonrandom_semi_elasticities(
     observed_shares: np.ndarray,
     x: np.ndarray,
 ):
-    beta1_0 = nonrandom_vals[1]
+    """Semi-elasticities of the share of product 0 in the non-random model.
+
+    Args:
+        nonrandom_vals: `(1 + M)` estimates of `[beta0, beta]`.
+        observed_shares: `(T, J)` market shares.
+        x: `(T, J, M)` covariates.
+
+    Returns:
+        Own and cross semi-elasticities, both `(T, M)`.
+    """
+    n_x = x.shape[2]
+    beta_0 = nonrandom_vals[1 : 1 + n_x]
 
     nmarkets, nproducts = observed_shares.shape
-    nonrandom_own_semi = np.zeros(nmarkets)
-    nonrandom_cross_semi = np.zeros(nmarkets)
-
-    for t in range(nmarkets):
-        sh_t = observed_shares[t, :]
-        # own semi-elasticity
-        nonrandom_own_semi[t] = beta1_0 * (1.0 - sh_t[0])
-        if nproducts > 1:  # cross semi-elasticity
-            nonrandom_cross_semi[t] = -beta1_0 * sh_t[1]
+    nonrandom_own_semi = np.outer(1.0 - observed_shares[:, 0], beta_0)
+    nonrandom_cross_semi = np.zeros((nmarkets, n_x))
+    if nproducts > 1:  # cross semi-elasticity
+        nonrandom_cross_semi = -np.outer(observed_shares[:, 1], beta_0)
 
     return nonrandom_own_semi, nonrandom_cross_semi
 
 
-def _pseudo_semi_elasticities(
+def _pseudo_semi_elasticities_ift(
     pseudo_vals: np.ndarray,
     observed_shares: np.ndarray,
     x: np.ndarray,
 ):
-    beta1_2 = pseudo_vals[1]
-    s2 = pseudo_vals[-1]
+    """Semi-elasticities of the share of product 0 in the approximate model.
 
-    nmarkets, nproducts = observed_shares.shape
-    pseudo_own_semi = np.zeros(nmarkets)
-    pseudo_cross_semi = np.zeros(nmarkets)
-    e_S_x = np.sum(observed_shares * x, 1)
-    observed_shares0 = 1.0 - np.sum(observed_shares, 1)
-    exp_y = observed_shares / observed_shares0.reshape((-1, 1))
+    The shares solve `log(s_j/s_0) = beta0 + x_j'beta + sum_m sigma2_m K_jm(s, x) + xi_j`;
+    we differentiate this equation by the implicit function theorem:
+    `A ds = B_m dx_m` with `A = diag(1/s) + 11'/s_0 + sum_m sigma2_m x_m x_m'`
+    and `B_m = beta_m I + sigma2_m (diag(x_m - e_m) - x_m s')`, where `e_m = s'x_m`.
 
-    for t in range(nmarkets):
-        x_t, sh_t, e_t, exp_y_t = (
-            x[t, :],
-            observed_shares[t, :],
-            e_S_x[t],
-            exp_y[t, :],
-        )
-        dK_dx_t = -np.outer(x_t, sh_t)
-        dK_dx_t += np.diag(x_t - e_t)
-        lhs_mat = nprepeat_row(exp_y_t, nproducts)
-        lhs_mat += np.eye(nproducts)
-        rhs_mat = s2 * dK_dx_t
-        rhs_mat += beta1_2 * np.eye(nproducts)
-        semi_elast_t = spla.solve(lhs_mat, rhs_mat)
-        # own semi-elasticity
-        pseudo_own_semi[t] = semi_elast_t[0, 0]
-        if nproducts > 1:  # cross semi-elasticity
-            pseudo_cross_semi[t] = semi_elast_t[0, 1]
+    Args:
+        pseudo_vals: `(1 + 2M)` values of `[beta0, beta, sigma2]`.
+        observed_shares: `(T, J)` market shares.
+        x: `(T, J, M)` covariates.
 
-    return pseudo_own_semi, pseudo_cross_semi
+    Returns:
+        Own and cross semi-elasticities, both `(T, M)`.
+    """
+    nmarkets, nproducts, n_x = x.shape
+    _, beta, s2 = _split_params(pseudo_vals, n_x)
 
+    shares = observed_shares
+    outside_shares = 1.0 - np.sum(shares, 1)
+    A = np.einsum("tjm,tkm,m->tjk", x, x, s2)
+    A += (1.0 / outside_shares).reshape((-1, 1, 1))
+    for j in range(nproducts):
+        A[:, j, j] += 1.0 / shares[:, j]
+    # A is symmetric: the first row of A^{-1} solves A a0 = e_0
+    e_0 = np.zeros((nmarkets, nproducts))
+    e_0[:, 0] = 1.0
+    a0 = np.linalg.solve(A, e_0[:, :, np.newaxis])[:, :, 0]  # (T, J)
 
-def _pseudo_semi_elasticities_anal(
-    pseudo_vals: np.ndarray,
-    observed_shares: np.ndarray,
-    x: np.ndarray,
-):
-    beta1_2 = pseudo_vals[1]
-    s2 = pseudo_vals[-1]
-    s4 = s2 * s2
+    e_S_x = np.einsum("tj,tjm->tm", shares, x)
+    a0_x = np.einsum("tj,tjm->tm", a0, x)
+    # row 0 of A^{-1} B_m, column k
+    D0 = np.einsum("tk,m->tkm", a0, beta) + s2 * (
+        a0[:, :, np.newaxis] * (x - e_S_x[:, np.newaxis, :])
+        - a0_x[:, np.newaxis, :] * shares[:, :, np.newaxis]
+    )
 
-    nmarkets, nproducts = observed_shares.shape
-    pseudo_own_semi = np.zeros(nmarkets)
-    pseudo_cross_semi = np.zeros(nmarkets)
-    e_S_x = np.sum(observed_shares * x, 1)
-    v_S_x = np.sum(observed_shares * x * x, 1) - e_S_x * e_S_x
-    tilde_x = x - e_S_x.reshape((-1, 1))
-
-    for t in range(nmarkets):
-        tilde_x_t, sh_t, e_t, v_t = (
-            tilde_x[t, :],
-            observed_shares[t, :],
-            e_S_x[t],
-            v_S_x[t],
-        )
-        denom_t = 1.0 + s2 * v_t
-        txt0 = tilde_x_t[0]
-        sht0 = sh_t[0]
-        dvt0 = v_t - txt0 * e_t
-        pseudo_own_semi[t] = (
-            beta1_2 * (1.0 - sht0)
-            + s2 * txt0
-            - s2 * sht0 * (2.0 * txt0 + beta1_2 * dvt0) / denom_t
-            - s4 * sht0 * (2.0 * txt0 * v_t - (txt0 + v_t) * e_t) / denom_t
-        )
-        if nproducts > 1:  # cross semi-elasticity
-            sht1 = sh_t[1]
-            txt1 = tilde_x_t[1]
-            dvt1 = v_t - txt1 * e_t
-            pseudo_cross_semi[t] = (
-                -beta1_2 * sht1
-                - s2 * sht1 * (txt0 + txt1 + beta1_2 * dvt1) / denom_t
-                - s4 * sht1 * ((txt0 + txt1) * v_t - (txt1 + v_t) * e_t) / denom_t
-            )
+    shares_0 = shares[:, 0].reshape((-1, 1))
+    pseudo_own_semi = D0[:, 0, :] / shares_0
+    pseudo_cross_semi = np.zeros((nmarkets, n_x))
+    if nproducts > 1:  # cross semi-elasticity
+        pseudo_cross_semi = D0[:, 1, :] / shares_0
 
     return pseudo_own_semi, pseudo_cross_semi
 

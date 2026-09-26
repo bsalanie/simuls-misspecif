@@ -5,8 +5,6 @@ from typing import cast
 
 import numpy as np
 from bs_python_utils.bs_mem import memory_display_top, memory_display_top_diffs
-from bs_python_utils.bs_sparse_gaussian import setup_sparse_gaussian
-from bs_python_utils.bsnputils import ThreeArrays
 from bs_python_utils.bsutils import print_stars
 
 from simuls_misspecif.create_samples import make_shares
@@ -17,12 +15,21 @@ from simuls_misspecif.evaluations import (
     _our_tsls2,
     _print_pseudo_true_errors,
     _project_variables,
-    _pseudo_semi_elasticities_anal,
+    _pseudo_semi_elasticities_ift,
     _true_optimal_instruments,
     _true_semi_elasticities,
 )
-from simuls_misspecif.MNL_params import do_a_second, do_bounds_semi_elast
-from simuls_misspecif.MNL_utils import SimulationCase, _mean_utils
+from simuls_misspecif.MNL_params import (
+    do_a_second,
+    do_bounds_semi_elast,
+    n_gh_integrals,
+)
+from simuls_misspecif.MNL_utils import (
+    SimulationCase,
+    _mean_utils,
+    integration_nodes,
+    make_names_params,
+)
 from simuls_misspecif.utils import (
     estimate_what_if,
     f_print_stars,
@@ -92,21 +99,23 @@ def get_the_stats(case: SimulationCase | list, save_more: bool = False) -> dict:
     npts = nmarkets * nproducts
     ones = np.ones(npts)
 
-    nodes1, weights1 = setup_sparse_gaussian(1, iprec)
-
     true_pars, data_pars = model.true_pars, model.data_pars
+    n_x = data_pars.n_x
     sigxi = data_pars.sigxi
-    true_beta0, true_beta1 = true_pars.beta0, true_pars.beta1
+    true_beta0, true_beta = true_pars.beta0, true_pars.beta
+    sigma_profile = true_pars.sigma_profile
+
+    nodes, weights = integration_nodes(n_x, iprec, n_gh_integrals)
 
     n_elast = 1 if nproducts == 1 else 2
     n_sigmas = sigma_range.size
     n_instr = 3
     m = nproducts * n_instr
 
-    n_params = 3
+    n_params = 1 + 2 * n_x
     coeffs_shape = (n_sigmas,)
-    names_ptv = ["beta0", "beta1", "sigma2"]
-    names_spb = ["beta0", "beta1", "sigma2"]
+    names_ptv = make_names_params(n_x)
+    names_spb = names_ptv
 
     nonrandom_values = np.zeros(coeffs_shape + (n_params,))
     pseudo_true_values = np.zeros(coeffs_shape + (n_params,))
@@ -118,7 +127,7 @@ def get_the_stats(case: SimulationCase | list, save_more: bool = False) -> dict:
     omega_inv_eigenvalues = np.zeros(coeffs_shape + (m,))
     omega_inv_eigenvectors = np.zeros(coeffs_shape + (m, m))
 
-    shape_elast = coeffs_shape + (2 * n_elast,)
+    shape_elast = coeffs_shape + (n_x, 2 * n_elast)
 
     values_nonrandom_semi_elast = np.zeros(shape_elast)
     values_pseudo_semi_elast = np.zeros(shape_elast)
@@ -146,10 +155,10 @@ def get_the_stats(case: SimulationCase | list, save_more: bool = False) -> dict:
         errors_xi2 = np.zeros(coeffs_shape + (nmarkets, nproducts))
         ZZ = np.zeros(coeffs_shape + (n_params, n_params))
         Zy = np.zeros(coeffs_shape + (n_params,))
-        ZV = np.zeros(coeffs_shape + (n_params,))
-        ZW = np.zeros(coeffs_shape + (n_params,))
-        xiV = np.zeros(coeffs_shape)
-        xiW = np.zeros(coeffs_shape)
+        ZV = np.zeros(coeffs_shape + (n_params, n_x))
+        ZW = np.zeros(coeffs_shape + (n_params, n_x, n_x))
+        xiV = np.zeros(coeffs_shape + (n_x,))
+        xiW = np.zeros(coeffs_shape + (n_x, n_x))
 
     snapshot1 = None
 
@@ -160,77 +169,86 @@ def get_the_stats(case: SimulationCase | list, save_more: bool = False) -> dict:
     # create the data, except for the shares
     draws = data_pars.generate_random_draws(nmarkets, nproducts, stream)
     true_xi, x, z = data_pars.generate_exogenous_vars_from_draws(draws)
-    xmat = x.reshape((npts, 1))
-    xvec = xmat[:, 0]
-    zvec = z.reshape(npts)
+    xmat = x.reshape((npts, n_x))
+    zmat = z.reshape((npts, n_x))
+
+    # the instruments for the over-identified what-if:
+    #   powers 1 to 4 of each z_m and the products z_m z_n
+    Z_powers_list = [ones]
+    for m_x in range(n_x):
+        z_m = zmat[:, m_x]
+        Z_powers_list += [z_m, z_m**2, z_m**3, z_m**4]
+    for m_x in range(n_x):
+        for n_x2 in range(m_x + 1, n_x):
+            Z_powers_list.append(zmat[:, m_x] * zmat[:, n_x2])
+    Z_powers = np.column_stack(Z_powers_list)
 
     for isig, sigma_val in enumerate(sigma_range):
         V_proj: np.ndarray | None = None
         W_proj: np.ndarray | None = None
 
-        true_mean_utils = _mean_utils(true_beta0, true_beta1, x)
+        sig_vec = sigma_val * sigma_profile
+        sig2_vec = sig_vec * sig_vec
+
+        true_mean_utils = _mean_utils(true_beta0, true_beta, x)
         true_mean_utils_xi = true_mean_utils + true_xi
 
         # generate the shares
-        observed_shares_mat = make_shares(true_mean_utils_xi, x, sigma_val)
+        observed_shares_mat = make_shares(true_mean_utils_xi, x, sig_vec)
         observed_shares_vec = observed_shares_mat.reshape(npts)
-
-        sig2 = sigma_val * sigma_val
 
         Kmat, yvec, Vmat, Warr = _artificial_regressors(
             observed_shares_vec, xmat, nproducts
         )
-        Kvec = Kmat[:, 0]
-        Vvec = Vmat[:, 0]
-        Wvec = Warr[:, 0, 0]
+        # the what-if uses half of the frac_blp W
+        Whalf = Warr / 2.0
         ymat = yvec.reshape((nmarkets, nproducts))
-        Kmat = Kvec.reshape((nmarkets, nproducts))
+        K_sig2 = (Kmat @ sig2_vec).reshape((nmarkets, nproducts))
 
         # project the variables on the instruments
         if do_a_second:
-            y_proj, x_proj, K_proj, V_proj, W_proj = cast(
-                tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray],
-                _project_variables(yvec, xvec, z, Kvec, Vvec, Wvec, mode=mode),
+            y_proj, X_proj, K_proj, V_proj, W_proj = _project_variables(
+                yvec, xmat, z, Kmat, Vmat, Warr, mode=mode
             )
         else:
-            y_proj, x_proj, K_proj = cast(
-                ThreeArrays, _project_variables(yvec, xvec, z, Kvec, mode=mode)
+            y_proj, X_proj, K_proj, _, _ = _project_variables(
+                yvec, xmat, z, Kmat, mode=mode
             )
 
         # true_p contains the true values of the coefficients we estimate in TSLS
-        true_p = np.array([true_beta0, true_beta1, sig2])
+        true_p = np.concatenate(([true_beta0], true_beta, sig2_vec))
 
         # evaluate xi(0, 2) - xi(infty)
         true_xi0 = ymat - true_mean_utils
-        true_xi2 = true_xi0 - sig2 * Kmat
+        true_xi2 = true_xi0 - K_sig2
         errors2 = true_xi2 - true_xi
 
         #################################################################################
         ##                        our TSLS                                             ##
         #################################################################################
         # start = time.time()
-        nonrandom_vals = _our_tsls0(y_proj, x_proj)[1]
+        nonrandom_vals = _our_tsls0(y_proj, X_proj)[1]
         beta0_0 = nonrandom_vals[0]
-        beta1_0 = nonrandom_vals[1]
+        beta_0 = nonrandom_vals[1:]
 
-        Zstar2, pseudo_vals, cond_number2 = _our_tsls2(y_proj, x_proj, K_proj)
+        Zstar2, pseudo_vals, cond_number2 = _our_tsls2(y_proj, X_proj, K_proj)
         Zstar2_T = Zstar2.T
 
         beta0_2 = pseudo_vals[0]
-        beta1_2 = pseudo_vals[1]
-        s2_2 = pseudo_vals[-1]
+        beta_2 = pseudo_vals[1 : 1 + n_x]
+        s2_2 = pseudo_vals[1 + n_x :]
 
         if verbose:
             _print_pseudo_true_errors(true_p, pseudo_vals, names_ptv, verbose=True)
 
         # the estimated mean utilities
-        mean_utils_0 = _mean_utils(beta0_0, beta1_0, x)
-        mean_utils_2 = _mean_utils(beta0_2, beta1_2, x)
+        mean_utils_0 = _mean_utils(beta0_0, beta_0, x)
+        mean_utils_2 = _mean_utils(beta0_2, beta_2, x)
 
         # the estimated approximate xi
         xi_0 = ymat - mean_utils_0
         xi_0_vec = xi_0.reshape(npts)
-        xi2_2 = ymat - mean_utils_2 - s2_2 * Kmat
+        xi2_2 = ymat - mean_utils_2 - (Kmat @ s2_2).reshape((nmarkets, nproducts))
         xi_2 = cast(np.ndarray, xi2_2.reshape(npts))
 
         # end = time.time()
@@ -239,21 +257,6 @@ def get_the_stats(case: SimulationCase | list, save_more: bool = False) -> dict:
         #################################################################################
         ##                        the what-if second-order version                     ##
         #################################################################################
-
-        eS_x = np.sum(observed_shares_mat * x, axis=1)
-        sq_eS_x = eS_x * eS_x
-        eS_x2 = np.sum(observed_shares_mat * x * x, axis=1)
-        Wmat = (
-            x * (-x + 2.0 * eS_x.reshape((-1, 1))) * (eS_x2 - sq_eS_x).reshape((-1, 1))
-        )
-        # Wmat = 2.0 * x * (eS_x * (eS_x2 - sq_eS_x)).reshape((-1, 1))
-        # for t in range(nmarkets):
-        #     eSxt = x[t, :] @ observed_shares_mat[t, :]
-        #     eSx2t = (x[t, :] * x[t, :]) @ observed_shares_mat[t, :]
-        #     for j in range(nproducts):
-        #         Wmat[t, j] = x[t, j] * (2.0 * eSxt - x[t, j]) * (eSx2t - eSxt * eSxt)
-        # Wmat[t, :] = x[t, j] * (2.0 * eSxt - x[t, j]) * (eSx2t - eSxt * eSxt)
-        Wvec = Wmat.reshape(npts) / 2.0
 
         Z_used = Zstar2
         moments_used = Zstar2
@@ -266,13 +269,9 @@ def get_the_stats(case: SimulationCase | list, save_more: bool = False) -> dict:
             print_stars(f"eigenvalues of Omega:\n{np.linalg.eigvals(Omega)}")
 
         whatif_just_vals = estimate_what_if(
-            xvec, Kvec, Wvec, beta0_0, beta1_0, xi_0_vec, Z_used, Omega
+            xmat, Kmat, Whalf, beta0_0, beta_0, xi_0_vec, Z_used, Omega
         )
 
-        zvec2 = zvec * zvec
-        zvec3 = zvec2 * zvec
-        zvec4 = zvec3 * zvec
-        Z_powers = np.column_stack((ones, zvec, zvec2, zvec3, zvec4))
         Z_used = Z_powers
         moments_used = Z_powers
         omega_inv = make_omega_inv(moments_used)
@@ -281,13 +280,13 @@ def get_the_stats(case: SimulationCase | list, save_more: bool = False) -> dict:
             print_stars(f"eigenvalues of Omega:\n{np.linalg.eigvals(Omega)}")
 
         whatif_over_vals = estimate_what_if(
-            xvec, Kvec, Wvec, beta0_0, beta1_0, xi_0_vec, Z_used, Omega
+            xmat, Kmat, Whalf, beta0_0, beta_0, xi_0_vec, Z_used, Omega
         )
 
         print_stars("True ; estimates SW, just, over:")
         for i in range(n_params):
             print(
-                f"{true_p[i]: .3f};",
+                f"{names_ptv[i]:>9}: {true_p[i]: .3f};",
                 f"  {pseudo_vals[i]: .3f},",
                 f"  {whatif_just_vals[i]: .3f},",
                 f"  {whatif_over_vals[i]: .3f}",
@@ -301,20 +300,20 @@ def get_the_stats(case: SimulationCase | list, save_more: bool = False) -> dict:
             nonrandom_vals, observed_shares_mat, x
         )
 
-        pseudo_own_semi, pseudo_cross_semi = _pseudo_semi_elasticities_anal(
+        pseudo_own_semi, pseudo_cross_semi = _pseudo_semi_elasticities_ift(
             pseudo_vals, observed_shares_mat, x
         )
 
-        whatif_just_own_semi, whatif_just_cross_semi = _pseudo_semi_elasticities_anal(
+        whatif_just_own_semi, whatif_just_cross_semi = _pseudo_semi_elasticities_ift(
             whatif_just_vals, observed_shares_mat, x
         )
 
-        whatif_over_own_semi, whatif_over_cross_semi = _pseudo_semi_elasticities_anal(
+        whatif_over_own_semi, whatif_over_cross_semi = _pseudo_semi_elasticities_ift(
             whatif_over_vals, observed_shares_mat, x
         )
 
         true_own_semi, true_cross_semi, dshares_dx = _true_semi_elasticities(
-            true_p, observed_shares_mat, x, true_mean_utils_xi, nodes1, weights1
+            true_p, observed_shares_mat, x, true_mean_utils_xi, nodes, weights
         )
 
         resus_nonrandom_semi_elast = get_semi_elast_stats(
@@ -346,10 +345,10 @@ def get_the_stats(case: SimulationCase | list, save_more: bool = False) -> dict:
             true_mean_utils_xi,
             observed_shares_mat,
             x,
-            x_proj,
+            X_proj,
             z,
-            nodes1,
-            weights1,
+            nodes,
+            weights,
             mode=mode,
         )
         Zstar_T = Zstar.T
@@ -364,7 +363,7 @@ def get_the_stats(case: SimulationCase | list, save_more: bool = False) -> dict:
             print_stars(
                 (
                     f"          {model.long_name}\n"
-                    f"   variance bounds for true sigma2={sig2: 10.4f}"
+                    f"   variance bounds for true sigma2={sig2_vec}"
                     f" with {nproducts} products:"
                 )
             )
@@ -374,17 +373,17 @@ def get_the_stats(case: SimulationCase | list, save_more: bool = False) -> dict:
         # end = time.time()
         # print(f"spe bounds took {end - start} seconds")
 
-        nonrandom_values[isig, :2] = nonrandom_vals
-        nonrandom_values[isig, 2] = 0.0
+        nonrandom_values[isig, : 1 + n_x] = nonrandom_vals
+        nonrandom_values[isig, 1 + n_x :] = 0.0
         pseudo_true_values[isig, :] = pseudo_vals
         whatif_just_values[isig, :] = whatif_just_vals
         whatif_over_values[isig, :] = whatif_over_vals
         sp_bounds[isig, :, :] = spb
-        values_nonrandom_semi_elast[isig, :] = resus_nonrandom_semi_elast
-        values_pseudo_semi_elast[isig, :] = resus_pseudo_semi_elast
-        values_whatif_just_semi_elast[isig, :] = resus_whatif_just_semi_elast
-        values_whatif_over_semi_elast[isig, :] = resus_whatif_over_semi_elast
-        values_true_semi_elast[isig, :] = resus_true_semi_elast
+        values_nonrandom_semi_elast[isig] = resus_nonrandom_semi_elast
+        values_pseudo_semi_elast[isig] = resus_pseudo_semi_elast
+        values_whatif_just_semi_elast[isig] = resus_whatif_just_semi_elast
+        values_whatif_over_semi_elast[isig] = resus_whatif_over_semi_elast
+        values_true_semi_elast[isig] = resus_true_semi_elast
         cond_numbers2[isig] = cond_number2
         cond_numbers_bounds[isig] = cond_bounds
         if (
@@ -406,10 +405,10 @@ def get_the_stats(case: SimulationCase | list, save_more: bool = False) -> dict:
                 and V_proj is not None
                 and W_proj is not None
             ):
-                ZV[isig, :] = Zstar2_T @ V_proj
-                ZW[isig, :] = Zstar2_T @ W_proj
-                xiV[isig] = np.dot(xi_2, V_proj)
-                xiW[isig] = np.dot(xi_2, W_proj)
+                ZV[isig] = Zstar2_T @ V_proj
+                ZW[isig] = np.einsum("ip,imn->pmn", Zstar2, W_proj)
+                xiV[isig] = xi_2 @ V_proj
+                xiW[isig] = np.einsum("i,imn->mn", xi_2, W_proj)
             xi_vals[isig, :, :] = true_xi
             estimated_xi2[isig, :, :] = xi2_2
             errors_xi2[isig, :, :] = errors2
@@ -420,6 +419,7 @@ def get_the_stats(case: SimulationCase | list, save_more: bool = False) -> dict:
 
     dict_results = {
         "model": model,
+        "n_x": n_x,
         "non-random values": nonrandom_values,
         "pseudo true values": pseudo_true_values,
         "whatif just values": whatif_just_values,

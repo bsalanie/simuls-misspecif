@@ -6,8 +6,10 @@ import numpy as np
 
 from simuls_misspecif.MNL_utils import DataParams, TrueParams
 
-# a starting set of parameter values, modified in the simulation scenarii
-true_pars = TrueParams(beta0=0.0, beta1=1.0, sigma=0.5)
+# a starting set of parameter values, modified in the simulation scenarii;
+#  the standard errors of the random coefficients are sigma * sigma_profile
+#  for sigma in the sigma range
+true_pars = TrueParams(beta0=0.0, beta=np.array([1.0]), sigma_profile=np.array([1.0]))
 
 # the parameters of the model; do_exo is modified in the simulations
 data_pars = DataParams(
@@ -16,10 +18,15 @@ data_pars = DataParams(
     rhox_z=sqrt(0.5),
     rhox_xi=sqrt(0.5),
     do_exo=True,
+    n_x=1,
 )
 
 # True to use the second derivative (fourth order W regressor)
 do_a_second = False
+
+# nodes per dimension of the Gauss-Hermite rule for the integrals in the bounds
+#  and the true semi-elasticities when there are several random coefficients
+n_gh_integrals = 8
 
 # whether we compute SPE bounds for the semi elasticities (costly)
 do_bounds_semi_elast = False

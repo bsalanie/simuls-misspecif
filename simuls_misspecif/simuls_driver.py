@@ -19,7 +19,12 @@ from bs_python_utils.bsnputils import TwoArrays, npexp
 from bs_python_utils.bsutils import mkdir_if_needed, print_stars
 
 from simuls_misspecif.compute_stats import get_the_stats
-from simuls_misspecif.extract_from_results import extract_from_results
+from simuls_misspecif.extract_from_results import (
+    KEYS_EXTRACT,
+    case_subdir,
+    extract_from_results,
+    model_string,
+)
 from simuls_misspecif.MNL_params import (
     basic_sigma_range,
     data_pars,
@@ -31,7 +36,7 @@ from simuls_misspecif.MNL_utils import (
     ModelData,
     SimulationCase,
     TrueParams,
-    names_params,
+    make_names_params,
 )
 from simuls_misspecif.plots_paper import new_plots_paper
 from simuls_misspecif.utils import generate_RNG_streams
@@ -56,11 +61,11 @@ def setup_model(
     str_long = long_names[0] if do_exo else long_names[1]
     str_root = str_roots[0] if do_exo else str_roots[1]
     nproducts = base_model.nproducts
-    str_model = f"{str_root}_J={nproducts}_v{scenario_number}"
+    str_model = model_string(str_root, nproducts, scenario_number, data_p.n_x)
     new_model = dc.replace(
         base_model, data_pars=data_p, model_string=str_model, long_name=str_long
     )
-    pickle_subdir = Path(f"{str_root}_v{scenario_number}")
+    pickle_subdir = Path(case_subdir(str_root, scenario_number, data_p.n_x))
     return new_model, pickle_subdir
 
 
@@ -78,15 +83,12 @@ def adjust_beta0_S0(
     Returns:
         The fitted beta0 and the achieved expected outside share.
     """
-    beta1 = true_pars.beta1
     ndraws = 1000
-    x = np.random.normal(scale=data_pars.sigx, size=ndraws * nproducts).reshape(
-        (nproducts, ndraws)
-    )
+    x = np.random.normal(scale=data_pars.sigx, size=(nproducts, ndraws, data_pars.n_x))
     xi = np.random.normal(scale=data_pars.sigxi, size=ndraws * nproducts).reshape(
         (nproducts, ndraws)
     )
-    utils0 = beta1 * x + xi
+    utils0 = x @ true_pars.beta + xi
 
     def compute_ES0(beta0):
         utils = utils0 + beta0
@@ -121,7 +123,7 @@ if __name__ == "__main__":
         help="Scenario numbers to run (default: 3 4)",
     )
     parser.add_argument(
-        "-j",
+        "-J",
         "--products",
         nargs="+",
         type=int,
@@ -129,7 +131,7 @@ if __name__ == "__main__":
         help="List of product numbers J (default: 2 5 10 25 50 100)",
     )
     parser.add_argument(
-        "-t",
+        "-T",
         "--markets",
         type=int,
         default=10_000,
@@ -143,9 +145,26 @@ if __name__ == "__main__":
         default=["endo"],
         help="Model types to run (choices: endo exo, default: endo)",
     )
+    parser.add_argument(
+        "-M",
+        "--n-x",
+        type=int,
+        default=1,
+        help="Number of covariates with random coefficients M (default: 1)",
+    )
+    parser.add_argument(
+        "--sigma-profile",
+        nargs="+",
+        type=float,
+        default=None,
+        help="Relative standard errors of the M random coefficients (default: all 1)",
+    )
     parser.add_argument("--no-mp", action="store_true", help="Disable multiprocessing")
     parser.add_argument(
-        "--cpus", type=int, default=None, help="Number of CPU cores to use"
+        "--cpus",
+        type=int,
+        default=None,
+        help="Number of CPU cores to use, default: n_cpus-2",
     )
     args = parser.parse_args()
 
@@ -154,6 +173,12 @@ if __name__ == "__main__":
     number_products = args.products
     selected_scenario_numbers = args.scenarios
     selected_models = args.models
+    n_x = args.n_x
+    sigma_profile = (
+        np.ones(n_x) if args.sigma_profile is None else np.array(args.sigma_profile)
+    )
+    if sigma_profile.size != n_x:
+        parser.error(f"--sigma-profile needs {n_x} values")
 
     # multiprocessing
     use_mp = not args.no_mp
@@ -173,6 +198,15 @@ if __name__ == "__main__":
     ]
 
     target_S0 = 0.9
+
+    # expand the default parameters to M covariates
+    data_pars = dc.replace(data_pars, n_x=n_x)
+    true_pars = TrueParams(
+        beta0=true_pars.beta0,
+        beta=np.full(n_x, true_pars.beta[0]),
+        sigma_profile=sigma_profile,
+    )
+    beta_minus4 = np.full(n_x, -4.0)
 
     central_scenario: ScenarioDict = {
         "data": data_pars,
@@ -194,12 +228,12 @@ if __name__ == "__main__":
         },
         3: {
             "data": data_pars,
-            "coeffs": dc.replace(true_pars, beta1=-4.0),
+            "coeffs": dc.replace(true_pars, beta=beta_minus4),
             "sigma_range": basic_sigma_range,
         },
         4: {
             "data": data_pars,
-            "coeffs": dc.replace(true_pars, beta1=-4.0),
+            "coeffs": dc.replace(true_pars, beta=beta_minus4),
             "sigma_range": basic_sigma_range,
         },
     }
@@ -238,7 +272,7 @@ if __name__ == "__main__":
                 scenario=scenario_number,
                 model_string="",
                 long_name="",
-                names_pars=names_params,
+                names_pars=make_names_params(n_x),
                 nproducts=nproducts,
                 nmarkets=nmarkets,
                 mode="2",
@@ -280,22 +314,12 @@ if __name__ == "__main__":
     print_stars("saved res")
 
     # now extract what we need for the plots
-    keys_extract = [
-        "non-random values",
-        "pseudo true values",
-        "whatif just values",
-        "whatif over values",
-        "SPE variance bounds",
-        "true semi-elasticities",
-        "pseudo semi-elasticities",
-        "whatif just semi-elasticities",
-        "whatif over semi-elasticities",
-    ]
-
     for scenario_number in selected_scenarii.keys():
         for nproducts in number_products:
             for model in selected_models:
                 resmod: dict = extract_from_results(
-                    model, nproducts, nmarkets, scenario_number, keys_extract
+                    model, nproducts, nmarkets, scenario_number, KEYS_EXTRACT, n_x=n_x
                 )
-                new_plots_paper(model, nproducts, nmarkets, selected_scenario_numbers)
+                new_plots_paper(
+                    model, nproducts, nmarkets, selected_scenario_numbers, n_x=n_x
+                )
