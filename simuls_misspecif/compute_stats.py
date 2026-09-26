@@ -359,6 +359,7 @@ def get_the_stats(
         #################################################################################
 
         # start = time.time()
+        cond_bounds = np.nan  # Initialize before conditional
         if bounds_flag:
             Zstar = _true_optimal_instruments(
                 true_p,
