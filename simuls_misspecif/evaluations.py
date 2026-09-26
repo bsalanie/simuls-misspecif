@@ -90,6 +90,15 @@ from simuls_misspecif.MNL_integrals import (
 
 
 def _integrand_shares(values, pars):
+    """Integrand for Gauss-Hermite share computation.
+
+    Args:
+        values: Integration node values.
+        pars: Tuple of (sx, mean_u_xi_cur) for share computation.
+
+    Returns:
+        Array of market shares for each product.
+    """
     sx, mean_u_xi_cur = pars
     utils = np.outer(values, sx) + mean_u_xi_cur
     max_utils = np.max(utils, 1)
@@ -101,6 +110,14 @@ def _integrand_shares(values, pars):
 
 
 def sqrt_kludge(sq):
+    """Compute square root with floor to avoid numerical issues.
+
+    Args:
+        sq: Value to take the square root of.
+
+    Returns:
+        Square root of max(sq, 1e-9).
+    """
     return sqrt(max(sq, 1e-9))
 
 
@@ -186,6 +203,16 @@ def _artificial_regressors(
 def _projection_instruments(
     var: np.ndarray, z_instruments: np.ndarray, mode: str = "NP"
 ):
+    """Project a variable onto the space spanned by instruments.
+
+    Args:
+        var: 1D array of observations to project.
+        z_instruments: Instruments, either 1D or 2D array.
+        mode: Regression mode for flexible projection (default 'NP').
+
+    Returns:
+        Projected variable of the same shape as var.
+    """
     check_vector(var, "_projection_instruments")
     ndims_z = check_vector_or_matrix(z_instruments, "_projection_instruments")
     nobs_v = var.size
@@ -310,6 +337,14 @@ def _print_pseudo_true_errors(
     names_ptv: List[str],
     verbose: bool = False,
 ):
+    """Print errors between pseudo-true and true parameter values.
+
+    Args:
+        true_p: True parameter values.
+        pseudo_vals: Pseudo-true parameter estimates.
+        names_ptv: Names of parameters for display.
+        verbose: If True, print the errors; otherwise do nothing.
+    """
     if verbose:
         n_params = true_p.size
         n_x = (n_params - 1) // 2

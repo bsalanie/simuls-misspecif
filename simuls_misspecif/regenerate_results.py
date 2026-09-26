@@ -64,6 +64,17 @@ NOT_COMPARED = ("model", "n_x")
 
 @dataclass
 class RegenOptions:
+    """Options for regenerating simulation results.
+
+    Attributes:
+        root_dir: Root directory containing stored results.
+        max_stream: Maximum case index to regenerate.
+        tol: Tolerance for numerical comparisons.
+        changing: Tuple of result keys that are allowed to change.
+        check_only: If True, only check without writing results.
+        plot: If True, generate plots for regenerated results.
+    """
+
     root_dir: Path
     max_stream: int
     tol: float
@@ -273,6 +284,13 @@ def _regenerate_star(args: tuple[Path, RegenOptions]) -> str:
 
 
 def main() -> None:
+    """Regenerate stored simulation results on the same data draws.
+
+    Finds the original RNG streams used for stored simulation cases, reruns
+    get_the_stats on the same data, and verifies that the outputs match
+    within a tolerance (allowing specified keys to change). Writes updated
+    results if they pass verification.
+    """
     parser = argparse.ArgumentParser(
         description="Regenerate stored simulation results on the same draws."
     )

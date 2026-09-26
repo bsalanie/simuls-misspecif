@@ -53,6 +53,19 @@ def load_results(
     root_dir: Path,
     n_x: int = 1,
 ) -> Dict:
+    """Load simulation results from a pickled file.
+
+    Args:
+        model: Model type ('endo' or 'exo').
+        nproducts: Number of products (J).
+        nmarkets: Number of markets (T).
+        i_scenario: Scenario number.
+        root_dir: Root directory containing results.
+        n_x: Number of covariates (default 1).
+
+    Returns:
+        Dictionary of simulation results.
+    """
     case_dir, full_str = case_paths(
         model, nproducts, nmarkets, i_scenario, root_dir, n_x
     )
@@ -71,6 +84,17 @@ def write_extract_results(
     root_dir: Path,
     n_x: int = 1,
 ):
+    """Write extracted results to a pickle file.
+
+    Args:
+        extract_results: Dictionary of extracted results to save.
+        model: Model type ('endo' or 'exo').
+        nproducts: Number of products (J).
+        nmarkets: Number of markets (T).
+        i_scenario: Scenario number.
+        root_dir: Root directory for results.
+        n_x: Number of covariates (default 1).
+    """
     case_dir, full_str = case_paths(
         model, nproducts, nmarkets, i_scenario, root_dir, n_x
     )
@@ -88,6 +112,23 @@ def extract_from_results(
     root_dir: Path = Path.cwd(),
     n_x: int = 1,
 ) -> dict:
+    """Extract selected keys from full simulation results and save to a file.
+
+    Loads the full simulation results, extracts only the specified keys,
+    and writes them to a slimmer pickle file for plotting and analysis.
+
+    Args:
+        model: Model type ('endo' or 'exo').
+        nproducts: Number of products (J).
+        nmarkets: Number of markets (T).
+        i_scenario: Scenario number.
+        keys_extract: List of keys to extract from the results.
+        root_dir: Root directory for results (default: current directory).
+        n_x: Number of covariates (default 1).
+
+    Returns:
+        Dictionary containing only the extracted keys.
+    """
     dict_results = load_results(model, nproducts, nmarkets, i_scenario, root_dir, n_x)
     extract_results = {k: dict_results[k] for k in keys_extract}
     write_extract_results(

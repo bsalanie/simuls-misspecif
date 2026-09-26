@@ -1,3 +1,10 @@
+"""Worker function for simulation cases.
+
+Computes econometric estimates (non-random, pseudo-true, what-if) and
+semi-elasticity bounds for each simulation case, including semiparametric
+efficiency (SPE) variance bounds.
+"""
+
 import os
 import pickle
 import tracemalloc

@@ -43,6 +43,14 @@ from simuls_misspecif.utils import generate_RNG_streams
 
 
 class ScenarioDict(TypedDict):
+    """Configuration for a simulation scenario.
+
+    Attributes:
+        data: Data generation parameters.
+        coeffs: True coefficients for the DGP.
+        sigma_range: Array of sigma values to simulate over.
+    """
+
     data: DataParams
     coeffs: TrueParams
     sigma_range: np.ndarray
@@ -55,6 +63,22 @@ def setup_model(
     str_roots: list,
     long_names: list,
 ) -> tuple[ModelData, Path]:
+    """Set up a model instance with exogenous/endogenous specification.
+
+    Creates a new ModelData instance with the specified exogenous or
+    endogenous specification and returns the configured model and its
+    output subdirectory path.
+
+    Args:
+        model_root: Base string for model type ('endo' or 'exo').
+        base_model: Base ModelData configuration to copy from.
+        scenario: Scenario configuration with data, coefficients, and sigma range.
+        str_roots: List of root model strings (['exo', 'endo']).
+        long_names: List of long descriptive names for the models.
+
+    Returns:
+        Tuple of (configured ModelData instance, pickle output subdirectory Path).
+    """
     scenario_number = base_model.scenario
     do_exo = True if "exo" in model_root else False
     data_p = dc.replace(scenario["data"], do_exo=do_exo)

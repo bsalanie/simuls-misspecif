@@ -22,11 +22,28 @@ MAX_X_PLOTTED = 3
 
 
 def _get_result(dict_results: dict, varname: str):
+    """Retrieve a variable from the results dictionary.
+
+    Args:
+        dict_results: Dictionary of simulation results.
+        varname: Name of the variable to retrieve.
+
+    Returns:
+        The requested variable from the results.
+    """
     dict_var = dict_results[varname]
     return dict_var
 
 
 def _stack_cols(mat: np.ndarray) -> np.ndarray:
+    """Stack matrix columns into a single 1D array.
+
+    Args:
+        mat: 2D array with multiple columns.
+
+    Returns:
+        1D array with columns stacked horizontally.
+    """
     v = mat[:, 0]
     for i in range(1, mat.shape[1]):
         v = np.hstack((v, mat[:, i]))
@@ -96,6 +113,15 @@ def _true_coeffs(true_pars) -> tuple[float, np.ndarray, np.ndarray]:
 
 
 def _make_suffix(nproducts: int, do_exo: bool) -> str:
+    """Create a descriptive suffix for plot titles.
+
+    Args:
+        nproducts: Number of products (J).
+        do_exo: If True, generate suffix for exogenous model; else endogenous.
+
+    Returns:
+        Descriptive string for plot titles and labels.
+    """
     if do_exo:
         suffix = f"J = {nproducts}, exogenous"
     else:

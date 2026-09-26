@@ -1,3 +1,9 @@
+"""Utility functions for simulation and numerical operations.
+
+Includes RNG stream generation for parallel workers, logging helpers,
+and what-if estimator computations.
+"""
+
 from pathlib import Path
 from typing import cast
 
