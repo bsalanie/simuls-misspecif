@@ -61,6 +61,9 @@ def get_the_stats(case: SimulationCase | list, save_more: bool = False) -> dict:
     else:
         stream, model, isim, pickle_dir, use_mp = case
 
+    if isinstance(stream, np.random.SeedSequence):
+        stream = np.random.default_rng(stream)
+
     if use_mp:
         fout_name = os.path.join("logs", f"{os.getpid()}.out")
     else:

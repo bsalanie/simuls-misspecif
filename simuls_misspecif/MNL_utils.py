@@ -126,17 +126,17 @@ class ModelData:
         iprec: Precision for sparse integration.
     """
 
-    data_pars: Union[DataParams, None]
-    true_pars: Union[TrueParams, None]
-    names_pars: Union[List[str], None]
-    model_string: Union[str, None]
-    long_name: Union[str, None]
-    nmarkets: Union[int, None]
-    nproducts: Union[int, None]
-    scenario: Union[int, None]
-    sigma_range: Union[np.ndarray, None]
-    mode: Union[str, None]
-    iprec: Union[int, None]
+    data_pars: DataParams
+    true_pars: TrueParams
+    names_pars: List[str]
+    model_string: str
+    long_name: str
+    nmarkets: int
+    nproducts: int
+    scenario: int
+    sigma_range: np.ndarray
+    mode: str
+    iprec: int
 
     def print(self):
         pprint(self.__dict__)
