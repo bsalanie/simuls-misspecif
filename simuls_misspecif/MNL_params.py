@@ -28,9 +28,6 @@ do_a_second = False
 #  and the true semi-elasticities when there are several random coefficients
 n_gh_integrals = 8
 
-# whether we compute SPE bounds for the semi elasticities (costly)
-do_bounds_semi_elast = False
-
 
 # ranges of values of sigma and pi
 basic_sigma_range = np.sqrt(np.arange(0.1, 2.05, 0.1))

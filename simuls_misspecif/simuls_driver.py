@@ -345,7 +345,7 @@ if __name__ == "__main__":
 
     # run the simulation
     res: list[dict | None] = [None] * nsim
-    get_stats_with_bounds = partial(get_the_stats, do_bounds_override=do_bounds)
+    get_stats_with_bounds = partial(get_the_stats, do_bounds=do_bounds)
     if use_mp:
         with mp.Pool(processes=nb_cpus) as pool:
             res = pool.map(get_stats_with_bounds, list_cases)

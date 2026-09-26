@@ -28,7 +28,6 @@ from simuls_misspecif.evaluations import (
 )
 from simuls_misspecif.MNL_params import (
     do_a_second,
-    do_bounds_semi_elast,
     n_gh_integrals,
 )
 from simuls_misspecif.MNL_utils import (
@@ -48,7 +47,7 @@ from simuls_misspecif.utils import (
 def get_the_stats(
     case: SimulationCase | list,
     save_more: bool = False,
-    do_bounds_override: bool | None = None,
+    do_bounds: bool = False,
 ) -> dict:
     """Evaluate the various statistics needed for one simulation case.
 
@@ -57,17 +56,13 @@ def get_the_stats(
             containing the random generator, model, simulation number, pickle directory,
             and multiprocessing flag.
         save_more: Whether to save the xi values and related intermediates.
-        do_bounds_override: If provided, override the do_bounds_semi_elast flag from MNL_params.
+        do_bounds: Whether to compute SPE bounds and true semi-elasticities (default: False).
 
     Returns:
         The model and the simulation results in a dictionary.
     """
 
     do_trace_memory = False
-    # Use override if provided, otherwise use the value from MNL_params
-    bounds_flag = (
-        do_bounds_override if do_bounds_override is not None else do_bounds_semi_elast
-    )
 
     if do_trace_memory:
         tracemalloc.start()
@@ -339,7 +334,7 @@ def get_the_stats(
             whatif_over_own_semi, whatif_over_cross_semi, nproducts
         )
 
-        if bounds_flag:
+        if do_bounds:
             true_own_semi, true_cross_semi, dshares_dx = _true_semi_elasticities(
                 true_p, observed_shares_mat, x, true_mean_utils_xi, nodes, weights
             )
@@ -360,7 +355,7 @@ def get_the_stats(
 
         # start = time.time()
         cond_bounds = np.nan  # Initialize before conditional
-        if bounds_flag:
+        if do_bounds:
             Zstar = _true_optimal_instruments(
                 true_p,
                 true_mean_utils_xi,
