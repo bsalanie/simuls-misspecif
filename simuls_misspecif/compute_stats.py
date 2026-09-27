@@ -1,6 +1,6 @@
 """Worker function for simulation cases.
 
-Computes econometric estimates (non-random, pseudo-true, what-if) and
+Computes econometric estimates (non-random, what-if just and over identified) and
 semi-elasticity bounds for each simulation case, including semiparametric
 efficiency (SPE) variance bounds.
 """
@@ -8,7 +8,6 @@ efficiency (SPE) variance bounds.
 import os
 import pickle
 import tracemalloc
-from typing import cast
 
 import numpy as np
 import scipy.linalg as spla
@@ -19,16 +18,12 @@ from simuls_misspecif.create_samples import make_shares
 from simuls_misspecif.evaluations import (
     _artificial_regressors,
     _nonrandom_semi_elasticities,
-    _our_tsls0,
-    _our_tsls2,
     _print_pseudo_true_errors,
-    _project_variables,
     _pseudo_semi_elasticities_ift,
     _true_optimal_instruments,
     _true_semi_elasticities,
 )
 from simuls_misspecif.MNL_params import (
-    do_a_second,
     n_gh_integrals,
 )
 from simuls_misspecif.MNL_utils import (
@@ -38,7 +33,6 @@ from simuls_misspecif.MNL_utils import (
     make_names_params,
 )
 from simuls_misspecif.utils import (
-    estimate_what_if,
     f_print_stars,
     get_semi_elast_stats,
     make_omega_inv,
@@ -47,7 +41,6 @@ from simuls_misspecif.utils import (
 
 def get_the_stats(
     case: SimulationCase | list,
-    save_more: bool = False,
     do_bounds: bool = False,
 ) -> dict:
     """Evaluate the various statistics needed for one simulation case.
@@ -56,7 +49,6 @@ def get_the_stats(
         case: A `SimulationCase` dataclass (or 5-element list for backwards compatibility)
             containing the random generator, model, simulation number, pickle directory,
             and multiprocessing flag.
-        save_more: Whether to save the xi values and related intermediates.
         do_bounds: Whether to compute SPE bounds and true semi-elasticities (default: False).
 
     Returns:
@@ -129,11 +121,9 @@ def get_the_stats(
     names_spb = names_ptv
 
     nonrandom_values = np.zeros(coeffs_shape + (n_params,))
-    pseudo_true_values = np.zeros(coeffs_shape + (n_params,))
     whatif_just_values = np.zeros(coeffs_shape + (n_params,))
     whatif_over_values = np.zeros(coeffs_shape + (n_params,))
     sp_bounds = np.zeros(coeffs_shape + (n_params, n_params))
-    cond_numbers2 = np.zeros(coeffs_shape)
     cond_numbers_bounds = np.zeros(coeffs_shape)
     omega_inv_eigenvalues = np.zeros(coeffs_shape + (m,))
     omega_inv_eigenvectors = np.zeros(coeffs_shape + (m, m))
@@ -141,33 +131,11 @@ def get_the_stats(
     shape_elast = coeffs_shape + (n_x, 2 * n_elast)
 
     values_nonrandom_semi_elast = np.zeros(shape_elast)
-    values_pseudo_semi_elast = np.zeros(shape_elast)
     values_whatif_just_semi_elast = np.zeros(shape_elast)
     values_whatif_over_semi_elast = np.zeros(shape_elast)
     values_true_semi_elast = np.zeros(shape_elast)
 
     mean_squared_residuals = np.zeros(coeffs_shape + (5,))
-
-    estimated_xi2: np.ndarray | None = None
-    xi_vals: np.ndarray | None = None
-    errors_xi2: np.ndarray | None = None
-    ZZ: np.ndarray | None = None
-    Zy: np.ndarray | None = None
-    ZV: np.ndarray | None = None
-    ZW: np.ndarray | None = None
-    xiV: np.ndarray | None = None
-    xiW: np.ndarray | None = None
-
-    if save_more:
-        estimated_xi2 = np.zeros(coeffs_shape + (nmarkets, nproducts))
-        xi_vals = np.zeros(coeffs_shape + (nmarkets, nproducts))
-        errors_xi2 = np.zeros(coeffs_shape + (nmarkets, nproducts))
-        ZZ = np.zeros(coeffs_shape + (n_params, n_params))
-        Zy = np.zeros(coeffs_shape + (n_params,))
-        ZV = np.zeros(coeffs_shape + (n_params, n_x))
-        ZW = np.zeros(coeffs_shape + (n_params, n_x, n_x))
-        xiV = np.zeros(coeffs_shape + (n_x,))
-        xiW = np.zeros(coeffs_shape + (n_x, n_x))
 
     snapshot1 = None
 
@@ -181,18 +149,7 @@ def get_the_stats(
     xmat = x.reshape((npts, n_x))
     zmat = z.reshape((npts, n_x))
 
-    # # the instruments for the over-identified what-if:
-    # #   powers 1 to 4 of each z_m and the products z_m z_n
-    # Z_powers_list = [ones]
-    # for m_x in range(n_x):
-    #     z_m = zmat[:, m_x]
-    #     Z_powers_list += [z_m, z_m**2, z_m**3, z_m**4]
-    # for m_x in range(n_x):
-    #     for n_x2 in range(m_x + 1, n_x):
-    #         Z_powers_list.append(zmat[:, m_x] * zmat[:, n_x2])
-    # Z_powers = np.column_stack(Z_powers_list)
-
-    # an alternative basis of instruments for product j on market t:
+    # basis of instruments for product j on market t:
     #   z_jt1,..., z_jtm, sum_k z_kt1^2, ..., sum_k z_ktm^2, sum_k z_kt1^3, ..., sum_k z_kt m^3
     n_Z_alt: int = n_x * 3 + 1
     Z_alt = np.zeros((npts, n_Z_alt))
@@ -207,9 +164,6 @@ def get_the_stats(
         Z_alt[mkt_slice, (2 * n_x + 1) :] = z_mkt_cub
 
     for isig, sigma_val in enumerate(sigma_range):
-        V_proj: np.ndarray | None = None
-        W_proj: np.ndarray | None = None
-
         sig_vec = sigma_val * sigma_profile
         sig2_vec = sig_vec * sig_vec
 
@@ -224,49 +178,17 @@ def get_the_stats(
             observed_shares_vec, xmat, nproducts
         )
 
-        # the what-if uses half of the frac_blp W
-        Whalf = Warr / 2.0
-        ymat = yvec.reshape((nmarkets, nproducts))
-        K_sig2 = (Kmat @ sig2_vec).reshape((nmarkets, nproducts))
-
-        # project the variables on the instruments
-        if do_a_second:
-            y_proj, X_proj, K_proj, V_proj, W_proj = _project_variables(
-                yvec, xmat, z, Kmat, Vmat, Warr, mode=mode
-            )
-        else:
-            y_proj, X_proj, K_proj, _, _ = _project_variables(
-                yvec, xmat, z, Kmat, mode=mode
-            )
-
         # true_p contains the true values of the coefficients we estimate in TSLS
         true_p = np.concatenate(([true_beta0], true_beta, sig2_vec))
-
-        # evaluate xi(0, 2) - xi(infty)
-        true_xi0 = ymat - true_mean_utils
-        true_xi2 = true_xi0 - K_sig2
-        errors2 = true_xi2 - true_xi
 
         #################################################################################
         ##                        our TSLS                                             ##
         #################################################################################
         # start = time.time()
-        nonrandom_vals = _our_tsls0(y_proj, X_proj)[1]
-        # beta0_0 = nonrandom_vals[0]
-        # beta_0 = nonrandom_vals[1:]
 
-        Zstar2, pseudo_vals, cond_number2 = _our_tsls2(y_proj, X_proj, K_proj)
-        Zstar2_T = Zstar2.T
-
-        # beta0_2 = pseudo_vals[0]
-        # beta_2 = pseudo_vals[1 : 1 + n_x]
-        # s2_2 = pseudo_vals[1 + n_x :]
-
-        # another way
         xmat1 = np.column_stack((np.ones(npts), xmat))
         omega_0_inv = make_omega_inv(Z_alt)
         omega_0 = spla.inv(omega_0_inv)
-        print(f"{xmat1.shape=}, {Z_alt.shape=}, {omega_0.shape=}")
         xpZ = xmat1.T @ Z_alt / npts
         Zpy = Z_alt.T @ yvec / npts
         lhs_0 = xpZ @ omega_0 @ xpZ.T
@@ -280,87 +202,79 @@ def get_the_stats(
         zxi_0 = Z_alt.T * resid_0
         zxi_0_mean = np.mean(zxi_0, 0)
         zxi_0_centered = zxi_0 - zxi_0_mean
-        print(f"{zxi_0.shape=}")
         zxi_0_centered[0, :] = 1.0
         Omega_inv = make_omega_inv(zxi_0_centered.T)
         Omega = spla.inv(Omega_inv)
         lhs_1 = xpZ @ Omega @ xpZ.T
         rhs_1 = xpZ @ Omega @ Zpy
-        beta_hat_1 = spla.solve(lhs_1, rhs_1)
-        # print(f"{beta_hat_1=}")
-        # bs_error_abort("Done first 2SLS")
-        beta0_0 = beta_hat_1[0]
-        beta_0 = beta_hat_1[1:]
+        nonrandom_vals = spla.solve(lhs_1, rhs_1)
 
-        xmat1_bsfw = np.column_stack((xmat1, Kmat))
-        xpZ_bsfw = xmat1_bsfw.T @ Z_alt / npts
-        lhs_bsfw = xpZ_bsfw @ Omega @ xpZ_bsfw.T
-        rhs_bsfw = xpZ_bsfw @ Omega @ Zpy
-        pseudo_vals = spla.solve(lhs_bsfw, rhs_bsfw)
-        print(f"{pseudo_vals=}")
-        print("Done BSFW")
-        beta0_2 = pseudo_vals[0]
-        beta_2 = pseudo_vals[1 : 1 + n_x]
-        s2_2 = pseudo_vals[1 + n_x :]
+        xmat1_wijust = np.column_stack((xmat1, Kmat))
+        xpZ_wijust = xmat1_wijust.T @ Z_alt / npts
+        lhs_wijust = xpZ_wijust @ Omega @ xpZ_wijust.T
+        rhs_wijust = xpZ_wijust @ Omega @ Zpy
+        whatif_just_vals = spla.solve(lhs_wijust, rhs_wijust)
 
         if verbose:
-            _print_pseudo_true_errors(true_p, pseudo_vals, names_ptv, verbose=True)
+            _print_pseudo_true_errors(true_p, whatif_just_vals, names_ptv, verbose=True)
 
-        # the estimated mean utilities
-        mean_utils_0 = _mean_utils(beta0_0, beta_0, x)
-        mean_utils_2 = _mean_utils(beta0_2, beta_2, x)
+        resid_nonrandom = yvec - xmat1 @ nonrandom_vals
+        zxi_nonrandom_mean = np.mean(Z_alt.T * resid_nonrandom, 1)
+        eS_x = np.zeros((nmarkets, n_x))
+        eS_xx = np.zeros((nmarkets, n_x, n_x))
+        for m in range(n_x):
+            x_m = xmat[:, m].reshape((nmarkets, nproducts))
+            eS_x[:, m] = np.sum(x_m * observed_shares_mat, axis=1)
+            for n in range(m, n_x):
+                x_n = xmat[:, n].reshape((nmarkets, nproducts))
+                eS_xx[:, m, n] = np.sum(x_m * x_n * observed_shares_mat, 1)
+                eS_xx[:, n, m] = eS_xx[:, m, n]
 
-        # the estimated approximate xi
-        xi_0 = ymat - mean_utils_0
-        xi_0_vec = xi_0.reshape(npts)
-        xi2_2 = ymat - mean_utils_2 - (Kmat @ s2_2).reshape((nmarkets, nproducts))
-        xi_2 = cast(np.ndarray, xi2_2.reshape(npts))
+        W_array = np.zeros((npts, n_x, n_x))
+        for mkt in range(nmarkets):
+            mkt_slice = slice(mkt * nproducts, (mkt + 1) * nproducts)
+            for m in range(n_x):
+                x_mt = xmat[mkt_slice, m]
+                eS_x_t = eS_x[mkt, :]
+                eS_xx_t = eS_xx[mkt, :, :]
+                for n in range(m, n_x):
+                    x_nt = xmat[mkt_slice, n]
+                    W_array[mkt_slice, m, n] = (
+                        x_mt * eS_x_t[n] + x_nt * eS_x_t[m] - x_mt * x_nt
+                    ) * (eS_xx_t[m, n] - eS_x_t[m] * eS_x_t[n])
+                    W_array[mkt_slice, n, m] = W_array[mkt_slice, m, n]
 
-        # end = time.time()
-        # print(f"2SLS took {end - start} seconds")
+        U_array = W_array / 2.0
 
-        #################################################################################
-        ##                        the what-if second-order version                     ##
-        #################################################################################
+        quadratic_term = np.zeros((n_x, n_x))
+        for m in range(n_x):
+            for n in range(m, n_x):
+                UpZ_mn = (U_array[:, m, n].T @ Z_alt) / npts
+                quadratic_term[m, n] = -2.0 * UpZ_mn @ Omega @ zxi_nonrandom_mean
+                quadratic_term[n, m] = quadratic_term[m, n]
 
-        # Z_used = Zstar2
-        # moments_used = Zstar2
+        Cmat = xpZ @ Omega @ xpZ.T
+        KpZ = Kmat.T @ Z_alt / npts
+        Dmat = xpZ @ Omega @ KpZ.T
+        Rmat = KpZ @ Omega @ KpZ.T + quadratic_term
 
-        # moments_used_centered = center_moments(moments_used, nproducts)
+        # print(f"{Rmat=}, {quadratic_term=}, {Cmat=}, {Dmat=}")
 
-        # Omega_inv = make_omega_inv(moments_used)
-        # Omega = np.linalg.inv(Omega_inv)
-        # if verbose:
-        #     print_stars(f"eigenvalues of Omega:\n{np.linalg.eigvals(Omega)}")
+        r_vec = -KpZ @ Omega @ zxi_nonrandom_mean
+        # print(f"{r_vec=}")
+        lhs_over = np.block([[Cmat, Dmat], [Dmat.T, Rmat]])
+        rhs_over = np.concatenate((np.zeros(n_x + 1), -r_vec))
 
-        # whatif_just_vals = estimate_what_if(
-        #     xmat, Kmat, Whalf, beta0_0, beta_0, xi_0_vec, Z_used, Omega
-        # )
+        whatif_over_vals = spla.solve(lhs_over, rhs_over)
+        # print(f"Done {whatif_over_vals=}")
+        nonrandom_vals = np.concatenate((nonrandom_vals, np.zeros(n_x)))
+        whatif_over_vals += nonrandom_vals
 
-        whatif_just_vals = estimate_what_if(
-            xmat, Kmat, Whalf, beta0_0, beta_0, xi_0_vec, Z_alt, Omega
-        )
-
-        # Z_used = Z_powers
-        # moments_used = Z_powers
-        # omega_inv = make_omega_inv(moments_used)
-        # Omega = np.linalg.inv(omega_inv)
-        # if verbose:
-        #     print_stars(f"eigenvalues of Omega:\n{np.linalg.eigvals(Omega)}")
-
-        # whatif_over_vals = estimate_what_if(
-        #     xmat, Kmat, Whalf, beta0_0, beta_0, xi_0_vec, Z_used, Omega
-        # )
-
-        whatif_over_vals = estimate_what_if(
-            xmat, Kmat, Whalf, beta0_0, beta_0, xi_0_vec, Z_alt, Omega
-        )
-
-        print_stars("True ; estimates SW, just, over:")
+        print_stars("True ; estimates non-random, what-if just, what-if over:")
         for i in range(n_params):
             print(
                 f"{names_ptv[i]:>9}: {true_p[i]: .3f};",
-                f"  {pseudo_vals[i]: .3f},",
+                f"  {nonrandom_vals[i]: .3f},",
                 f"  {whatif_just_vals[i]: .3f},",
                 f"  {whatif_over_vals[i]: .3f}",
             )
@@ -373,10 +287,6 @@ def get_the_stats(
             nonrandom_vals, observed_shares_mat, x
         )
 
-        pseudo_own_semi, pseudo_cross_semi = _pseudo_semi_elasticities_ift(
-            pseudo_vals, observed_shares_mat, x
-        )
-
         whatif_just_own_semi, whatif_just_cross_semi = _pseudo_semi_elasticities_ift(
             whatif_just_vals, observed_shares_mat, x
         )
@@ -387,9 +297,6 @@ def get_the_stats(
 
         resus_nonrandom_semi_elast = get_semi_elast_stats(
             nonrandom_own_semi, nonrandom_cross_semi, nproducts
-        )
-        resus_pseudo_semi_elast = get_semi_elast_stats(
-            pseudo_own_semi, pseudo_cross_semi, nproducts
         )
         resus_whatif_just_semi_elast = get_semi_elast_stats(
             whatif_just_own_semi, whatif_just_cross_semi, nproducts
@@ -420,6 +327,7 @@ def get_the_stats(
         # start = time.time()
         cond_bounds = np.nan  # Initialize before conditional
         if do_bounds:
+            X_proj = Z_alt @ spla.solve(Z_alt.T @ Z_alt, Z_alt.T @ xmat, assume_a="pos")
             Zstar = _true_optimal_instruments(
                 true_p,
                 true_mean_utils_xi,
@@ -455,45 +363,16 @@ def get_the_stats(
         # end = time.time()
         # print(f"spe bounds took {end - start} seconds")
 
-        nonrandom_values[isig, : 1 + n_x] = nonrandom_vals
-        nonrandom_values[isig, 1 + n_x :] = 0.0
-        pseudo_true_values[isig, :] = pseudo_vals
+        nonrandom_values[isig, :] = nonrandom_vals
         whatif_just_values[isig, :] = whatif_just_vals
         whatif_over_values[isig, :] = whatif_over_vals
         sp_bounds[isig, :, :] = spb
         values_nonrandom_semi_elast[isig] = resus_nonrandom_semi_elast
-        values_pseudo_semi_elast[isig] = resus_pseudo_semi_elast
         values_whatif_just_semi_elast[isig] = resus_whatif_just_semi_elast
         values_whatif_over_semi_elast[isig] = resus_whatif_over_semi_elast
         values_true_semi_elast[isig] = resus_true_semi_elast
-        cond_numbers2[isig] = cond_number2
         cond_numbers_bounds[isig] = cond_bounds
-        if (
-            save_more
-            and ZZ is not None
-            and Zy is not None
-            and xi_vals is not None
-            and estimated_xi2 is not None
-            and errors_xi2 is not None
-        ):
-            ZZ[isig, :, :] = Zstar2_T @ Zstar2
-            Zy[isig, :] = Zstar2_T @ y_proj
-            if (
-                do_a_second
-                and ZV is not None
-                and ZW is not None
-                and xiV is not None
-                and xiW is not None
-                and V_proj is not None
-                and W_proj is not None
-            ):
-                ZV[isig] = Zstar2_T @ V_proj
-                ZW[isig] = np.einsum("ip,imn->pmn", Zstar2, W_proj)
-                xiV[isig] = xi_2 @ V_proj
-                xiW[isig] = np.einsum("i,imn->mn", xi_2, W_proj)
-            xi_vals[isig, :, :] = true_xi
-            estimated_xi2[isig, :, :] = xi2_2
-            errors_xi2[isig, :, :] = errors2
+
         done_message = f"                     Done with sigma value {isig + 1}/{n_sigmas} for J = {nproducts}, "
         done_message += f"scenario {i_scenario}, model: {str_long}"
 
@@ -503,7 +382,6 @@ def get_the_stats(
         "model": model,
         "n_x": n_x,
         "non-random values": nonrandom_values,
-        "pseudo true values": pseudo_true_values,
         "whatif just values": whatif_just_values,
         "whatif over values": whatif_over_values,
         "omega_inv eigenvalues": omega_inv_eigenvalues,
@@ -511,38 +389,11 @@ def get_the_stats(
         "SPE variance bounds": sp_bounds,
         "true semi-elasticities": values_true_semi_elast,
         "non-random semi-elasticities": values_nonrandom_semi_elast,
-        "pseudo semi-elasticities": values_pseudo_semi_elast,
         "whatif just semi-elasticities": values_whatif_just_semi_elast,
         "whatif over semi-elasticities": values_whatif_over_semi_elast,
         "mean squared residuals": mean_squared_residuals,
-        "condition number 2": cond_numbers2,
         "condition number bounds": cond_numbers_bounds,
     }
-
-    if (
-        save_more
-        and ZZ is not None
-        and Zy is not None
-        and ZV is not None
-        and ZW is not None
-        and xiV is not None
-        and xiW is not None
-        and xi_vals is not None
-        and errors_xi2 is not None
-        and estimated_xi2 is not None
-    ):
-        more_results = {
-            "ZprimeZ": ZZ,
-            "Zprimey": Zy,
-            "ZprimeV": ZV,
-            "ZprimeW": ZW,
-            "xiprimeV": xiV,
-            "xiprimeW": xiW,
-            "true_xi": xi_vals,
-            "errors_xi2": errors_xi2,
-            "estimated_xi2": estimated_xi2,
-        }
-        dict_results |= more_results
 
     if do_trace_memory:
         snapshotf = tracemalloc.take_snapshot()

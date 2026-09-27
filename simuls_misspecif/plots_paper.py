@@ -184,29 +184,27 @@ def new_plots_paper(
 
         print_stars(f"Plotting model {full_str}")
         nonrandom_vals = _get_result(dict_results, "non-random values")
-        pseudo_vals = _get_result(dict_results, "pseudo true values")
+        # pseudo_vals = _get_result(dict_results, "pseudo true values")
         whatif_just_vals = _get_result(dict_results, "whatif just values")
         whatif_over_vals = _get_result(dict_results, "whatif over values")
         spb = _get_result(dict_results, "SPE variance bounds")
         nonrandom_semi = _get_result(dict_results, "non-random semi-elasticities")
         true_semi = _get_result(dict_results, "true semi-elasticities")
-        pseudo_semi = _get_result(dict_results, "pseudo semi-elasticities")
+        # pseudo_semi = _get_result(dict_results, "pseudo semi-elasticities")
         whatif_just_semi = _get_result(dict_results, "whatif just semi-elasticities")
         whatif_over_semi = _get_result(dict_results, "whatif over semi-elasticities")
         # old pickles have one covariate and no M axis
         semis = [
             nonrandom_semi,
             true_semi,
-            pseudo_semi,
+            # pseudo_semi,
             whatif_just_semi,
             whatif_over_semi,
         ]
         semis = [sem[:, np.newaxis, :] if sem.ndim == 2 else sem for sem in semis]
-        nonrandom_semi, true_semi, pseudo_semi, whatif_just_semi, whatif_over_semi = (
-            semis
-        )
+        nonrandom_semi, true_semi, whatif_just_semi, whatif_over_semi = semis
 
-        n_pars = pseudo_vals.shape[-1]
+        n_pars = whatif_just_vals.shape[-1]
         n_x_res = (n_pars - 1) // 2
 
         # we compute standard errors for SPE bounds, putting in zero if the variance is negative
@@ -217,7 +215,7 @@ def new_plots_paper(
 
         true_beta0, true_beta, sigma_profile = _true_coeffs(model.true_pars)
         sigma2_range = sigma_range * sigma_range
-        true_values = np.zeros_like(pseudo_vals)
+        true_values = np.zeros_like(whatif_just_vals)
         true_values[:, 0] = true_beta0
         true_values[:, 1 : 1 + n_x_res] = true_beta
         true_values[:, 1 + n_x_res :] = np.outer(sigma2_range, sigma_profile**2)
@@ -247,15 +245,15 @@ def new_plots_paper(
         uni_string2 = uni_sigma2
         margin = 5.0
 
-        ordered_colors = ["black"] * 3 + ["red", "green", "blue", "purple"]
+        ordered_colors = ["black"] * 3 + ["red", "green", "blue"]
         estimates_names = [
             "True value",
             "Non-random",
-            "Salanie-Wolak",
+            # "Salanie-Wolak",
             "What if - just",
             "What if - over",
         ]
-        estimated_values = np.zeros((n_sigmas, 7, n_pars))
+        estimated_values = np.zeros((n_sigmas, 6, n_pars))
         estimated_values[:, 2, :] = true_values
         estimated_values[:, 3, :] = np.clip(
             nonrandom_vals,
@@ -263,16 +261,11 @@ def new_plots_paper(
             true_values + margin,
         )
         estimated_values[:, 4, :] = np.clip(
-            pseudo_vals,
-            true_values - margin,
-            true_values + margin,
-        )
-        estimated_values[:, 5, :] = np.clip(
             whatif_just_vals,
             true_values - margin,
             true_values + margin,
         )
-        estimated_values[:, 6, :] = np.clip(
+        estimated_values[:, 5, :] = np.clip(
             whatif_over_vals,
             true_values - margin,
             true_values + margin,
@@ -390,11 +383,10 @@ def new_plots_paper(
                                     uni_string2: sigma2_range,
                                     estimates_names[0]: true_semi[:, m_x, i_stat],
                                     estimates_names[1]: nonrandom_semi[:, m_x, i_stat],
-                                    estimates_names[2]: pseudo_semi[:, m_x, i_stat],
-                                    estimates_names[3]: whatif_just_semi[
+                                    estimates_names[2]: whatif_just_semi[
                                         :, m_x, i_stat
                                     ],
-                                    estimates_names[4]: whatif_over_semi[
+                                    estimates_names[3]: whatif_over_semi[
                                         :, m_x, i_stat
                                     ],
                                     "Statistic": stat_name,
@@ -430,7 +422,6 @@ def new_plots_paper(
                         estimates_names[1]: "red",
                         estimates_names[2]: "green",
                         estimates_names[3]: "blue",
-                        estimates_names[4]: "purple",
                     },
                     template="plotly_white",
                 )

@@ -130,7 +130,8 @@ def extract_from_results(
         Dictionary containing only the extracted keys.
     """
     dict_results = load_results(model, nproducts, nmarkets, i_scenario, root_dir, n_x)
-    extract_results = {k: dict_results[k] for k in keys_extract}
+    # Only extract keys that exist in dict_results (bounds-related keys may be missing)
+    extract_results = {k: dict_results[k] for k in keys_extract if k in dict_results}
     write_extract_results(
         extract_results, model, nproducts, nmarkets, i_scenario, root_dir, n_x
     )

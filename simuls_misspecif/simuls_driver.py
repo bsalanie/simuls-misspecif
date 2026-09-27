@@ -130,12 +130,22 @@ def adjust_beta0_S0(
         return ES0, der_ES0
 
     # Newton iterations to solve `compute_ES0(beta0) = S0`
-    beta0i = np.log((1.0 - S0) / (S0 * nproducts))  # solution when utils0 = 0
+    # sigs = data_pars.sigx * true_pars.sigma_profile
+    # betas = true_pars.beta
+
+    approx_expected_expo = (
+        1.0  # np.exp(np.sum(betas * betas + sigs * sigs) + 1.0) / 2.0
+    )
+    # print(f"{approx_expected_expo=}")
+    beta0i = np.log(
+        (1.0 - S0) / (S0 * nproducts * approx_expected_expo)
+    )  # approximate solution
     errS0 = ES0i = np.inf
     tol = 1e-6
+    learn_rate = 1.0
     while errS0 > tol:
         ES0i, der_ES0i = compute_ES0(beta0i)
-        beta0i -= (ES0i - S0) / der_ES0i
+        beta0i -= learn_rate * (ES0i - S0) / der_ES0i
         errS0 = abs(ES0i - S0)
 
     return beta0i, ES0i
