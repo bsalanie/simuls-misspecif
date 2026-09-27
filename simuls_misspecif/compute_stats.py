@@ -13,7 +13,7 @@ from typing import cast
 import numpy as np
 import scipy.linalg as spla
 from bs_python_utils.bs_mem import memory_display_top, memory_display_top_diffs
-from bs_python_utils.bsutils import bs_error_abort, print_stars
+from bs_python_utils.bsutils import print_stars
 
 from simuls_misspecif.create_samples import make_shares
 from simuls_misspecif.evaluations import (
@@ -109,7 +109,6 @@ def get_the_stats(
     i_scenario, str_long = model.scenario, model.long_name
     sigma_range = model.sigma_range
     npts = nmarkets * nproducts
-    ones = np.ones(npts)
 
     true_pars, data_pars = model.true_pars, model.data_pars
     n_x = data_pars.n_x
@@ -182,16 +181,16 @@ def get_the_stats(
     xmat = x.reshape((npts, n_x))
     zmat = z.reshape((npts, n_x))
 
-    # the instruments for the over-identified what-if:
-    #   powers 1 to 4 of each z_m and the products z_m z_n
-    Z_powers_list = [ones]
-    for m_x in range(n_x):
-        z_m = zmat[:, m_x]
-        Z_powers_list += [z_m, z_m**2, z_m**3, z_m**4]
-    for m_x in range(n_x):
-        for n_x2 in range(m_x + 1, n_x):
-            Z_powers_list.append(zmat[:, m_x] * zmat[:, n_x2])
-    Z_powers = np.column_stack(Z_powers_list)
+    # # the instruments for the over-identified what-if:
+    # #   powers 1 to 4 of each z_m and the products z_m z_n
+    # Z_powers_list = [ones]
+    # for m_x in range(n_x):
+    #     z_m = zmat[:, m_x]
+    #     Z_powers_list += [z_m, z_m**2, z_m**3, z_m**4]
+    # for m_x in range(n_x):
+    #     for n_x2 in range(m_x + 1, n_x):
+    #         Z_powers_list.append(zmat[:, m_x] * zmat[:, n_x2])
+    # Z_powers = np.column_stack(Z_powers_list)
 
     # an alternative basis of instruments for product j on market t:
     #   z_jt1,..., z_jtm, sum_k z_kt1^2, ..., sum_k z_ktm^2, sum_k z_kt1^3, ..., sum_k z_kt m^3
@@ -253,15 +252,15 @@ def get_the_stats(
         #################################################################################
         # start = time.time()
         nonrandom_vals = _our_tsls0(y_proj, X_proj)[1]
-        beta0_0 = nonrandom_vals[0]
-        beta_0 = nonrandom_vals[1:]
+        # beta0_0 = nonrandom_vals[0]
+        # beta_0 = nonrandom_vals[1:]
 
         Zstar2, pseudo_vals, cond_number2 = _our_tsls2(y_proj, X_proj, K_proj)
         Zstar2_T = Zstar2.T
 
-        beta0_2 = pseudo_vals[0]
-        beta_2 = pseudo_vals[1 : 1 + n_x]
-        s2_2 = pseudo_vals[1 + n_x :]
+        # beta0_2 = pseudo_vals[0]
+        # beta_2 = pseudo_vals[1 : 1 + n_x]
+        # s2_2 = pseudo_vals[1 + n_x :]
 
         # another way
         xmat1 = np.column_stack((np.ones(npts), xmat))
@@ -273,8 +272,8 @@ def get_the_stats(
         lhs_0 = xpZ @ omega_0 @ xpZ.T
         rhs_0 = xpZ @ omega_0 @ Zpy
         beta_hat_0 = spla.solve(lhs_0, rhs_0)
-        print(f"{beta_hat_0=}")
-        print("Done first 2SLS")
+        # print(f"{beta_hat_0=}")
+        # print("Done first 2SLS")
 
         # second stage omega
         resid_0 = yvec - xmat1 @ beta_hat_0
@@ -283,13 +282,26 @@ def get_the_stats(
         zxi_0_centered = zxi_0 - zxi_0_mean
         print(f"{zxi_0.shape=}")
         zxi_0_centered[0, :] = 1.0
-        omega_1_inv = make_omega_inv(zxi_0_centered.T)
-        omega_1 = spla.inv(omega_1_inv)
-        lhs_1 = xpZ @ omega_1 @ xpZ.T
-        rhs_1 = xpZ @ omega_1 @ Zpy
+        Omega_inv = make_omega_inv(zxi_0_centered.T)
+        Omega = spla.inv(Omega_inv)
+        lhs_1 = xpZ @ Omega @ xpZ.T
+        rhs_1 = xpZ @ Omega @ Zpy
         beta_hat_1 = spla.solve(lhs_1, rhs_1)
-        print(f"{beta_hat_1=}")
-        bs_error_abort("Done first 2SLS")
+        # print(f"{beta_hat_1=}")
+        # bs_error_abort("Done first 2SLS")
+        beta0_0 = beta_hat_1[0]
+        beta_0 = beta_hat_1[1:]
+
+        xmat1_bsfw = np.column_stack((xmat1, Kmat))
+        xpZ_bsfw = xmat1_bsfw.T @ Z_alt / npts
+        lhs_bsfw = xpZ_bsfw @ Omega @ xpZ_bsfw.T
+        rhs_bsfw = xpZ_bsfw @ Omega @ Zpy
+        pseudo_vals = spla.solve(lhs_bsfw, rhs_bsfw)
+        print(f"{pseudo_vals=}")
+        print("Done BSFW")
+        beta0_2 = pseudo_vals[0]
+        beta_2 = pseudo_vals[1 : 1 + n_x]
+        s2_2 = pseudo_vals[1 + n_x :]
 
         if verbose:
             _print_pseudo_true_errors(true_p, pseudo_vals, names_ptv, verbose=True)
@@ -311,29 +323,37 @@ def get_the_stats(
         ##                        the what-if second-order version                     ##
         #################################################################################
 
-        Z_used = Zstar2
-        moments_used = Zstar2
+        # Z_used = Zstar2
+        # moments_used = Zstar2
 
         # moments_used_centered = center_moments(moments_used, nproducts)
 
-        omega_inv = make_omega_inv(moments_used)
-        Omega = np.linalg.inv(omega_inv)
-        if verbose:
-            print_stars(f"eigenvalues of Omega:\n{np.linalg.eigvals(Omega)}")
+        # Omega_inv = make_omega_inv(moments_used)
+        # Omega = np.linalg.inv(Omega_inv)
+        # if verbose:
+        #     print_stars(f"eigenvalues of Omega:\n{np.linalg.eigvals(Omega)}")
+
+        # whatif_just_vals = estimate_what_if(
+        #     xmat, Kmat, Whalf, beta0_0, beta_0, xi_0_vec, Z_used, Omega
+        # )
 
         whatif_just_vals = estimate_what_if(
-            xmat, Kmat, Whalf, beta0_0, beta_0, xi_0_vec, Z_used, Omega
+            xmat, Kmat, Whalf, beta0_0, beta_0, xi_0_vec, Z_alt, Omega
         )
 
-        Z_used = Z_powers
-        moments_used = Z_powers
-        omega_inv = make_omega_inv(moments_used)
-        Omega = np.linalg.inv(omega_inv)
-        if verbose:
-            print_stars(f"eigenvalues of Omega:\n{np.linalg.eigvals(Omega)}")
+        # Z_used = Z_powers
+        # moments_used = Z_powers
+        # omega_inv = make_omega_inv(moments_used)
+        # Omega = np.linalg.inv(omega_inv)
+        # if verbose:
+        #     print_stars(f"eigenvalues of Omega:\n{np.linalg.eigvals(Omega)}")
+
+        # whatif_over_vals = estimate_what_if(
+        #     xmat, Kmat, Whalf, beta0_0, beta_0, xi_0_vec, Z_used, Omega
+        # )
 
         whatif_over_vals = estimate_what_if(
-            xmat, Kmat, Whalf, beta0_0, beta_0, xi_0_vec, Z_used, Omega
+            xmat, Kmat, Whalf, beta0_0, beta_0, xi_0_vec, Z_alt, Omega
         )
 
         print_stars("True ; estimates SW, just, over:")
