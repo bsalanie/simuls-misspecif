@@ -244,6 +244,18 @@ if __name__ == "__main__":
 
     target_S0 = 0.9
 
+    print_stars("Starting simulation with the following parameters:")
+    print(f"  - Markets: {nmarkets}")
+    print(f"  - Products: {number_products}")
+    print(f"  - Scenarios: {selected_scenario_numbers}")
+    print(f"  - Target outside share: {target_S0: .2f}")
+    print(f"  - Models: {selected_models}")
+    print(f"  - Covariates: {n_x}")
+    print(f"  - Sigma Profile: {sigma_profile}")
+    print(f"  - Multiprocessing: {use_mp}")
+    print(f"  - CPU Cores: {nb_cpus}")
+    print(f"  - Bounds: {do_bounds}")
+
     # expand the default parameters to M covariates
     data_pars = dc.replace(data_pars, n_x=n_x)
     true_pars = TrueParams(

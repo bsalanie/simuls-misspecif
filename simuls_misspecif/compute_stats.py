@@ -11,8 +11,9 @@ import tracemalloc
 from typing import cast
 
 import numpy as np
+import scipy.linalg as spla
 from bs_python_utils.bs_mem import memory_display_top, memory_display_top_diffs
-from bs_python_utils.bsutils import print_stars
+from bs_python_utils.bsutils import bs_error_abort, print_stars
 
 from simuls_misspecif.create_samples import make_shares
 from simuls_misspecif.evaluations import (
@@ -192,6 +193,20 @@ def get_the_stats(
             Z_powers_list.append(zmat[:, m_x] * zmat[:, n_x2])
     Z_powers = np.column_stack(Z_powers_list)
 
+    # an alternative basis of instruments for product j on market t:
+    #   z_jt1,..., z_jtm, sum_k z_kt1^2, ..., sum_k z_ktm^2, sum_k z_kt1^3, ..., sum_k z_kt m^3
+    n_Z_alt: int = n_x * 3 + 1
+    Z_alt = np.zeros((npts, n_Z_alt))
+    for mkt in range(nmarkets):
+        mkt_slice = slice(mkt * nproducts, (mkt + 1) * nproducts)
+        z_mkt = zmat[mkt_slice, :]
+        z_mkt_sq = z_mkt * z_mkt
+        z_mkt_cub = z_mkt_sq * z_mkt
+        Z_alt[mkt_slice, 0] = 1.0
+        Z_alt[mkt_slice, 1 : (n_x + 1)] = z_mkt
+        Z_alt[mkt_slice, (n_x + 1) : (2 * n_x + 1)] = z_mkt_sq
+        Z_alt[mkt_slice, (2 * n_x + 1) :] = z_mkt_cub
+
     for isig, sigma_val in enumerate(sigma_range):
         V_proj: np.ndarray | None = None
         W_proj: np.ndarray | None = None
@@ -209,6 +224,7 @@ def get_the_stats(
         Kmat, yvec, Vmat, Warr = _artificial_regressors(
             observed_shares_vec, xmat, nproducts
         )
+
         # the what-if uses half of the frac_blp W
         Whalf = Warr / 2.0
         ymat = yvec.reshape((nmarkets, nproducts))
@@ -246,6 +262,34 @@ def get_the_stats(
         beta0_2 = pseudo_vals[0]
         beta_2 = pseudo_vals[1 : 1 + n_x]
         s2_2 = pseudo_vals[1 + n_x :]
+
+        # another way
+        xmat1 = np.column_stack((np.ones(npts), xmat))
+        omega_0_inv = make_omega_inv(Z_alt)
+        omega_0 = spla.inv(omega_0_inv)
+        print(f"{xmat1.shape=}, {Z_alt.shape=}, {omega_0.shape=}")
+        xpZ = xmat1.T @ Z_alt / npts
+        Zpy = Z_alt.T @ yvec / npts
+        lhs_0 = xpZ @ omega_0 @ xpZ.T
+        rhs_0 = xpZ @ omega_0 @ Zpy
+        beta_hat_0 = spla.solve(lhs_0, rhs_0)
+        print(f"{beta_hat_0=}")
+        print("Done first 2SLS")
+
+        # second stage omega
+        resid_0 = yvec - xmat1 @ beta_hat_0
+        zxi_0 = Z_alt.T * resid_0
+        zxi_0_mean = np.mean(zxi_0, 0)
+        zxi_0_centered = zxi_0 - zxi_0_mean
+        print(f"{zxi_0.shape=}")
+        zxi_0_centered[0, :] = 1.0
+        omega_1_inv = make_omega_inv(zxi_0_centered.T)
+        omega_1 = spla.inv(omega_1_inv)
+        lhs_1 = xpZ @ omega_1 @ xpZ.T
+        rhs_1 = xpZ @ omega_1 @ Zpy
+        beta_hat_1 = spla.solve(lhs_1, rhs_1)
+        print(f"{beta_hat_1=}")
+        bs_error_abort("Done first 2SLS")
 
         if verbose:
             _print_pseudo_true_errors(true_p, pseudo_vals, names_ptv, verbose=True)
