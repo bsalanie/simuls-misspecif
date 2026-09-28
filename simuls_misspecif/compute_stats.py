@@ -196,7 +196,7 @@ def get_the_stats(
         zxi_nonrandom_mean = np.mean(Z_alt.T * (yvec - xmat1 @ nonrandom_vals), 1)
         whatif_just_vals = estimate_whatif_just(yvec, xmat1, Z_alt, Kmat, Omega)
 
-        nonrandom_vals: np.ndarray = np.concatenate((nonrandom_vals, np.zeros(n_x)))
+        nonrandom_vals = np.concatenate((nonrandom_vals, np.zeros(n_x)))
 
         if verbose:
             _print_pseudo_true_errors(true_p, whatif_just_vals, names_ptv, verbose=True)
@@ -296,11 +296,9 @@ def get_the_stats(
 
             if verbose:
                 print_stars(
-                    (
-                        f"          {model.long_name}\n"
-                        f"   variance bounds for true sigma2={sig2_vec}"
-                        f" with {nproducts} products:"
-                    )
+                    f"          {model.long_name}\n"
+                    f"   variance bounds for true sigma2={sig2_vec}"
+                    f" with {nproducts} products:"
                 )
                 for i in range(n_params):
                     print(f"on {names_spb[i]}: {spb[i, i]: 10.4f}")
