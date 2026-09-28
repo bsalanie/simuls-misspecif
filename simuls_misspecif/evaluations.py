@@ -109,7 +109,7 @@ def _integrand_shares(values, pars):
     return shares
 
 
-def sqrt_kludge(sq):
+def sqrt_kludge(sq: float) -> float:
     """Compute square root with floor to avoid numerical issues.
 
     Args:

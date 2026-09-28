@@ -24,8 +24,8 @@ $\beta_0, \beta_1, \sigma$ and the correlations are specified in `MNL_params.py`
 
 ### updates
 
-#### June 7, 2026
+#### June 8, 2026
 Working version (if $W$ is correct). Just identified
 model, so the Salanie-Wolak correction works best.
-
-Need to try an overidentified version with $>3$ powers of $z$.
+Done also the overidentified version with $4$ powers of $z$.
+Need to make sure the nonrandom estimates use the same Z.

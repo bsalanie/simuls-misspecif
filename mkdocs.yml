@@ -12,6 +12,7 @@ nav:
   - API Reference:
     - core:
       - main driver: simuls_driver.md
+      - estimate: estimators.md
       - compute statistics: compute_stats.md
       - extract results: extract_from_results.md
     - multinomial mixed logit:
@@ -21,7 +22,6 @@ nav:
       - create samples: create_samples.md
       - evaluate: evaluations.md
     - plots:
-      - plot results: plot_simul_results.md
       - plots for paper: plots_paper.md
 
 plugins:
