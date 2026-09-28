@@ -1,6 +1,6 @@
 """Utilities for MNL simulations."""
 
-from dataclasses import dataclass, replace
+from dataclasses import dataclass
 from math import sqrt
 from pathlib import Path
 from pprint import pprint
@@ -9,7 +9,7 @@ from typing import List, Union, cast
 import numpy as np
 from bs_python_utils.bs_sparse_gaussian import setup_sparse_gaussian
 from bs_python_utils.bsnputils import ThreeArrays, gauher
-from bs_python_utils.bsutils import bs_error_abort, print_stars
+from bs_python_utils.bsutils import bs_error_abort
 
 
 def make_names_params(n_x: int) -> list[str]:
@@ -271,37 +271,3 @@ def _mean_utils(beta0: float, beta: np.ndarray, x: np.ndarray) -> np.ndarray:
         Mean utilities without the product effects, of shape `x.shape[:-1]`.
     """
     return cast(np.ndarray, beta0 + x @ np.atleast_1d(beta))
-
-
-if __name__ == "__main__":
-    m = ModelData(
-        data_pars=DataParams(
-            sigxi=1.0,
-            sigx=1.0,
-            rhox_z=sqrt(0.5),
-            rhox_xi=sqrt(0.5),
-            do_exo=True,
-        ),
-        true_pars=TrueParams(
-            beta0=-1.0, beta=np.array([1.0]), sigma_profile=np.array([1.0])
-        ),
-        names_pars=make_names_params(1),
-        model_string="youi",
-        long_name="youpee",
-        scenario=0,
-        sigma_range=np.arange(0.01, 1.00, 0.02),
-        nmarkets=1000,
-        nproducts=4,
-        mode="NP",
-        iprec=17,
-    )
-
-    print_stars(f"We start with {m.nmarkets} markets")
-
-    m.print()
-
-    m2 = replace(m, nmarkets=12)
-
-    print_stars(f"Now we have {m2.nmarkets}")
-
-    m2.print()

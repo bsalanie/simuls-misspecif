@@ -96,13 +96,46 @@ _subscripts = str.maketrans("0123456789", "₀₁₂₃₄₅₆₇₈₉")
 
 def _param_labels(n_x: int) -> list[str]:
     """Plot labels for `[beta0, beta_1..beta_M, sigma2_1..sigma2_M]`."""
+    uni_sigma1_sq = "\N{GREEK SMALL LETTER SIGMA}\N{SUBSCRIPT ONE}\N{SUPERSCRIPT TWO}"
+    uni_sigma2_sq = "\N{GREEK SMALL LETTER SIGMA}\N{SUBSCRIPT TWO}\N{SUPERSCRIPT TWO}"
+    uni_sigma3_sq = "\N{GREEK SMALL LETTER SIGMA}\N{SUBSCRIPT THREE}\N{SUPERSCRIPT TWO}"
+    uni_sigma4_sq = "\N{GREEK SMALL LETTER SIGMA}\N{SUBSCRIPT FOUR}\N{SUPERSCRIPT TWO}"
+    uni_beta2 = "\N{GREEK SMALL LETTER SIGMA}\N{SUBSCRIPT TWO}"
+    uni_beta3 = "\N{GREEK SMALL LETTER SIGMA}\N{SUBSCRIPT THREE}"
+    uni_beta4 = "\N{GREEK SMALL LETTER SIGMA}\N{SUBSCRIPT FOUR}"
+
     if n_x == 1:
         return [uni_beta0, uni_beta1, uni_sigma2]
-    return (
-        [uni_beta0]
-        + [f"β{str(m + 1).translate(_subscripts)}" for m in range(n_x)]
-        + [f"σ²{str(m + 1).translate(_subscripts)}" for m in range(n_x)]
-    )
+    elif n_x == 2:
+        return [uni_beta0, uni_beta1, uni_beta2, uni_sigma1_sq, uni_sigma2_sq]
+    elif n_x == 3:
+        return [
+            uni_beta0,
+            uni_beta1,
+            uni_beta2,
+            uni_beta3,
+            uni_sigma1_sq,
+            uni_sigma2_sq,
+            uni_sigma3_sq,
+        ]
+    elif n_x == 4:
+        return [
+            uni_beta0,
+            uni_beta1,
+            uni_beta2,
+            uni_beta3,
+            uni_beta4,
+            uni_sigma1_sq,
+            uni_sigma2_sq,
+            uni_sigma3_sq,
+            uni_sigma4_sq,
+        ]
+    else:
+        return (
+            [uni_beta0]
+            + [f"β{str(m + 1).translate(_subscripts)}" for m in range(n_x)]
+            + [f"σ²{str(m + 1).translate(_subscripts)}" for m in range(n_x)]
+        )
 
 
 def _true_coeffs(true_pars) -> tuple[float, np.ndarray, np.ndarray]:
@@ -112,20 +145,25 @@ def _true_coeffs(true_pars) -> tuple[float, np.ndarray, np.ndarray]:
     return true_pars.beta0, np.array([true_pars.beta1]), np.ones(1)
 
 
-def _make_suffix(nproducts: int, do_exo: bool) -> str:
+def _make_suffix(nproducts: int, do_exo: bool, scenario_number: int) -> str:
     """Create a descriptive suffix for plot titles.
 
     Args:
         nproducts: Number of products (J).
         do_exo: If True, generate suffix for exogenous model; else endogenous.
+        scenario_number: The scenario number for which the suffix is generated.
 
     Returns:
         Descriptive string for plot titles and labels.
     """
+    if scenario_number not in [3, 4]:
+        raise ValueError("Plotting: scenario_number must be 3 or 4")
+
+    S0_str = "0.9" if scenario_number == 4 else "0.5"
     if do_exo:
-        suffix = f"J = {nproducts}, exogenous"
+        suffix = f"J = {nproducts}, exogenous, S0 = {S0_str}"
     else:
-        suffix = f"J = {nproducts}, endogenous"
+        suffix = f"J = {nproducts}, endogenous, S0 = {S0_str}"
     return suffix
 
 
@@ -229,18 +267,18 @@ def new_plots_paper(
             x_plotted = np.sort(rng.choice(n_x_res, MAX_X_PLOTTED, replace=False))
             str_plotted = ", ".join(str(m + 1) for m in x_plotted)
             ptitle_pars = (
-                f"{_make_suffix(nproducts, do_exo)}; covariates {str_plotted}"
+                f"{_make_suffix(nproducts, do_exo, i_scenario)}; covariates {str_plotted}"
                 f" out of M = {n_x_res}"
             )
         else:
             x_plotted = np.arange(n_x_res)
-            ptitle_pars = _make_suffix(nproducts, do_exo)
+            ptitle_pars = _make_suffix(nproducts, do_exo, i_scenario)
         pars_plotted = (
             [0] + [1 + m for m in x_plotted] + [1 + n_x_res + m for m in x_plotted]
         )
         n_pars_plotted = len(pars_plotted)
 
-        suffix = _make_suffix(nproducts, do_exo)
+        suffix = _make_suffix(nproducts, do_exo, i_scenario)
         ptitle = suffix
         uni_string2 = uni_sigma2
         margin = 5.0
@@ -272,6 +310,14 @@ def new_plots_paper(
         )
 
         if plot_pseudo_with_bounds:
+            # Set colors and line dashes based on whether bounds are computed
+            if do_bounds:
+                ordered_colors = ["black"] * 3 + ["red", "green", "blue"]
+                line_dashes = ["solid"] + ["dot"] * 2 + ["solid"] * 3
+            else:
+                ordered_colors = ["black", "red", "green", "purple"]
+                line_dashes = ["solid"] * 4
+
             df1 = []
             for ipar in pars_plotted:
                 par_name = order_parameters[ipar]
@@ -289,12 +335,15 @@ def new_plots_paper(
                     estimates_to_plot = [
                         lower_bound_str,
                         upper_bound_str,
-                    ] + estimates_names
-                    values_to_plot = estimated_values[..., ipar]
+                    ] + [name for name in estimates_names if name != "True value"]
+                    # Skip the true value column (index 2) since _stack_estimates adds it
+                    values_to_plot = estimated_values[:, [0, 1, 3, 4, 5], ipar]
                 else:
-                    # Skip bounds, just plot the estimates (indices 2-6)
-                    estimates_to_plot = estimates_names
-                    values_to_plot = estimated_values[:, 2:, ipar]
+                    # Skip bounds, just plot the non-true-value estimates (indices 3-5)
+                    estimates_to_plot = [
+                        name for name in estimates_names if name != "True value"
+                    ]
+                    values_to_plot = estimated_values[:, 3:, ipar]
 
                 df1_ipar, ordered_estimates = _stack_estimates(
                     estimates_to_plot,
@@ -330,13 +379,13 @@ def new_plots_paper(
                 color="Estimate",
                 color_discrete_sequence=ordered_colors,
                 line_dash="Estimate",
-                line_dash_sequence=["solid"] + ["dot"] * 2 + ["solid"] * 4,
+                line_dash_sequence=line_dashes,
                 template="plotly_white",
                 facet_col_spacing=0.12,
                 title=(
                     f"Pseudo-true values and efficiency bounds<br><sup>{ptitle_pars}</sup>"
                     if do_bounds
-                    else f"Pseudo-true values<br><sup>{_make_suffix(nproducts, do_exo)}</sup>"
+                    else f"Pseudo-true values<br><sup>{_make_suffix(nproducts, do_exo, i_scenario)}</sup>"
                 ),
             )
 
@@ -351,7 +400,10 @@ def new_plots_paper(
                 width = 1000 if facet_col_wrap == 3 else 1250
                 fig.update_layout(width=width, height=150 + 300 * n_rows)
 
-            fig_save_ptv_root = f"{figures_dir}/new_pseudo_vals_{full_str}"
+            bounds_suffix = "_with_bounds" if do_bounds else ""
+            fig_save_ptv_root = (
+                f"{figures_dir}/new_pseudo_vals_{full_str}{bounds_suffix}"
+            )
             fig.write_image(f"{fig_save_ptv_root}.{fig_fmt}")
 
             fig.update_xaxes(rangeslider_visible=True)

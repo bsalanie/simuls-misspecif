@@ -15,6 +15,12 @@ from bs_python_utils.bs_mem import memory_display_top, memory_display_top_diffs
 from bs_python_utils.bsutils import print_stars
 
 from simuls_misspecif.create_samples import make_shares
+from simuls_misspecif.estimators import (
+    estimate_nonrandom,
+    estimate_whatif_just,
+    estimate_whatif_over,
+    make_U_array,
+)
 from simuls_misspecif.evaluations import (
     _artificial_regressors,
     _nonrandom_semi_elasticities,
@@ -35,7 +41,6 @@ from simuls_misspecif.MNL_utils import (
 from simuls_misspecif.utils import (
     f_print_stars,
     get_semi_elast_stats,
-    make_omega_inv,
 )
 
 
@@ -95,7 +100,8 @@ def get_the_stats(
     )
 
     print_stars(
-        f"Calling get stats for simulation {isim} with {nmarkets} markets and {nproducts} products"
+        f"Calling get stats for scenario {model.scenario} with {nmarkets} markets\n"
+        + f" and {nproducts} products with {model.n_x} covariates."
     )
 
     i_scenario, str_long = model.scenario, model.long_name
@@ -148,6 +154,7 @@ def get_the_stats(
     true_xi, x, z = data_pars.generate_exogenous_vars_from_draws(draws)
     xmat = x.reshape((npts, n_x))
     zmat = z.reshape((npts, n_x))
+    xmat1 = np.column_stack((np.ones(npts), xmat))
 
     # basis of instruments for product j on market t:
     #   z_jt1,..., z_jtm, sum_k z_kt1^2, ..., sum_k z_ktm^2, sum_k z_kt1^3, ..., sum_k z_kt m^3
@@ -174,9 +181,7 @@ def get_the_stats(
         observed_shares_mat = make_shares(true_mean_utils_xi, x, sig_vec)
         observed_shares_vec = observed_shares_mat.reshape(npts)
 
-        Kmat, yvec, Vmat, Warr = _artificial_regressors(
-            observed_shares_vec, xmat, nproducts
-        )
+        Kmat, yvec, *_ = _artificial_regressors(observed_shares_vec, xmat, nproducts)
 
         # true_p contains the true values of the coefficients we estimate in TSLS
         true_p = np.concatenate(([true_beta0], true_beta, sig2_vec))
@@ -186,89 +191,32 @@ def get_the_stats(
         #################################################################################
         # start = time.time()
 
-        xmat1 = np.column_stack((np.ones(npts), xmat))
-        omega_0_inv = make_omega_inv(Z_alt)
-        omega_0 = spla.inv(omega_0_inv)
-        xpZ = xmat1.T @ Z_alt / npts
-        Zpy = Z_alt.T @ yvec / npts
-        lhs_0 = xpZ @ omega_0 @ xpZ.T
-        rhs_0 = xpZ @ omega_0 @ Zpy
-        beta_hat_0 = spla.solve(lhs_0, rhs_0)
-        # print(f"{beta_hat_0=}")
-        # print("Done first 2SLS")
+        Omega, nonrandom_vals = estimate_nonrandom(xmat1, Z_alt, yvec)
 
-        # second stage omega
-        resid_0 = yvec - xmat1 @ beta_hat_0
-        zxi_0 = Z_alt.T * resid_0
-        zxi_0_mean = np.mean(zxi_0, 0)
-        zxi_0_centered = zxi_0 - zxi_0_mean
-        zxi_0_centered[0, :] = 1.0
-        Omega_inv = make_omega_inv(zxi_0_centered.T)
-        Omega = spla.inv(Omega_inv)
-        lhs_1 = xpZ @ Omega @ xpZ.T
-        rhs_1 = xpZ @ Omega @ Zpy
-        nonrandom_vals = spla.solve(lhs_1, rhs_1)
+        zxi_nonrandom_mean = np.mean(Z_alt.T * (yvec - xmat1 @ nonrandom_vals), 1)
+        whatif_just_vals = estimate_whatif_just(yvec, xmat1, Z_alt, Kmat, Omega)
 
-        xmat1_wijust = np.column_stack((xmat1, Kmat))
-        xpZ_wijust = xmat1_wijust.T @ Z_alt / npts
-        lhs_wijust = xpZ_wijust @ Omega @ xpZ_wijust.T
-        rhs_wijust = xpZ_wijust @ Omega @ Zpy
-        whatif_just_vals = spla.solve(lhs_wijust, rhs_wijust)
+        nonrandom_vals: np.ndarray = np.concatenate((nonrandom_vals, np.zeros(n_x)))
 
         if verbose:
             _print_pseudo_true_errors(true_p, whatif_just_vals, names_ptv, verbose=True)
 
-        resid_nonrandom = yvec - xmat1 @ nonrandom_vals
-        zxi_nonrandom_mean = np.mean(Z_alt.T * resid_nonrandom, 1)
-        eS_x = np.zeros((nmarkets, n_x))
-        eS_xx = np.zeros((nmarkets, n_x, n_x))
-        for m in range(n_x):
-            x_m = xmat[:, m].reshape((nmarkets, nproducts))
-            eS_x[:, m] = np.sum(x_m * observed_shares_mat, axis=1)
-            for n in range(m, n_x):
-                x_n = xmat[:, n].reshape((nmarkets, nproducts))
-                eS_xx[:, m, n] = np.sum(x_m * x_n * observed_shares_mat, 1)
-                eS_xx[:, n, m] = eS_xx[:, m, n]
+        U_array = make_U_array(
+            nmarkets,
+            n_x,
+            xmat,
+            observed_shares_mat,
+        )
 
-        W_array = np.zeros((npts, n_x, n_x))
-        for mkt in range(nmarkets):
-            mkt_slice = slice(mkt * nproducts, (mkt + 1) * nproducts)
-            for m in range(n_x):
-                x_mt = xmat[mkt_slice, m]
-                eS_x_t = eS_x[mkt, :]
-                eS_xx_t = eS_xx[mkt, :, :]
-                for n in range(m, n_x):
-                    x_nt = xmat[mkt_slice, n]
-                    W_array[mkt_slice, m, n] = (
-                        x_mt * eS_x_t[n] + x_nt * eS_x_t[m] - x_mt * x_nt
-                    ) * (eS_xx_t[m, n] - eS_x_t[m] * eS_x_t[n])
-                    W_array[mkt_slice, n, m] = W_array[mkt_slice, m, n]
-
-        U_array = W_array / 2.0
-
-        quadratic_term = np.zeros((n_x, n_x))
-        for m in range(n_x):
-            for n in range(m, n_x):
-                UpZ_mn = (U_array[:, m, n].T @ Z_alt) / npts
-                quadratic_term[m, n] = -2.0 * UpZ_mn @ Omega @ zxi_nonrandom_mean
-                quadratic_term[n, m] = quadratic_term[m, n]
-
-        Cmat = xpZ @ Omega @ xpZ.T
-        KpZ = Kmat.T @ Z_alt / npts
-        Dmat = xpZ @ Omega @ KpZ.T
-        Rmat = KpZ @ Omega @ KpZ.T + quadratic_term
-
-        # print(f"{Rmat=}, {quadratic_term=}, {Cmat=}, {Dmat=}")
-
-        r_vec = -KpZ @ Omega @ zxi_nonrandom_mean
-        # print(f"{r_vec=}")
-        lhs_over = np.block([[Cmat, Dmat], [Dmat.T, Rmat]])
-        rhs_over = np.concatenate((np.zeros(n_x + 1), -r_vec))
-
-        whatif_over_vals = spla.solve(lhs_over, rhs_over)
-        # print(f"Done {whatif_over_vals=}")
-        nonrandom_vals = np.concatenate((nonrandom_vals, np.zeros(n_x)))
-        whatif_over_vals += nonrandom_vals
+        whatif_over_vals = estimate_whatif_over(
+            xmat1,
+            Z_alt,
+            Kmat,
+            Omega,
+            nonrandom_vals,
+            zxi_nonrandom_mean,
+            U_array,
+        )
 
         print_stars("True ; estimates non-random, what-if just, what-if over:")
         for i in range(n_params):
