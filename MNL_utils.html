@@ -488,6 +488,34 @@
   
   
     <li class="md-nav__item">
+      <a href="estimators.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    estimate
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="compute_stats.html" class="md-nav__link">
         
   
@@ -781,10 +809,65 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#simuls_misspecif.MNL_utils.SimulationCase" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SimulationCase
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#simuls_misspecif.MNL_utils.TrueParams" class="md-nav__link">
     <span class="md-ellipsis">
       
         TrueParams
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#simuls_misspecif.MNL_utils.gauss_hermite_tensor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        gauss_hermite_tensor
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#simuls_misspecif.MNL_utils.integration_nodes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        integration_nodes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#simuls_misspecif.MNL_utils.make_names_params" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        make_names_params
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#simuls_misspecif.MNL_utils.quadrature_nodes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        quadrature_nodes
       
     </span>
   </a>
@@ -923,34 +1006,6 @@
   
   
     <li class="md-nav__item">
-      <a href="plot_simul_results.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    plot results
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="plots_paper.html" class="md-nav__link">
         
   
@@ -1075,10 +1130,65 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#simuls_misspecif.MNL_utils.SimulationCase" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SimulationCase
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#simuls_misspecif.MNL_utils.TrueParams" class="md-nav__link">
     <span class="md-ellipsis">
       
         TrueParams
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#simuls_misspecif.MNL_utils.gauss_hermite_tensor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        gauss_hermite_tensor
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#simuls_misspecif.MNL_utils.integration_nodes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        integration_nodes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#simuls_misspecif.MNL_utils.make_names_params" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        make_names_params
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#simuls_misspecif.MNL_utils.quadrature_nodes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        quadrature_nodes
       
     </span>
   </a>
@@ -1225,6 +1335,17 @@ the remaining variance comes from xi.</p>
               </div>
             </td>
           </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="simuls_misspecif.MNL_utils.DataParams.n_x">n_x</span></code></td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Number of covariates M, each with its own instrument.</p>
+              </div>
+            </td>
+          </tr>
       </tbody>
     </table>
 
@@ -1237,70 +1358,74 @@ the remaining variance comes from xi.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>simuls_misspecif/MNL_utils.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 44</span>
-<span class="normal"> 45</span>
-<span class="normal"> 46</span>
-<span class="normal"> 47</span>
-<span class="normal"> 48</span>
-<span class="normal"> 49</span>
-<span class="normal"> 50</span>
-<span class="normal"> 51</span>
-<span class="normal"> 52</span>
-<span class="normal"> 53</span>
-<span class="normal"> 54</span>
-<span class="normal"> 55</span>
-<span class="normal"> 56</span>
-<span class="normal"> 57</span>
-<span class="normal"> 58</span>
-<span class="normal"> 59</span>
-<span class="normal"> 60</span>
-<span class="normal"> 61</span>
-<span class="normal"> 62</span>
-<span class="normal"> 63</span>
-<span class="normal"> 64</span>
-<span class="normal"> 65</span>
-<span class="normal"> 66</span>
-<span class="normal"> 67</span>
-<span class="normal"> 68</span>
-<span class="normal"> 69</span>
-<span class="normal"> 70</span>
-<span class="normal"> 71</span>
-<span class="normal"> 72</span>
-<span class="normal"> 73</span>
-<span class="normal"> 74</span>
-<span class="normal"> 75</span>
-<span class="normal"> 76</span>
-<span class="normal"> 77</span>
-<span class="normal"> 78</span>
-<span class="normal"> 79</span>
-<span class="normal"> 80</span>
-<span class="normal"> 81</span>
-<span class="normal"> 82</span>
-<span class="normal"> 83</span>
-<span class="normal"> 84</span>
-<span class="normal"> 85</span>
-<span class="normal"> 86</span>
-<span class="normal"> 87</span>
-<span class="normal"> 88</span>
-<span class="normal"> 89</span>
-<span class="normal"> 90</span>
-<span class="normal"> 91</span>
-<span class="normal"> 92</span>
-<span class="normal"> 93</span>
-<span class="normal"> 94</span>
-<span class="normal"> 95</span>
-<span class="normal"> 96</span>
-<span class="normal"> 97</span>
-<span class="normal"> 98</span>
-<span class="normal"> 99</span>
-<span class="normal">100</span>
-<span class="normal">101</span>
-<span class="normal">102</span>
-<span class="normal">103</span>
-<span class="normal">104</span>
-<span class="normal">105</span>
-<span class="normal">106</span>
-<span class="normal">107</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">DataParams</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Parameters for the data.</span>
 
@@ -1313,6 +1438,7 @@ the remaining variance comes from xi.</p>
 <span class="sd">        rhox_z: Correlation of x and z.</span>
 <span class="sd">        rhox_xi: Correlation of x and xi conditional on z.</span>
 <span class="sd">        do_exo: Whether the exogenous case z = x is used.</span>
+<span class="sd">        n_x: Number of covariates M, each with its own instrument.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">sigxi</span><span class="p">:</span> <span class="nb">float</span>
@@ -1320,6 +1446,7 @@ the remaining variance comes from xi.</p>
     <span class="n">rhox_z</span><span class="p">:</span> <span class="nb">float</span>
     <span class="n">rhox_xi</span><span class="p">:</span> <span class="nb">float</span>
     <span class="n">do_exo</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">n_x</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">generate_random_draws</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">nmarkets</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nproducts</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">stream</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">Generator</span>
@@ -1332,11 +1459,12 @@ the remaining variance comes from xi.</p>
 <span class="sd">            stream: Random generator.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            A tuple `(xi_d, z_d, u_d)`.</span>
+<span class="sd">            A tuple `(xi_d, z_d, u_d)` of `N(0,1)` arrays; `xi_d` is `(nmarkets, nproducts)`,</span>
+<span class="sd">            `z_d` and `u_d` are `(nmarkets, nproducts, n_x)`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">xi_d</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">nmarkets</span><span class="p">,</span> <span class="n">nproducts</span><span class="p">))</span>
-        <span class="n">z_d</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">nmarkets</span><span class="p">,</span> <span class="n">nproducts</span><span class="p">))</span>
-        <span class="n">u_d</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">nmarkets</span><span class="p">,</span> <span class="n">nproducts</span><span class="p">))</span>
+        <span class="n">z_d</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">nmarkets</span><span class="p">,</span> <span class="n">nproducts</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_x</span><span class="p">))</span>
+        <span class="n">u_d</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">nmarkets</span><span class="p">,</span> <span class="n">nproducts</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_x</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">xi_d</span><span class="p">,</span> <span class="n">z_d</span><span class="p">,</span> <span class="n">u_d</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">generate_exogenous_vars_from_draws</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">draws</span><span class="p">:</span> <span class="n">ThreeArrays</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ThreeArrays</span><span class="p">:</span>
@@ -1346,7 +1474,8 @@ the remaining variance comes from xi.</p>
 <span class="sd">            draws: Random draws.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            A tuple `(xi, x, z)`.</span>
+<span class="sd">            A tuple `(xi, x, z)`; `xi` is `(nmarkets, nproducts)`,</span>
+<span class="sd">            `x` and `z` are `(nmarkets, nproducts, n_x)`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">xi_d</span><span class="p">,</span> <span class="n">z_d</span><span class="p">,</span> <span class="n">u_d</span> <span class="o">=</span> <span class="n">draws</span>
         <span class="n">xi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigxi</span> <span class="o">*</span> <span class="n">xi_d</span>
@@ -1357,7 +1486,7 @@ the remaining variance comes from xi.</p>
             <span class="n">rhox_z2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rhox_z</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">rhox_z</span>
             <span class="n">rhox_xi2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rhox_xi</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">rhox_xi</span>
             <span class="n">rnorm</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">rhox_xi2</span><span class="p">)</span> <span class="o">*</span> <span class="n">u_d</span>
-            <span class="n">xi_term</span> <span class="o">=</span> <span class="n">rnorm</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rhox_xi</span> <span class="o">*</span> <span class="n">xi</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigxi</span><span class="p">)</span>
+            <span class="n">xi_term</span> <span class="o">=</span> <span class="n">rnorm</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rhox_xi</span> <span class="o">*</span> <span class="n">xi</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigxi</span><span class="p">)[</span><span class="o">...</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
             <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rhox_z</span> <span class="o">*</span> <span class="n">z</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigx</span> <span class="o">*</span> <span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">rhox_z2</span><span class="p">)</span> <span class="o">*</span> <span class="n">xi_term</span>
 
         <span class="k">return</span> <span class="n">xi</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">z</span>
@@ -1440,7 +1569,17 @@ the remaining variance comes from xi.</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>A tuple <code>(xi, x, z)</code>.</p>
+                <p>A tuple <code>(xi, x, z)</code>; <code>xi</code> is <code>(nmarkets, nproducts)</code>,</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="bs_python_utils.bsnputils.ThreeArrays">ThreeArrays</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p><code>x</code> and <code>z</code> are <code>(nmarkets, nproducts, n_x)</code>.</p>
               </div>
             </td>
           </tr>
@@ -1450,35 +1589,37 @@ the remaining variance comes from xi.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>simuls_misspecif/MNL_utils.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 83</span>
-<span class="normal"> 84</span>
-<span class="normal"> 85</span>
-<span class="normal"> 86</span>
-<span class="normal"> 87</span>
-<span class="normal"> 88</span>
-<span class="normal"> 89</span>
-<span class="normal"> 90</span>
-<span class="normal"> 91</span>
-<span class="normal"> 92</span>
-<span class="normal"> 93</span>
-<span class="normal"> 94</span>
-<span class="normal"> 95</span>
-<span class="normal"> 96</span>
-<span class="normal"> 97</span>
-<span class="normal"> 98</span>
-<span class="normal"> 99</span>
-<span class="normal">100</span>
-<span class="normal">101</span>
-<span class="normal">102</span>
-<span class="normal">103</span>
-<span class="normal">104</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">generate_exogenous_vars_from_draws</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">draws</span><span class="p">:</span> <span class="n">ThreeArrays</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ThreeArrays</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">generate_exogenous_vars_from_draws</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">draws</span><span class="p">:</span> <span class="n">ThreeArrays</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ThreeArrays</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Build the exogenous variables from random draws.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        draws: Random draws.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        A tuple `(xi, x, z)`.</span>
+<span class="sd">        A tuple `(xi, x, z)`; `xi` is `(nmarkets, nproducts)`,</span>
+<span class="sd">        `x` and `z` are `(nmarkets, nproducts, n_x)`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">xi_d</span><span class="p">,</span> <span class="n">z_d</span><span class="p">,</span> <span class="n">u_d</span> <span class="o">=</span> <span class="n">draws</span>
     <span class="n">xi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigxi</span> <span class="o">*</span> <span class="n">xi_d</span>
@@ -1489,7 +1630,7 @@ the remaining variance comes from xi.</p>
         <span class="n">rhox_z2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rhox_z</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">rhox_z</span>
         <span class="n">rhox_xi2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rhox_xi</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">rhox_xi</span>
         <span class="n">rnorm</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">rhox_xi2</span><span class="p">)</span> <span class="o">*</span> <span class="n">u_d</span>
-        <span class="n">xi_term</span> <span class="o">=</span> <span class="n">rnorm</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rhox_xi</span> <span class="o">*</span> <span class="n">xi</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigxi</span><span class="p">)</span>
+        <span class="n">xi_term</span> <span class="o">=</span> <span class="n">rnorm</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rhox_xi</span> <span class="o">*</span> <span class="n">xi</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigxi</span><span class="p">)[</span><span class="o">...</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
         <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rhox_z</span> <span class="o">*</span> <span class="n">z</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigx</span> <span class="o">*</span> <span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">rhox_z2</span><span class="p">)</span> <span class="o">*</span> <span class="n">xi_term</span>
 
     <span class="k">return</span> <span class="n">xi</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">z</span>
@@ -1591,7 +1732,17 @@ the remaining variance comes from xi.</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>A tuple <code>(xi_d, z_d, u_d)</code>.</p>
+                <p>A tuple <code>(xi_d, z_d, u_d)</code> of <code>N(0,1)</code> arrays; <code>xi_d</code> is <code>(nmarkets, nproducts)</code>,</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="bs_python_utils.bsnputils.ThreeArrays">ThreeArrays</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p><code>z_d</code> and <code>u_d</code> are <code>(nmarkets, nproducts, n_x)</code>.</p>
               </div>
             </td>
           </tr>
@@ -1601,23 +1752,24 @@ the remaining variance comes from xi.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>simuls_misspecif/MNL_utils.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">65</span>
-<span class="normal">66</span>
-<span class="normal">67</span>
-<span class="normal">68</span>
-<span class="normal">69</span>
-<span class="normal">70</span>
-<span class="normal">71</span>
-<span class="normal">72</span>
-<span class="normal">73</span>
-<span class="normal">74</span>
-<span class="normal">75</span>
-<span class="normal">76</span>
-<span class="normal">77</span>
-<span class="normal">78</span>
-<span class="normal">79</span>
-<span class="normal">80</span>
-<span class="normal">81</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">generate_random_draws</span><span class="p">(</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">generate_random_draws</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span> <span class="n">nmarkets</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nproducts</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">stream</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">Generator</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ThreeArrays</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate random draws used to construct the data.</span>
@@ -1628,11 +1780,12 @@ the remaining variance comes from xi.</p>
 <span class="sd">        stream: Random generator.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        A tuple `(xi_d, z_d, u_d)`.</span>
+<span class="sd">        A tuple `(xi_d, z_d, u_d)` of `N(0,1)` arrays; `xi_d` is `(nmarkets, nproducts)`,</span>
+<span class="sd">        `z_d` and `u_d` are `(nmarkets, nproducts, n_x)`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">xi_d</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">nmarkets</span><span class="p">,</span> <span class="n">nproducts</span><span class="p">))</span>
-    <span class="n">z_d</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">nmarkets</span><span class="p">,</span> <span class="n">nproducts</span><span class="p">))</span>
-    <span class="n">u_d</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">nmarkets</span><span class="p">,</span> <span class="n">nproducts</span><span class="p">))</span>
+    <span class="n">z_d</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">nmarkets</span><span class="p">,</span> <span class="n">nproducts</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_x</span><span class="p">))</span>
+    <span class="n">u_d</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">nmarkets</span><span class="p">,</span> <span class="n">nproducts</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_x</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">xi_d</span><span class="p">,</span> <span class="n">z_d</span><span class="p">,</span> <span class="n">u_d</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -1683,12 +1836,12 @@ the remaining variance comes from xi.</p>
           <tr class="doc-section-item">
             <td><code><span title="simuls_misspecif.MNL_utils.ModelData.data_pars">data_pars</span></code></td>
             <td>
-                  <code><span title="typing.Union">Union</span>[<a class="autorefs autorefs-internal" title="DataParams
+                  <code><a class="autorefs autorefs-internal" title="DataParams
 
 
   
       dataclass
-   (simuls_misspecif.MNL_utils.DataParams)" href="#simuls_misspecif.MNL_utils.DataParams">DataParams</a>, None]</code>
+   (simuls_misspecif.MNL_utils.DataParams)" href="#simuls_misspecif.MNL_utils.DataParams">DataParams</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -1699,12 +1852,12 @@ the remaining variance comes from xi.</p>
           <tr class="doc-section-item">
             <td><code><span title="simuls_misspecif.MNL_utils.ModelData.true_pars">true_pars</span></code></td>
             <td>
-                  <code><span title="typing.Union">Union</span>[<a class="autorefs autorefs-internal" title="TrueParams
+                  <code><a class="autorefs autorefs-internal" title="TrueParams
 
 
   
       dataclass
-   (simuls_misspecif.MNL_utils.TrueParams)" href="#simuls_misspecif.MNL_utils.TrueParams">TrueParams</a>, None]</code>
+   (simuls_misspecif.MNL_utils.TrueParams)" href="#simuls_misspecif.MNL_utils.TrueParams">TrueParams</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -1715,7 +1868,7 @@ the remaining variance comes from xi.</p>
           <tr class="doc-section-item">
             <td><code><span title="simuls_misspecif.MNL_utils.ModelData.names_pars">names_pars</span></code></td>
             <td>
-                  <code><span title="typing.Union">Union</span>[<span title="typing.List">List</span>[<span title="str">str</span>], None]</code>
+                  <code><span title="typing.List">List</span>[<span title="str">str</span>]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -1726,7 +1879,7 @@ the remaining variance comes from xi.</p>
           <tr class="doc-section-item">
             <td><code><span title="simuls_misspecif.MNL_utils.ModelData.model_string">model_string</span></code></td>
             <td>
-                  <code><span title="typing.Union">Union</span>[<span title="str">str</span>, None]</code>
+                  <code><span title="str">str</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -1737,7 +1890,7 @@ the remaining variance comes from xi.</p>
           <tr class="doc-section-item">
             <td><code><span title="simuls_misspecif.MNL_utils.ModelData.long_name">long_name</span></code></td>
             <td>
-                  <code><span title="typing.Union">Union</span>[<span title="str">str</span>, None]</code>
+                  <code><span title="str">str</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -1748,7 +1901,7 @@ the remaining variance comes from xi.</p>
           <tr class="doc-section-item">
             <td><code><span title="simuls_misspecif.MNL_utils.ModelData.nmarkets">nmarkets</span></code></td>
             <td>
-                  <code><span title="typing.Union">Union</span>[<span title="int">int</span>, None]</code>
+                  <code><span title="int">int</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -1759,7 +1912,7 @@ the remaining variance comes from xi.</p>
           <tr class="doc-section-item">
             <td><code><span title="simuls_misspecif.MNL_utils.ModelData.nproducts">nproducts</span></code></td>
             <td>
-                  <code><span title="typing.Union">Union</span>[<span title="int">int</span>, None]</code>
+                  <code><span title="int">int</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -1770,7 +1923,7 @@ the remaining variance comes from xi.</p>
           <tr class="doc-section-item">
             <td><code><span title="simuls_misspecif.MNL_utils.ModelData.scenario">scenario</span></code></td>
             <td>
-                  <code><span title="typing.Union">Union</span>[<span title="int">int</span>, None]</code>
+                  <code><span title="int">int</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -1781,7 +1934,7 @@ the remaining variance comes from xi.</p>
           <tr class="doc-section-item">
             <td><code><span title="simuls_misspecif.MNL_utils.ModelData.sigma_range">sigma_range</span></code></td>
             <td>
-                  <code><span title="typing.Union">Union</span>[<span title="numpy.ndarray">ndarray</span>, None]</code>
+                  <code><span title="numpy.ndarray">ndarray</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -1790,31 +1943,20 @@ the remaining variance comes from xi.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code><span title="simuls_misspecif.MNL_utils.ModelData.mode1">mode1</span></code></td>
+            <td><code><span title="simuls_misspecif.MNL_utils.ModelData.mode">mode</span></code></td>
             <td>
-                  <code><span title="typing.Union">Union</span>[<span title="str">str</span>, None]</code>
+                  <code><span title="str">str</span></code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>How flexible regressions are run in dimension 1.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="simuls_misspecif.MNL_utils.ModelData.mode2">mode2</span></code></td>
-            <td>
-                  <code><span title="typing.Union">Union</span>[<span title="str">str</span>, None]</code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>How flexible regressions are run in dimension 2.</p>
+                <p>How flexible regressions are run.</p>
               </div>
             </td>
           </tr>
           <tr class="doc-section-item">
             <td><code><span title="simuls_misspecif.MNL_utils.ModelData.iprec">iprec</span></code></td>
             <td>
-                  <code><span title="typing.Union">Union</span>[<span title="int">int</span>, None]</code>
+                  <code><span title="int">int</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -1834,40 +1976,49 @@ the remaining variance comes from xi.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>simuls_misspecif/MNL_utils.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">110</span>
-<span class="normal">111</span>
-<span class="normal">112</span>
-<span class="normal">113</span>
-<span class="normal">114</span>
-<span class="normal">115</span>
-<span class="normal">116</span>
-<span class="normal">117</span>
-<span class="normal">118</span>
-<span class="normal">119</span>
-<span class="normal">120</span>
-<span class="normal">121</span>
-<span class="normal">122</span>
-<span class="normal">123</span>
-<span class="normal">124</span>
-<span class="normal">125</span>
-<span class="normal">126</span>
-<span class="normal">127</span>
-<span class="normal">128</span>
-<span class="normal">129</span>
-<span class="normal">130</span>
-<span class="normal">131</span>
-<span class="normal">132</span>
-<span class="normal">133</span>
-<span class="normal">134</span>
-<span class="normal">135</span>
-<span class="normal">136</span>
-<span class="normal">137</span>
-<span class="normal">138</span>
-<span class="normal">139</span>
-<span class="normal">140</span>
-<span class="normal">141</span>
-<span class="normal">142</span>
-<span class="normal">143</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">ModelData</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The full model.</span>
 
@@ -1881,26 +2032,196 @@ the remaining variance comes from xi.</p>
 <span class="sd">        nproducts: Number of products.</span>
 <span class="sd">        scenario: Scenario number.</span>
 <span class="sd">        sigma_range: Values of sigma explored.</span>
-<span class="sd">        mode1: How flexible regressions are run in dimension 1.</span>
-<span class="sd">        mode2: How flexible regressions are run in dimension 2.</span>
+<span class="sd">        mode: How flexible regressions are run.</span>
 <span class="sd">        iprec: Precision for sparse integration.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">data_pars</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">DataParams</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
-    <span class="n">true_pars</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">TrueParams</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
-    <span class="n">names_pars</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span>
-    <span class="n">model_string</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
-    <span class="n">long_name</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
-    <span class="n">nmarkets</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
-    <span class="n">nproducts</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
-    <span class="n">scenario</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
-    <span class="n">sigma_range</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
-    <span class="n">mode1</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
-    <span class="n">mode2</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
-    <span class="n">iprec</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+    <span class="n">data_pars</span><span class="p">:</span> <span class="n">DataParams</span>
+    <span class="n">true_pars</span><span class="p">:</span> <span class="n">TrueParams</span>
+    <span class="n">names_pars</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">model_string</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">long_name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">nmarkets</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">nproducts</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">scenario</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">sigma_range</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">iprec</span><span class="p">:</span> <span class="nb">int</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">true_pars</span><span class="o">.</span><span class="n">n_x</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_pars</span><span class="o">.</span><span class="n">n_x</span><span class="p">:</span>
+            <span class="n">bs_error_abort</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;true_pars has </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">true_pars</span><span class="o">.</span><span class="n">n_x</span><span class="si">}</span><span class="s2"> covariates&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot; but data_pars has </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data_pars</span><span class="o">.</span><span class="n">n_x</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">n_x</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_pars</span><span class="o">.</span><span class="n">n_x</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">pprint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="simuls_misspecif.MNL_utils.SimulationCase" class="doc doc-heading">
+            <code>SimulationCase</code>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+<a href="#simuls_misspecif.MNL_utils.SimulationCase" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>A single simulation configuration case.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="simuls_misspecif.MNL_utils.SimulationCase.stream">stream</span></code></td>
+            <td>
+                  <code><span title="typing.Union">Union</span>[<span title="numpy.random.SeedSequence">SeedSequence</span>, <span title="numpy.random.Generator">Generator</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Random generator or seed sequence.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="simuls_misspecif.MNL_utils.SimulationCase.model">model</span></code></td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="ModelData
+
+
+  
+      dataclass
+   (simuls_misspecif.MNL_utils.ModelData)" href="#simuls_misspecif.MNL_utils.ModelData">ModelData</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Model parameter dataclass.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="simuls_misspecif.MNL_utils.SimulationCase.isim">isim</span></code></td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Simulation index.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="simuls_misspecif.MNL_utils.SimulationCase.pickle_dir">pickle_dir</span></code></td>
+            <td>
+                  <code><span title="pathlib.Path">Path</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Path to directory where results are stored.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="simuls_misspecif.MNL_utils.SimulationCase.use_mp">use_mp</span></code></td>
+            <td>
+                  <code><span title="bool">bool</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Whether multiprocessing is enabled.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>simuls_misspecif/MNL_utils.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SimulationCase</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A single simulation configuration case.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        stream: Random generator or seed sequence.</span>
+<span class="sd">        model: Model parameter dataclass.</span>
+<span class="sd">        isim: Simulation index.</span>
+<span class="sd">        pickle_dir: Path to directory where results are stored.</span>
+<span class="sd">        use_mp: Whether multiprocessing is enabled.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">stream</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">SeedSequence</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">Generator</span><span class="p">]</span>
+    <span class="n">model</span><span class="p">:</span> <span class="n">ModelData</span>
+    <span class="n">isim</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">pickle_dir</span><span class="p">:</span> <span class="n">Path</span>
+    <span class="n">use_mp</span><span class="p">:</span> <span class="nb">bool</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -1969,24 +2290,25 @@ the remaining variance comes from xi.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code><span title="simuls_misspecif.MNL_utils.TrueParams.beta1">beta1</span></code></td>
+            <td><code><span title="simuls_misspecif.MNL_utils.TrueParams.beta">beta</span></code></td>
             <td>
-                  <code><span title="float">float</span></code>
+                  <code><span title="numpy.ndarray">ndarray</span></code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Coefficient of x, the single covariate when there is no micromoment.</p>
+                <p><code>(M,)</code> mean coefficients of the covariates x.</p>
               </div>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code><span title="simuls_misspecif.MNL_utils.TrueParams.sigma">sigma</span></code></td>
+            <td><code><span title="simuls_misspecif.MNL_utils.TrueParams.sigma_profile">sigma_profile</span></code></td>
             <td>
-                  <code><span title="float">float</span></code>
+                  <code><span title="numpy.ndarray">ndarray</span></code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Scaling coefficient for epsilon.</p>
+                <p><code>(M,)</code> relative standard errors of the random coefficients;
+the standard errors are <code>sigma * sigma_profile</code> for <code>sigma</code> in <code>sigma_range</code>.</p>
               </div>
             </td>
           </tr>
@@ -2002,34 +2324,56 @@ the remaining variance comes from xi.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>simuls_misspecif/MNL_utils.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">26</span>
-<span class="normal">27</span>
-<span class="normal">28</span>
-<span class="normal">29</span>
-<span class="normal">30</span>
-<span class="normal">31</span>
-<span class="normal">32</span>
-<span class="normal">33</span>
-<span class="normal">34</span>
-<span class="normal">35</span>
-<span class="normal">36</span>
-<span class="normal">37</span>
-<span class="normal">38</span>
-<span class="normal">39</span>
-<span class="normal">40</span>
-<span class="normal">41</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">TrueParams</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Parameters to be estimated.</span>
 
 <span class="sd">    Attributes:</span>
 <span class="sd">        beta0: Coefficient of the constant.</span>
-<span class="sd">        beta1: Coefficient of x, the single covariate when there is no micromoment.</span>
-<span class="sd">        sigma: Scaling coefficient for epsilon.</span>
+<span class="sd">        beta: `(M,)` mean coefficients of the covariates x.</span>
+<span class="sd">        sigma_profile: `(M,)` relative standard errors of the random coefficients;</span>
+<span class="sd">            the standard errors are `sigma * sigma_profile` for `sigma` in `sigma_range`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">beta0</span><span class="p">:</span> <span class="nb">float</span>
-    <span class="n">beta1</span><span class="p">:</span> <span class="nb">float</span>
-    <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">beta</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">sigma_profile</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">beta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">beta</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sigma_profile</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sigma_profile</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">beta</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigma_profile</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+            <span class="n">bs_error_abort</span><span class="p">(</span><span class="s2">&quot;beta and sigma_profile should have the same size&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">n_x</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">beta</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">pprint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
@@ -2057,6 +2401,432 @@ the remaining variance comes from xi.</p>
 
 </div>
 
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="simuls_misspecif.MNL_utils.gauss_hermite_tensor" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">gauss_hermite_tensor</span><span class="p">(</span><span class="n">n_x</span><span class="p">,</span> <span class="n">n_per_dim</span><span class="o">=</span><span class="n">n_gauher</span><span class="p">)</span></code>
+
+<a href="#simuls_misspecif.MNL_utils.gauss_hermite_tensor" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Tensor-product Gauss-Hermite rule for <code>epsilon ~ N(0, I_{n_x})</code>.</p>
+<p>Unlike sparse grids, all weights are positive, so integrated shares stay positive.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>n_x</code>
+            </td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Number of random coefficients.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>n_per_dim</code>
+            </td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Number of nodes in each dimension.</p>
+              </div>
+            </td>
+            <td>
+                  <code><span title="simuls_misspecif.MNL_utils.n_gauher">n_gauher</span></code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="tuple">tuple</span>[<span title="numpy.ndarray">ndarray</span>, <span title="numpy.ndarray">ndarray</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Nodes of shape <code>(n_per_dim**n_x, n_x)</code> and weights of shape <code>(n_per_dim**n_x,)</code>.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>simuls_misspecif/MNL_utils.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">gauss_hermite_tensor</span><span class="p">(</span>
+    <span class="n">n_x</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">n_per_dim</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">n_gauher</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Tensor-product Gauss-Hermite rule for `epsilon ~ N(0, I_{n_x})`.</span>
+
+<span class="sd">    Unlike sparse grids, all weights are positive, so integrated shares stay positive.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        n_x: Number of random coefficients.</span>
+<span class="sd">        n_per_dim: Number of nodes in each dimension.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Nodes of shape `(n_per_dim**n_x, n_x)` and weights of shape `(n_per_dim**n_x,)`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">x1</span><span class="p">,</span> <span class="n">w1</span> <span class="o">=</span> <span class="n">gauher</span><span class="p">(</span><span class="n">n_per_dim</span><span class="p">)</span>
+    <span class="n">x1</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">x1</span>
+    <span class="n">w1</span> <span class="o">=</span> <span class="n">w1</span> <span class="o">/</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+    <span class="n">grids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="o">*</span><span class="p">([</span><span class="n">x1</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_x</span><span class="p">),</span> <span class="n">indexing</span><span class="o">=</span><span class="s2">&quot;ij&quot;</span><span class="p">)</span>
+    <span class="n">nodes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">([</span><span class="n">g</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">grids</span><span class="p">])</span>
+    <span class="n">wgrids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="o">*</span><span class="p">([</span><span class="n">w1</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_x</span><span class="p">),</span> <span class="n">indexing</span><span class="o">=</span><span class="s2">&quot;ij&quot;</span><span class="p">)</span>
+    <span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">([</span><span class="n">g</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">wgrids</span><span class="p">]),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">nodes</span><span class="p">,</span> <span class="n">weights</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="simuls_misspecif.MNL_utils.integration_nodes" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">integration_nodes</span><span class="p">(</span><span class="n">n_x</span><span class="p">,</span> <span class="n">iprec</span><span class="p">,</span> <span class="n">n_per_dim</span><span class="p">)</span></code>
+
+<a href="#simuls_misspecif.MNL_utils.integration_nodes" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Nodes and weights for the integrals in <code>MNL_integrals</code> (bounds, semi-elasticities).</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>n_x</code>
+            </td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Number of random coefficients.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>iprec</code>
+            </td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Precision of the one-dimensional sparse grid used when <code>n_x = 1</code>.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>n_per_dim</code>
+            </td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Nodes per dimension of the tensor-product Gauss-Hermite rule
+used when <code>n_x &gt; 1</code>.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="tuple">tuple</span>[<span title="numpy.ndarray">ndarray</span>, <span title="numpy.ndarray">ndarray</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Nodes of shape <code>(L, n_x)</code> and weights of shape <code>(L,)</code>.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>simuls_misspecif/MNL_utils.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">79</span>
+<span class="normal">80</span>
+<span class="normal">81</span>
+<span class="normal">82</span>
+<span class="normal">83</span>
+<span class="normal">84</span>
+<span class="normal">85</span>
+<span class="normal">86</span>
+<span class="normal">87</span>
+<span class="normal">88</span>
+<span class="normal">89</span>
+<span class="normal">90</span>
+<span class="normal">91</span>
+<span class="normal">92</span>
+<span class="normal">93</span>
+<span class="normal">94</span>
+<span class="normal">95</span>
+<span class="normal">96</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">integration_nodes</span><span class="p">(</span>
+    <span class="n">n_x</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">iprec</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">n_per_dim</span><span class="p">:</span> <span class="nb">int</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Nodes and weights for the integrals in `MNL_integrals` (bounds, semi-elasticities).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        n_x: Number of random coefficients.</span>
+<span class="sd">        iprec: Precision of the one-dimensional sparse grid used when `n_x = 1`.</span>
+<span class="sd">        n_per_dim: Nodes per dimension of the tensor-product Gauss-Hermite rule</span>
+<span class="sd">            used when `n_x &gt; 1`.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Nodes of shape `(L, n_x)` and weights of shape `(L,)`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">n_x</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">nodes</span><span class="p">,</span> <span class="n">weights</span> <span class="o">=</span> <span class="n">setup_sparse_gaussian</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">iprec</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">nodes</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span> <span class="n">weights</span>
+    <span class="k">return</span> <span class="n">gauss_hermite_tensor</span><span class="p">(</span><span class="n">n_x</span><span class="p">,</span> <span class="n">n_per_dim</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="simuls_misspecif.MNL_utils.make_names_params" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">make_names_params</span><span class="p">(</span><span class="n">n_x</span><span class="p">)</span></code>
+
+<a href="#simuls_misspecif.MNL_utils.make_names_params" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Names of the <code>1 + 2 n_x</code> parameters: beta0, the beta_m, and the sigma2_m.</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>simuls_misspecif/MNL_utils.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">make_names_params</span><span class="p">(</span><span class="n">n_x</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Names of the `1 + 2 n_x` parameters: beta0, the beta_m, and the sigma2_m.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="p">[</span><span class="s2">&quot;beta0&quot;</span><span class="p">]</span>
+        <span class="o">+</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;beta_</span><span class="si">{</span><span class="n">m</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_x</span><span class="p">)]</span>
+        <span class="o">+</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;sigma2_</span><span class="si">{</span><span class="n">m</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_x</span><span class="p">)]</span>
+    <span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="simuls_misspecif.MNL_utils.quadrature_nodes" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">quadrature_nodes</span><span class="p">(</span><span class="n">n_x</span><span class="p">)</span></code>
+
+<a href="#simuls_misspecif.MNL_utils.quadrature_nodes" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Nodes and weights to generate the market shares.</p>
+<p>We use the tensor-product Gauss-Hermite rule with <code>n_gauher</code> nodes per dimension,
+as sparse grids have negative weights that can make shares negative.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>n_x</code>
+            </td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Number of random coefficients.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="tuple">tuple</span>[<span title="numpy.ndarray">ndarray</span>, <span title="numpy.ndarray">ndarray</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Nodes of shape <code>(L, n_x)</code> and weights of shape <code>(L,)</code>.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>simuls_misspecif/MNL_utils.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">quadrature_nodes</span><span class="p">(</span><span class="n">n_x</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Nodes and weights to generate the market shares.</span>
+
+<span class="sd">    We use the tensor-product Gauss-Hermite rule with `n_gauher` nodes per dimension,</span>
+<span class="sd">    as sparse grids have negative weights that can make shares negative.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        n_x: Number of random coefficients.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Nodes of shape `(L, n_x)` and weights of shape `(L,)`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">n_x</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">nodes</span> <span class="o">=</span> <span class="p">(</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">xgh</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">wgh</span> <span class="o">/</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">nodes</span><span class="p">,</span> <span class="n">weights</span>
+    <span class="k">return</span> <span class="n">gauss_hermite_tensor</span><span class="p">(</span><span class="n">n_x</span><span class="p">,</span> <span class="n">n_gauher</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
 
 
 

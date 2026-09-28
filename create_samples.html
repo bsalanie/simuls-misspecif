@@ -488,6 +488,34 @@
   
   
     <li class="md-nav__item">
+      <a href="estimators.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    estimate
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="compute_stats.html" class="md-nav__link">
         
   
@@ -884,34 +912,6 @@
   
   
     <li class="md-nav__item">
-      <a href="plot_simul_results.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    plot results
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="plots_paper.html" class="md-nav__link">
         
   
@@ -1037,7 +1037,7 @@
 <a id="simuls_misspecif.create_samples"></a>
     <div class="doc doc-contents first">
 
-        <p>Create one sample of the normal model with one random coefficient.</p>
+        <p>Create one sample of the normal model with M random coefficients.</p>
 
 
 
@@ -1063,7 +1063,7 @@
 
 
 <h2 id="simuls_misspecif.create_samples.create_sample" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">create_sample</span><span class="p">(</span><span class="n">nmarkets</span><span class="p">,</span> <span class="n">nproducts</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">pars</span><span class="o">=</span><span class="n">true_pars</span><span class="p">,</span> <span class="n">dpars</span><span class="o">=</span><span class="n">data_pars</span><span class="p">)</span></code>
+            <code class="highlight language-python"><span class="n">create_sample</span><span class="p">(</span><span class="n">nmarkets</span><span class="p">,</span> <span class="n">nproducts</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">pars</span><span class="o">=</span><span class="n">true_pars</span><span class="p">,</span> <span class="n">dpars</span><span class="o">=</span><span class="n">data_pars</span><span class="p">)</span></code>
 
 <a href="#simuls_misspecif.create_samples.create_sample" class="headerlink" title="Permanent link">&para;</a></h2>
 
@@ -1130,6 +1130,22 @@
             </td>
             <td>
                 <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>sigma</code>
+            </td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Scale of the standard errors of the random coefficients.</p>
+              </div>
+            </td>
+            <td>
+                  <code>0.5</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -1203,7 +1219,10 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>simuls_misspecif/create_samples.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">50</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
 <span class="normal">51</span>
 <span class="normal">52</span>
 <span class="normal">53</span>
@@ -1232,16 +1251,11 @@
 <span class="normal">76</span>
 <span class="normal">77</span>
 <span class="normal">78</span>
-<span class="normal">79</span>
-<span class="normal">80</span>
-<span class="normal">81</span>
-<span class="normal">82</span>
-<span class="normal">83</span>
-<span class="normal">84</span>
-<span class="normal">85</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">create_sample</span><span class="p">(</span>
+<span class="normal">79</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">create_sample</span><span class="p">(</span>
     <span class="n">nmarkets</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">nproducts</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">stream</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">Generator</span><span class="p">,</span>
+    <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
     <span class="n">pars</span><span class="p">:</span> <span class="n">TrueParams</span> <span class="o">=</span> <span class="n">true_pars</span><span class="p">,</span>
     <span class="n">dpars</span><span class="p">:</span> <span class="n">DataParams</span> <span class="o">=</span> <span class="n">data_pars</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
@@ -1251,6 +1265,7 @@
 <span class="sd">        nmarkets: Number of markets.</span>
 <span class="sd">        nproducts: Number of products.</span>
 <span class="sd">        stream: Random generator.</span>
+<span class="sd">        sigma: Scale of the standard errors of the random coefficients.</span>
 <span class="sd">        pars: Parameters for the DGP.</span>
 <span class="sd">        dpars: Data parameters for the DGP.</span>
 
@@ -1258,19 +1273,14 @@
 <span class="sd">        A tuple of xi, x, z, and the simulated market shares.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">beta0</span><span class="p">,</span> <span class="n">beta1</span><span class="p">,</span> <span class="n">sigma</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">cast</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">pars</span><span class="o">.</span><span class="n">beta0</span><span class="p">),</span>
-        <span class="n">cast</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">pars</span><span class="o">.</span><span class="n">beta1</span><span class="p">),</span>
-        <span class="n">cast</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">pars</span><span class="o">.</span><span class="n">sigma</span><span class="p">),</span>
-    <span class="p">)</span>
     <span class="n">draws</span> <span class="o">=</span> <span class="n">dpars</span><span class="o">.</span><span class="n">generate_random_draws</span><span class="p">(</span><span class="n">nmarkets</span><span class="p">,</span> <span class="n">nproducts</span><span class="p">,</span> <span class="n">stream</span><span class="p">)</span>
     <span class="n">xi</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">dpars</span><span class="o">.</span><span class="n">generate_exogenous_vars_from_draws</span><span class="p">(</span><span class="n">draws</span><span class="p">)</span>
 
-    <span class="n">sigma_tot</span> <span class="o">=</span> <span class="n">sigma</span>
+    <span class="n">sigma_vec</span> <span class="o">=</span> <span class="n">sigma</span> <span class="o">*</span> <span class="n">pars</span><span class="o">.</span><span class="n">sigma_profile</span>
 
-    <span class="n">mean_utils_xi</span> <span class="o">=</span> <span class="n">_mean_utils</span><span class="p">(</span><span class="n">beta0</span><span class="p">,</span> <span class="n">beta1</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="n">xi</span>
+    <span class="n">mean_utils_xi</span> <span class="o">=</span> <span class="n">_mean_utils</span><span class="p">(</span><span class="n">pars</span><span class="o">.</span><span class="n">beta0</span><span class="p">,</span> <span class="n">pars</span><span class="o">.</span><span class="n">beta</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="n">xi</span>
     <span class="c1"># describe_array(mean_utils_xi, &quot;mxi&quot;)</span>
-    <span class="n">shares</span> <span class="o">=</span> <span class="n">make_shares</span><span class="p">(</span><span class="n">mean_utils_xi</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">sigma_tot</span><span class="p">)</span>
+    <span class="n">shares</span> <span class="o">=</span> <span class="n">make_shares</span><span class="p">(</span><span class="n">mean_utils_xi</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">sigma_vec</span><span class="p">)</span>
     <span class="c1"># describe_array(shares, &quot;shares&quot;)</span>
 
     <span class="k">return</span> <span class="p">(</span><span class="n">xi</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">shares</span><span class="p">)</span>
@@ -1284,7 +1294,7 @@
 
 
 <h2 id="simuls_misspecif.create_samples.make_shares" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">make_shares</span><span class="p">(</span><span class="n">mean_utils_xi</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">sigma_tot</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+            <code class="highlight language-python"><span class="n">make_shares</span><span class="p">(</span><span class="n">mean_utils_xi</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">sigma_vec</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 <a href="#simuls_misspecif.create_samples.make_shares" class="headerlink" title="Permanent link">&para;</a></h2>
 
@@ -1330,7 +1340,7 @@
             </td>
             <td>
               <div class="doc-md-description">
-                <p><code>(T, J)</code> covariates.</p>
+                <p><code>(T, J, M)</code> covariates.</p>
               </div>
             </td>
             <td>
@@ -1339,14 +1349,14 @@
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>sigma_tot</code>
+                <code>sigma_vec</code>
             </td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="float">float</span>]</code>
+                  <code><span title="typing.Optional">Optional</span>[<span title="numpy.ndarray">ndarray</span>]</code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Total standard error of the random coefficient, if any.</p>
+                <p><code>(M,)</code> standard errors of the random coefficients, if any.</p>
               </div>
             </td>
             <td>
@@ -1382,11 +1392,7 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>simuls_misspecif/create_samples.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">14</span>
-<span class="normal">15</span>
-<span class="normal">16</span>
-<span class="normal">17</span>
-<span class="normal">18</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">18</span>
 <span class="normal">19</span>
 <span class="normal">20</span>
 <span class="normal">21</span>
@@ -1412,42 +1418,32 @@
 <span class="normal">41</span>
 <span class="normal">42</span>
 <span class="normal">43</span>
-<span class="normal">44</span>
-<span class="normal">45</span>
-<span class="normal">46</span>
-<span class="normal">47</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">make_shares</span><span class="p">(</span>
-    <span class="n">mean_utils_xi</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">sigma_tot</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="normal">44</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">make_shares</span><span class="p">(</span>
+    <span class="n">mean_utils_xi</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">sigma_vec</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Use Gauss-Hermite quadrature to evaluate market shares.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        mean_utils_xi: `(T, J)` mean utilities with the product effects.</span>
-<span class="sd">        x: `(T, J)` covariates.</span>
-<span class="sd">        sigma_tot: Total standard error of the random coefficient, if any.</span>
+<span class="sd">        x: `(T, J, M)` covariates.</span>
+<span class="sd">        sigma_vec: `(M,)` standard errors of the random coefficients, if any.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        `(T, J)` array of market shares.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">nmarkets</span><span class="p">,</span> <span class="n">nproducts</span> <span class="o">=</span> <span class="n">mean_utils_xi</span><span class="o">.</span><span class="n">shape</span>
-    <span class="n">shares</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nmarkets</span><span class="p">,</span> <span class="n">nproducts</span><span class="p">))</span>
-    <span class="k">if</span> <span class="n">sigma_tot</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># shares with non-random coefficients</span>
-        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nmarkets</span><span class="p">):</span>
-            <span class="n">exp_utils</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">mean_utils_xi</span><span class="p">[</span><span class="n">t</span><span class="p">,</span> <span class="p">:])</span>
-            <span class="n">shares</span><span class="p">[</span><span class="n">t</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">exp_utils</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">exp_utils</span><span class="p">))</span>
-    <span class="k">else</span><span class="p">:</span>  <span class="c1"># we integrate</span>
+    <span class="k">if</span> <span class="n">sigma_vec</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># shares with non-random coefficients</span>
+        <span class="n">exp_utils</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">mean_utils_xi</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">exp_utils</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">exp_utils</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)))</span>
 
-        <span class="k">def</span><span class="w"> </span><span class="nf">utils</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">pars</span><span class="p">):</span>
-            <span class="n">x_t</span><span class="p">,</span> <span class="n">means_t</span><span class="p">,</span> <span class="n">sigma_tot</span> <span class="o">=</span> <span class="n">pars</span>
-            <span class="n">utils_v</span> <span class="o">=</span> <span class="n">sigma_tot</span> <span class="o">*</span> <span class="n">v</span> <span class="o">*</span> <span class="n">x_t</span> <span class="o">+</span> <span class="n">means_t</span>
-            <span class="n">shares_v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">utils_v</span><span class="p">)</span>
-            <span class="n">denom_v</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">shares_v</span><span class="p">)</span>
-            <span class="n">shares_v</span> <span class="o">/=</span> <span class="n">denom_v</span>
-            <span class="k">return</span> <span class="n">shares_v</span>
-
-        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nmarkets</span><span class="p">):</span>
-            <span class="n">pars_t</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="n">t</span><span class="p">,</span> <span class="p">:],</span> <span class="n">mean_utils_xi</span><span class="p">[</span><span class="n">t</span><span class="p">,</span> <span class="p">:],</span> <span class="n">sigma_tot</span><span class="p">]</span>
-            <span class="n">shares</span><span class="p">[</span><span class="n">t</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">gaussian_expectation</span><span class="p">(</span><span class="n">utils</span><span class="p">,</span> <span class="n">pars</span><span class="o">=</span><span class="n">pars_t</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">xgh</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="n">wgh</span><span class="p">)</span>
-
+    <span class="c1"># we integrate</span>
+    <span class="n">sigma_vec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">sigma_vec</span><span class="p">)</span>
+    <span class="n">nodes</span><span class="p">,</span> <span class="n">weights</span> <span class="o">=</span> <span class="n">quadrature_nodes</span><span class="p">(</span><span class="n">sigma_vec</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+    <span class="n">shares</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">mean_utils_xi</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">node_l</span><span class="p">,</span> <span class="n">weight_l</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span> <span class="n">weights</span><span class="p">):</span>
+        <span class="n">exp_utils</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">mean_utils_xi</span> <span class="o">+</span> <span class="n">x</span> <span class="o">@</span> <span class="p">(</span><span class="n">sigma_vec</span> <span class="o">*</span> <span class="n">node_l</span><span class="p">))</span>
+        <span class="n">shares</span> <span class="o">+=</span> <span class="n">weight_l</span> <span class="o">*</span> <span class="n">exp_utils</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">exp_utils</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">shares</span>
 </code></pre></div></td></tr></table></div>
             </details>

@@ -328,8 +328,24 @@
       <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
       
-        
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
       
       <a href="index.html" class="md-nav__link md-nav__link--active">
         
@@ -347,6 +363,68 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#simuls_misspecif" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        simuls_misspecif
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="simuls_misspecif">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#updates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        updates
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="updates">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#june-8-2026" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        June 8, 2026
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -471,6 +549,34 @@
     
   
     main driver
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="estimators.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    estimate
   
 
     
@@ -807,34 +913,6 @@
   
   
     <li class="md-nav__item">
-      <a href="plot_simul_results.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    plot results
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="plots_paper.html" class="md-nav__link">
         
   
@@ -888,8 +966,59 @@
   
   
   
-    
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#simuls_misspecif" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        simuls_misspecif
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="simuls_misspecif">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#updates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        updates
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="updates">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#june-8-2026" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        June 8, 2026
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
   
 </nav>
                   </div>
@@ -909,18 +1038,35 @@
   
 
 
+  <h1>Home</h1>
+
 <p>Bernard Salanie</p>
 <p>Started June 1, 2026</p>
-<h1 id="simuls_misspecif">simuls_misspecif<a class="headerlink" href="#simuls_misspecif" title="Permanent link">&para;</a></h1>
+<h2 id="simuls_misspecif">simuls_misspecif<a class="headerlink" href="#simuls_misspecif" title="Permanent link">&para;</a></h2>
 <p>Simulations of a symmetric mutinomial logit for the what-if misspecif paper.</p>
 <p>The specification has
-[
+$$
 U_{ijt} = \beta_0 + x_{jt} (\beta_1 + \nu_{i}) + \xi_{jt} + u_{ijt}
-]</p>
-<p>where 
-* <span class="arithmatex">\(\nu_i=\sigma \varepsilon_i\)</span> with <span class="arithmatex">\(\varepsilon_i = N(0,1)\)</span>,
-* <span class="arithmatex">\(x_{jt}=N(0,\sigma_x^2)\)</span> iid.
-* <span class="arithmatex">\(\xi_{jt} = N(0,\sigma_{\xi}^2)\)</span> iid in the exogenous case; in the endogenous case, see MLOR.</p>
+$$</p>
+<p>where </p>
+<ul>
+<li>
+<p><span class="arithmatex">\(\nu_i=\sigma \varepsilon_i\)</span> with <span class="arithmatex">\(\varepsilon_i = N(0,1)\)</span>,</p>
+</li>
+<li>
+<p><span class="arithmatex">\(x_{jt}=N(0,\sigma_x^2)\)</span> iid,</p>
+</li>
+<li>
+<p><span class="arithmatex">\(\xi_{jt} = N(0,\sigma_{\xi}^2)\)</span> iid in the exogenous case; in the endogenous case, <span class="arithmatex">\(x\)</span> and <span class="arithmatex">\(\xi\)</span> are correlated and we use an instrument <span class="arithmatex">\(z\)</span>. </p>
+</li>
+</ul>
+<p><span class="arithmatex">\(\beta_0, \beta_1, \sigma\)</span> and the correlations are specified in <code>MNL_params.py</code>.</p>
+<h3 id="updates">updates<a class="headerlink" href="#updates" title="Permanent link">&para;</a></h3>
+<h4 id="june-8-2026">June 8, 2026<a class="headerlink" href="#june-8-2026" title="Permanent link">&para;</a></h4>
+<p>Working version (if <span class="arithmatex">\(W\)</span> is correct). Just identified
+model, so the Salanie-Wolak correction works best.
+Done also the overidentified version with <span class="arithmatex">\(4\)</span> powers of <span class="arithmatex">\(z\)</span>.
+Need to make sure the nonrandom estimates use the same Z.</p>
 
 
 

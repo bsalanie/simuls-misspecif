@@ -488,6 +488,34 @@
   
   
     <li class="md-nav__item">
+      <a href="estimators.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    estimate
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="compute_stats.html" class="md-nav__link">
         
   
@@ -580,6 +608,72 @@
     <span class="md-ellipsis">
       
         extract_from_results
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#simuls_misspecif.extract_from_results.case_paths" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        case_paths
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#simuls_misspecif.extract_from_results.case_subdir" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        case_subdir
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#simuls_misspecif.extract_from_results.extract_from_results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        extract_from_results
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#simuls_misspecif.extract_from_results.load_results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        load_results
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#simuls_misspecif.extract_from_results.model_string" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        model_string
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#simuls_misspecif.extract_from_results.write_extract_results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        write_extract_results
       
     </span>
   </a>
@@ -862,34 +956,6 @@
   
   
     <li class="md-nav__item">
-      <a href="plot_simul_results.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    plot results
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="plots_paper.html" class="md-nav__link">
         
   
@@ -963,6 +1029,72 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#simuls_misspecif.extract_from_results.case_paths" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        case_paths
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#simuls_misspecif.extract_from_results.case_subdir" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        case_subdir
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#simuls_misspecif.extract_from_results.extract_from_results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        extract_from_results
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#simuls_misspecif.extract_from_results.load_results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        load_results
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#simuls_misspecif.extract_from_results.model_string" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        model_string
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#simuls_misspecif.extract_from_results.write_extract_results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        write_extract_results
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1014,6 +1146,759 @@
 
 
 
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="simuls_misspecif.extract_from_results.case_paths" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">case_paths</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">nproducts</span><span class="p">,</span> <span class="n">nmarkets</span><span class="p">,</span> <span class="n">i_scenario</span><span class="p">,</span> <span class="n">root_dir</span><span class="p">,</span> <span class="n">n_x</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></code>
+
+<a href="#simuls_misspecif.extract_from_results.case_paths" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>The directory of a case and its full name including <code>T</code>.</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>simuls_misspecif/extract_from_results.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">case_paths</span><span class="p">(</span>
+    <span class="n">model</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">nproducts</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">nmarkets</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">i_scenario</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">root_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">n_x</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The directory of a case and its full name including `T`.&quot;&quot;&quot;</span>
+    <span class="n">case_dir</span> <span class="o">=</span> <span class="n">root_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;J</span><span class="si">{</span><span class="n">nproducts</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">/</span> <span class="n">case_subdir</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">i_scenario</span><span class="p">,</span> <span class="n">n_x</span><span class="p">)</span>
+    <span class="n">full_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">model_string</span><span class="p">(</span><span class="n">model</span><span class="p">,</span><span class="w"> </span><span class="n">nproducts</span><span class="p">,</span><span class="w"> </span><span class="n">i_scenario</span><span class="p">,</span><span class="w"> </span><span class="n">n_x</span><span class="p">)</span><span class="si">}</span><span class="s2">_T=</span><span class="si">{</span><span class="n">nmarkets</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">return</span> <span class="n">case_dir</span><span class="p">,</span> <span class="n">full_str</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="simuls_misspecif.extract_from_results.case_subdir" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">case_subdir</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">i_scenario</span><span class="p">,</span> <span class="n">n_x</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></code>
+
+<a href="#simuls_misspecif.extract_from_results.case_subdir" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Subdirectory of <code>J{nproducts}</code> for a case, e.g. <code>endo_v3</code> or <code>endo_M2_v3</code>.</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>simuls_misspecif/extract_from_results.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">case_subdir</span><span class="p">(</span><span class="n">model</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">i_scenario</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">n_x</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Subdirectory of `J{nproducts}` for a case, e.g. `endo_v3` or `endo_M2_v3`.&quot;&quot;&quot;</span>
+    <span class="n">str_M</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;_M</span><span class="si">{</span><span class="n">n_x</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">n_x</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">model</span><span class="si">}{</span><span class="n">str_M</span><span class="si">}</span><span class="s2">_v</span><span class="si">{</span><span class="n">i_scenario</span><span class="si">}</span><span class="s2">&quot;</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="simuls_misspecif.extract_from_results.extract_from_results" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">extract_from_results</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">nproducts</span><span class="p">,</span> <span class="n">nmarkets</span><span class="p">,</span> <span class="n">i_scenario</span><span class="p">,</span> <span class="n">keys_extract</span><span class="p">,</span> <span class="n">root_dir</span><span class="o">=</span><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">(),</span> <span class="n">n_x</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></code>
+
+<a href="#simuls_misspecif.extract_from_results.extract_from_results" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Extract selected keys from full simulation results and save to a file.</p>
+<p>Loads the full simulation results, extracts only the specified keys,
+and writes them to a slimmer pickle file for plotting and analysis.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>model</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Model type ('endo' or 'exo').</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>nproducts</code>
+            </td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Number of products (J).</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>nmarkets</code>
+            </td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Number of markets (T).</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>i_scenario</code>
+            </td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Scenario number.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>keys_extract</code>
+            </td>
+            <td>
+                  <code><span title="list">list</span>[<span title="str">str</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>List of keys to extract from the results.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>root_dir</code>
+            </td>
+            <td>
+                  <code><span title="pathlib.Path">Path</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Root directory for results (default: current directory).</p>
+              </div>
+            </td>
+            <td>
+                  <code><span title="pathlib.Path.cwd">cwd</span>()</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>n_x</code>
+            </td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Number of covariates (default 1).</p>
+              </div>
+            </td>
+            <td>
+                  <code>1</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="dict">dict</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Dictionary containing only the extracted keys.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>simuls_misspecif/extract_from_results.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">extract_from_results</span><span class="p">(</span>
+    <span class="n">model</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">nproducts</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">nmarkets</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">i_scenario</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">keys_extract</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">root_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">(),</span>
+    <span class="n">n_x</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract selected keys from full simulation results and save to a file.</span>
+
+<span class="sd">    Loads the full simulation results, extracts only the specified keys,</span>
+<span class="sd">    and writes them to a slimmer pickle file for plotting and analysis.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        model: Model type (&#39;endo&#39; or &#39;exo&#39;).</span>
+<span class="sd">        nproducts: Number of products (J).</span>
+<span class="sd">        nmarkets: Number of markets (T).</span>
+<span class="sd">        i_scenario: Scenario number.</span>
+<span class="sd">        keys_extract: List of keys to extract from the results.</span>
+<span class="sd">        root_dir: Root directory for results (default: current directory).</span>
+<span class="sd">        n_x: Number of covariates (default 1).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Dictionary containing only the extracted keys.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dict_results</span> <span class="o">=</span> <span class="n">load_results</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">nproducts</span><span class="p">,</span> <span class="n">nmarkets</span><span class="p">,</span> <span class="n">i_scenario</span><span class="p">,</span> <span class="n">root_dir</span><span class="p">,</span> <span class="n">n_x</span><span class="p">)</span>
+    <span class="c1"># Only extract keys that exist in dict_results (bounds-related keys may be missing)</span>
+    <span class="n">extract_results</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">dict_results</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys_extract</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">dict_results</span><span class="p">}</span>
+    <span class="n">write_extract_results</span><span class="p">(</span>
+        <span class="n">extract_results</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">nproducts</span><span class="p">,</span> <span class="n">nmarkets</span><span class="p">,</span> <span class="n">i_scenario</span><span class="p">,</span> <span class="n">root_dir</span><span class="p">,</span> <span class="n">n_x</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">extract_results</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="simuls_misspecif.extract_from_results.load_results" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">load_results</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">nproducts</span><span class="p">,</span> <span class="n">nmarkets</span><span class="p">,</span> <span class="n">i_scenario</span><span class="p">,</span> <span class="n">root_dir</span><span class="p">,</span> <span class="n">n_x</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></code>
+
+<a href="#simuls_misspecif.extract_from_results.load_results" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Load simulation results from a pickled file.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>model</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Model type ('endo' or 'exo').</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>nproducts</code>
+            </td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Number of products (J).</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>nmarkets</code>
+            </td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Number of markets (T).</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>i_scenario</code>
+            </td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Scenario number.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>root_dir</code>
+            </td>
+            <td>
+                  <code><span title="pathlib.Path">Path</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Root directory containing results.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>n_x</code>
+            </td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Number of covariates (default 1).</p>
+              </div>
+            </td>
+            <td>
+                  <code>1</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="typing.Dict">Dict</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Dictionary of simulation results.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>simuls_misspecif/extract_from_results.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">load_results</span><span class="p">(</span>
+    <span class="n">model</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">nproducts</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">nmarkets</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">i_scenario</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">root_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">n_x</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load simulation results from a pickled file.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        model: Model type (&#39;endo&#39; or &#39;exo&#39;).</span>
+<span class="sd">        nproducts: Number of products (J).</span>
+<span class="sd">        nmarkets: Number of markets (T).</span>
+<span class="sd">        i_scenario: Scenario number.</span>
+<span class="sd">        root_dir: Root directory containing results.</span>
+<span class="sd">        n_x: Number of covariates (default 1).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Dictionary of simulation results.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">case_dir</span><span class="p">,</span> <span class="n">full_str</span> <span class="o">=</span> <span class="n">case_paths</span><span class="p">(</span>
+        <span class="n">model</span><span class="p">,</span> <span class="n">nproducts</span><span class="p">,</span> <span class="n">nmarkets</span><span class="p">,</span> <span class="n">i_scenario</span><span class="p">,</span> <span class="n">root_dir</span><span class="p">,</span> <span class="n">n_x</span>
+    <span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">case_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;simul_results_</span><span class="si">{</span><span class="n">full_str</span><span class="si">}</span><span class="s2">.pkl&quot;</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">dict_results</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">Dict</span><span class="p">,</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">))</span>
+    <span class="c1"># pprint(dict_results)</span>
+    <span class="k">return</span> <span class="n">dict_results</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="simuls_misspecif.extract_from_results.model_string" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">model_string</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">nproducts</span><span class="p">,</span> <span class="n">i_scenario</span><span class="p">,</span> <span class="n">n_x</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></code>
+
+<a href="#simuls_misspecif.extract_from_results.model_string" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Name of a case, e.g. <code>endo_J=5_v3</code>; <code>_M={n_x}</code> is inserted when <code>n_x &gt; 1</code>.</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>simuls_misspecif/extract_from_results.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">model_string</span><span class="p">(</span><span class="n">model</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">nproducts</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">i_scenario</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">n_x</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Name of a case, e.g. `endo_J=5_v3`; `_M={n_x}` is inserted when `n_x &gt; 1`.&quot;&quot;&quot;</span>
+    <span class="n">str_M</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;_M=</span><span class="si">{</span><span class="n">n_x</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">n_x</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s2">_J=</span><span class="si">{</span><span class="n">nproducts</span><span class="si">}{</span><span class="n">str_M</span><span class="si">}</span><span class="s2">_v</span><span class="si">{</span><span class="n">i_scenario</span><span class="si">}</span><span class="s2">&quot;</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="simuls_misspecif.extract_from_results.write_extract_results" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">write_extract_results</span><span class="p">(</span><span class="n">extract_results</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">nproducts</span><span class="p">,</span> <span class="n">nmarkets</span><span class="p">,</span> <span class="n">i_scenario</span><span class="p">,</span> <span class="n">root_dir</span><span class="p">,</span> <span class="n">n_x</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></code>
+
+<a href="#simuls_misspecif.extract_from_results.write_extract_results" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Write extracted results to a pickle file.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>extract_results</code>
+            </td>
+            <td>
+                  <code><span title="typing.Dict">Dict</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Dictionary of extracted results to save.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>model</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Model type ('endo' or 'exo').</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>nproducts</code>
+            </td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Number of products (J).</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>nmarkets</code>
+            </td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Number of markets (T).</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>i_scenario</code>
+            </td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Scenario number.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>root_dir</code>
+            </td>
+            <td>
+                  <code><span title="pathlib.Path">Path</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Root directory for results.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>n_x</code>
+            </td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Number of covariates (default 1).</p>
+              </div>
+            </td>
+            <td>
+                  <code>1</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>simuls_misspecif/extract_from_results.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">write_extract_results</span><span class="p">(</span>
+    <span class="n">extract_results</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span>
+    <span class="n">model</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">nproducts</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">nmarkets</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">i_scenario</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">root_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">n_x</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write extracted results to a pickle file.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        extract_results: Dictionary of extracted results to save.</span>
+<span class="sd">        model: Model type (&#39;endo&#39; or &#39;exo&#39;).</span>
+<span class="sd">        nproducts: Number of products (J).</span>
+<span class="sd">        nmarkets: Number of markets (T).</span>
+<span class="sd">        i_scenario: Scenario number.</span>
+<span class="sd">        root_dir: Root directory for results.</span>
+<span class="sd">        n_x: Number of covariates (default 1).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">case_dir</span><span class="p">,</span> <span class="n">full_str</span> <span class="o">=</span> <span class="n">case_paths</span><span class="p">(</span>
+        <span class="n">model</span><span class="p">,</span> <span class="n">nproducts</span><span class="p">,</span> <span class="n">nmarkets</span><span class="p">,</span> <span class="n">i_scenario</span><span class="p">,</span> <span class="n">root_dir</span><span class="p">,</span> <span class="n">n_x</span>
+    <span class="p">)</span>
+    <span class="c1"># pprint(extract_results)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">case_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;extract_results_</span><span class="si">{</span><span class="n">full_str</span><span class="si">}</span><span class="s2">.pkl&quot;</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">extract_results</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
 
 
 

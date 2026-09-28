@@ -18,7 +18,7 @@
         <link rel="prev" href="index.html">
       
       
-        <link rel="next" href="compute_stats.html">
+        <link rel="next" href="estimators.html">
       
       
         
@@ -531,6 +531,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#simuls_misspecif.simuls_driver.ScenarioDict" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ScenarioDict
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#simuls_misspecif.simuls_driver.adjust_beta0_S0" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -541,10 +552,49 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#simuls_misspecif.simuls_driver.setup_model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        setup_model
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="estimators.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    estimate
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -873,34 +923,6 @@
   
   
     <li class="md-nav__item">
-      <a href="plot_simul_results.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    plot results
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="plots_paper.html" class="md-nav__link">
         
   
@@ -975,10 +997,32 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#simuls_misspecif.simuls_driver.ScenarioDict" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ScenarioDict
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#simuls_misspecif.simuls_driver.adjust_beta0_S0" class="md-nav__link">
     <span class="md-ellipsis">
       
         adjust_beta0_S0
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#simuls_misspecif.simuls_driver.setup_model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        setup_model
       
     </span>
   </a>
@@ -1042,12 +1086,144 @@
 
 
 
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="simuls_misspecif.simuls_driver.ScenarioDict" class="doc doc-heading">
+            <code>ScenarioDict</code>
+
+
+<a href="#simuls_misspecif.simuls_driver.ScenarioDict" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="typing.TypedDict">TypedDict</span></code></p>
+
+
+
+        <p>Configuration for a simulation scenario.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="simuls_misspecif.simuls_driver.ScenarioDict.data">data</span></code></td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="DataParams
+
+
+  
+      dataclass
+   (simuls_misspecif.MNL_utils.DataParams)" href="MNL_utils.html#simuls_misspecif.MNL_utils.DataParams">DataParams</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Data generation parameters.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="simuls_misspecif.simuls_driver.ScenarioDict.coeffs">coeffs</span></code></td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="TrueParams
+
+
+  
+      dataclass
+   (simuls_misspecif.MNL_utils.TrueParams)" href="MNL_utils.html#simuls_misspecif.MNL_utils.TrueParams">TrueParams</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>True coefficients for the DGP.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="simuls_misspecif.simuls_driver.ScenarioDict.sigma_range">sigma_range</span></code></td>
+            <td>
+                  <code><span title="numpy.ndarray">ndarray</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Array of sigma values to simulate over.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>simuls_misspecif/simuls_driver.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ScenarioDict</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Configuration for a simulation scenario.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        data: Data generation parameters.</span>
+<span class="sd">        coeffs: True coefficients for the DGP.</span>
+<span class="sd">        sigma_range: Array of sigma values to simulate over.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">data</span><span class="p">:</span> <span class="n">DataParams</span>
+    <span class="n">coeffs</span><span class="p">:</span> <span class="n">TrueParams</span>
+    <span class="n">sigma_range</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
 
 <div class="doc doc-object doc-function">
 
 
 <h2 id="simuls_misspecif.simuls_driver.adjust_beta0_S0" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">adjust_beta0_S0</span><span class="p">(</span><span class="n">S0</span><span class="p">,</span> <span class="n">nproducts</span><span class="p">,</span> <span class="n">data_pars</span><span class="p">,</span> <span class="n">true_pars</span><span class="p">)</span></code>
+            <code class="highlight language-python"><span class="n">adjust_beta0_S0</span><span class="p">(</span><span class="n">S0</span><span class="p">,</span> <span class="n">nproducts</span><span class="p">,</span> <span class="n">data_pars</span><span class="p">,</span> <span class="n">true_pars</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">5514557</span><span class="p">)</span></code>
 
 <a href="#simuls_misspecif.simuls_driver.adjust_beta0_S0" class="headerlink" title="Permanent link">&para;</a></h2>
 
@@ -1142,6 +1318,22 @@
                 <em>required</em>
             </td>
           </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>seed</code>
+            </td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>for the random number generator.</p>
+              </div>
+            </td>
+            <td>
+                  <code>5514557</code>
+            </td>
+          </tr>
       </tbody>
     </table>
 
@@ -1157,7 +1349,7 @@
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="typing.Tuple">Tuple</span>[<span title="float">float</span>, <span title="float">float</span>]</code>
+                  <code><span title="tuple">tuple</span>[<span title="float">float</span>, <span title="float">float</span>]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -1171,40 +1363,7 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>simuls_misspecif/simuls_driver.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 64</span>
-<span class="normal"> 65</span>
-<span class="normal"> 66</span>
-<span class="normal"> 67</span>
-<span class="normal"> 68</span>
-<span class="normal"> 69</span>
-<span class="normal"> 70</span>
-<span class="normal"> 71</span>
-<span class="normal"> 72</span>
-<span class="normal"> 73</span>
-<span class="normal"> 74</span>
-<span class="normal"> 75</span>
-<span class="normal"> 76</span>
-<span class="normal"> 77</span>
-<span class="normal"> 78</span>
-<span class="normal"> 79</span>
-<span class="normal"> 80</span>
-<span class="normal"> 81</span>
-<span class="normal"> 82</span>
-<span class="normal"> 83</span>
-<span class="normal"> 84</span>
-<span class="normal"> 85</span>
-<span class="normal"> 86</span>
-<span class="normal"> 87</span>
-<span class="normal"> 88</span>
-<span class="normal"> 89</span>
-<span class="normal"> 90</span>
-<span class="normal"> 91</span>
-<span class="normal"> 92</span>
-<span class="normal"> 93</span>
-<span class="normal"> 94</span>
-<span class="normal"> 95</span>
-<span class="normal"> 96</span>
-<span class="normal"> 97</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 97</span>
 <span class="normal"> 98</span>
 <span class="normal"> 99</span>
 <span class="normal">100</span>
@@ -1212,9 +1371,59 @@
 <span class="normal">102</span>
 <span class="normal">103</span>
 <span class="normal">104</span>
-<span class="normal">105</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">adjust_beta0_S0</span><span class="p">(</span>
-    <span class="n">S0</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">nproducts</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">data_pars</span><span class="p">:</span> <span class="n">DataParams</span><span class="p">,</span> <span class="n">true_pars</span><span class="p">:</span> <span class="n">TrueParams</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">adjust_beta0_S0</span><span class="p">(</span>
+    <span class="n">S0</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">nproducts</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">data_pars</span><span class="p">:</span> <span class="n">DataParams</span><span class="p">,</span>
+    <span class="n">true_pars</span><span class="p">:</span> <span class="n">TrueParams</span><span class="p">,</span>
+    <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5514557</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Find the beta0 that makes the expected outside share equal S0.</span>
 
 <span class="sd">    Args:</span>
@@ -1222,19 +1431,18 @@
 <span class="sd">        nproducts: Number of products `J`.</span>
 <span class="sd">        data_pars: The data parameters.</span>
 <span class="sd">        true_pars: The true coefficients.</span>
+<span class="sd">        seed: for the random number generator.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The fitted beta0 and the achieved expected outside share.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">beta1</span> <span class="o">=</span> <span class="n">true_pars</span><span class="o">.</span><span class="n">beta1</span>
     <span class="n">ndraws</span> <span class="o">=</span> <span class="mi">1000</span>
-    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="n">data_pars</span><span class="o">.</span><span class="n">sigx</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">ndraws</span> <span class="o">*</span> <span class="n">nproducts</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span>
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="n">data_pars</span><span class="o">.</span><span class="n">sigx</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">nproducts</span><span class="p">,</span> <span class="n">ndraws</span><span class="p">,</span> <span class="n">data_pars</span><span class="o">.</span><span class="n">n_x</span><span class="p">))</span>
+    <span class="n">xi</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="n">data_pars</span><span class="o">.</span><span class="n">sigxi</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">ndraws</span> <span class="o">*</span> <span class="n">nproducts</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span>
         <span class="p">(</span><span class="n">nproducts</span><span class="p">,</span> <span class="n">ndraws</span><span class="p">)</span>
     <span class="p">)</span>
-    <span class="n">xi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="n">data_pars</span><span class="o">.</span><span class="n">sigxi</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">ndraws</span> <span class="o">*</span> <span class="n">nproducts</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span>
-        <span class="p">(</span><span class="n">nproducts</span><span class="p">,</span> <span class="n">ndraws</span><span class="p">)</span>
-    <span class="p">)</span>
-    <span class="n">utils0</span> <span class="o">=</span> <span class="n">beta1</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="n">xi</span>
+    <span class="n">utils0</span> <span class="o">=</span> <span class="n">x</span> <span class="o">@</span> <span class="n">true_pars</span><span class="o">.</span><span class="n">beta</span> <span class="o">+</span> <span class="n">xi</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">compute_ES0</span><span class="p">(</span><span class="n">beta0</span><span class="p">):</span>
         <span class="n">utils</span> <span class="o">=</span> <span class="n">utils0</span> <span class="o">+</span> <span class="n">beta0</span>
@@ -1245,15 +1453,247 @@
         <span class="k">return</span> <span class="n">ES0</span><span class="p">,</span> <span class="n">der_ES0</span>
 
     <span class="c1"># Newton iterations to solve `compute_ES0(beta0) = S0`</span>
-    <span class="n">beta0i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">((</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">S0</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">S0</span> <span class="o">*</span> <span class="n">nproducts</span><span class="p">))</span>  <span class="c1"># solution when utils0 = 0</span>
-    <span class="n">errS0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+    <span class="c1"># sigs = data_pars.sigx * true_pars.sigma_profile</span>
+    <span class="c1"># betas = true_pars.beta</span>
+
+    <span class="n">approx_expected_expo</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="mf">1.0</span>  <span class="c1"># np.exp(np.sum(betas * betas + sigs * sigs) + 1.0) / 2.0</span>
+    <span class="p">)</span>
+    <span class="c1"># print(f&quot;{approx_expected_expo=}&quot;)</span>
+    <span class="n">beta0i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
+        <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">S0</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">S0</span> <span class="o">*</span> <span class="n">nproducts</span> <span class="o">*</span> <span class="n">approx_expected_expo</span><span class="p">)</span>
+    <span class="p">)</span>  <span class="c1"># approximate solution</span>
+    <span class="n">errS0</span> <span class="o">=</span> <span class="n">ES0i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
     <span class="n">tol</span> <span class="o">=</span> <span class="mf">1e-6</span>
+    <span class="n">learn_rate</span> <span class="o">=</span> <span class="mf">1.0</span>
     <span class="k">while</span> <span class="n">errS0</span> <span class="o">&gt;</span> <span class="n">tol</span><span class="p">:</span>
         <span class="n">ES0i</span><span class="p">,</span> <span class="n">der_ES0i</span> <span class="o">=</span> <span class="n">compute_ES0</span><span class="p">(</span><span class="n">beta0i</span><span class="p">)</span>
-        <span class="n">beta0i</span> <span class="o">-=</span> <span class="p">(</span><span class="n">ES0i</span> <span class="o">-</span> <span class="n">S0</span><span class="p">)</span> <span class="o">/</span> <span class="n">der_ES0i</span>
+        <span class="n">beta0i</span> <span class="o">-=</span> <span class="n">learn_rate</span> <span class="o">*</span> <span class="p">(</span><span class="n">ES0i</span> <span class="o">-</span> <span class="n">S0</span><span class="p">)</span> <span class="o">/</span> <span class="n">der_ES0i</span>
         <span class="n">errS0</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">ES0i</span> <span class="o">-</span> <span class="n">S0</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">beta0i</span><span class="p">,</span> <span class="n">ES0i</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="simuls_misspecif.simuls_driver.setup_model" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">setup_model</span><span class="p">(</span><span class="n">model_root</span><span class="p">,</span> <span class="n">base_model</span><span class="p">,</span> <span class="n">scenario</span><span class="p">,</span> <span class="n">str_roots</span><span class="p">,</span> <span class="n">long_names</span><span class="p">)</span></code>
+
+<a href="#simuls_misspecif.simuls_driver.setup_model" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Set up a model instance with exogenous/endogenous specification.</p>
+<p>Creates a new ModelData instance with the specified exogenous or
+endogenous specification and returns the configured model and its
+output subdirectory path.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>model_root</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Base string for model type ('endo' or 'exo').</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>base_model</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="ModelData
+
+
+  
+      dataclass
+   (simuls_misspecif.MNL_utils.ModelData)" href="MNL_utils.html#simuls_misspecif.MNL_utils.ModelData">ModelData</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Base ModelData configuration to copy from.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>scenario</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="ScenarioDict (simuls_misspecif.simuls_driver.ScenarioDict)" href="#simuls_misspecif.simuls_driver.ScenarioDict">ScenarioDict</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Scenario configuration with data, coefficients, and sigma range.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>str_roots</code>
+            </td>
+            <td>
+                  <code><span title="list">list</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>List of root model strings (['exo', 'endo']).</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>long_names</code>
+            </td>
+            <td>
+                  <code><span title="list">list</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>List of long descriptive names for the models.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="tuple">tuple</span>[<a class="autorefs autorefs-internal" title="ModelData
+
+
+  
+      dataclass
+   (simuls_misspecif.MNL_utils.ModelData)" href="MNL_utils.html#simuls_misspecif.MNL_utils.ModelData">ModelData</a>, <span title="pathlib.Path">Path</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Tuple of (configured ModelData instance, pickle output subdirectory Path).</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>simuls_misspecif/simuls_driver.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span>
+<span class="normal">78</span>
+<span class="normal">79</span>
+<span class="normal">80</span>
+<span class="normal">81</span>
+<span class="normal">82</span>
+<span class="normal">83</span>
+<span class="normal">84</span>
+<span class="normal">85</span>
+<span class="normal">86</span>
+<span class="normal">87</span>
+<span class="normal">88</span>
+<span class="normal">89</span>
+<span class="normal">90</span>
+<span class="normal">91</span>
+<span class="normal">92</span>
+<span class="normal">93</span>
+<span class="normal">94</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">setup_model</span><span class="p">(</span>
+    <span class="n">model_root</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">base_model</span><span class="p">:</span> <span class="n">ModelData</span><span class="p">,</span>
+    <span class="n">scenario</span><span class="p">:</span> <span class="n">ScenarioDict</span><span class="p">,</span>
+    <span class="n">str_roots</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+    <span class="n">long_names</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ModelData</span><span class="p">,</span> <span class="n">Path</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Set up a model instance with exogenous/endogenous specification.</span>
+
+<span class="sd">    Creates a new ModelData instance with the specified exogenous or</span>
+<span class="sd">    endogenous specification and returns the configured model and its</span>
+<span class="sd">    output subdirectory path.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        model_root: Base string for model type (&#39;endo&#39; or &#39;exo&#39;).</span>
+<span class="sd">        base_model: Base ModelData configuration to copy from.</span>
+<span class="sd">        scenario: Scenario configuration with data, coefficients, and sigma range.</span>
+<span class="sd">        str_roots: List of root model strings ([&#39;exo&#39;, &#39;endo&#39;]).</span>
+<span class="sd">        long_names: List of long descriptive names for the models.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Tuple of (configured ModelData instance, pickle output subdirectory Path).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">scenario_number</span> <span class="o">=</span> <span class="n">base_model</span><span class="o">.</span><span class="n">scenario</span>
+    <span class="n">do_exo</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="s2">&quot;exo&quot;</span> <span class="ow">in</span> <span class="n">model_root</span> <span class="k">else</span> <span class="kc">False</span>
+    <span class="n">data_p</span> <span class="o">=</span> <span class="n">dc</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">scenario</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">],</span> <span class="n">do_exo</span><span class="o">=</span><span class="n">do_exo</span><span class="p">)</span>
+    <span class="n">str_long</span> <span class="o">=</span> <span class="n">long_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">do_exo</span> <span class="k">else</span> <span class="n">long_names</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">str_root</span> <span class="o">=</span> <span class="n">str_roots</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">do_exo</span> <span class="k">else</span> <span class="n">str_roots</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">nproducts</span> <span class="o">=</span> <span class="n">base_model</span><span class="o">.</span><span class="n">nproducts</span>
+    <span class="n">str_model</span> <span class="o">=</span> <span class="n">model_string</span><span class="p">(</span><span class="n">str_root</span><span class="p">,</span> <span class="n">nproducts</span><span class="p">,</span> <span class="n">scenario_number</span><span class="p">,</span> <span class="n">data_p</span><span class="o">.</span><span class="n">n_x</span><span class="p">)</span>
+    <span class="n">new_model</span> <span class="o">=</span> <span class="n">dc</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+        <span class="n">base_model</span><span class="p">,</span> <span class="n">data_pars</span><span class="o">=</span><span class="n">data_p</span><span class="p">,</span> <span class="n">model_string</span><span class="o">=</span><span class="n">str_model</span><span class="p">,</span> <span class="n">long_name</span><span class="o">=</span><span class="n">str_long</span>
+    <span class="p">)</span>
+    <span class="n">pickle_subdir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">case_subdir</span><span class="p">(</span><span class="n">str_root</span><span class="p">,</span> <span class="n">scenario_number</span><span class="p">,</span> <span class="n">data_p</span><span class="o">.</span><span class="n">n_x</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">new_model</span><span class="p">,</span> <span class="n">pickle_subdir</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
