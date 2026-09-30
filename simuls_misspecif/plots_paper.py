@@ -100,9 +100,9 @@ def _param_labels(n_x: int) -> list[str]:
     uni_sigma2_sq = "\N{GREEK SMALL LETTER SIGMA}\N{SUBSCRIPT TWO}\N{SUPERSCRIPT TWO}"
     uni_sigma3_sq = "\N{GREEK SMALL LETTER SIGMA}\N{SUBSCRIPT THREE}\N{SUPERSCRIPT TWO}"
     uni_sigma4_sq = "\N{GREEK SMALL LETTER SIGMA}\N{SUBSCRIPT FOUR}\N{SUPERSCRIPT TWO}"
-    uni_beta2 = "\N{GREEK SMALL LETTER SIGMA}\N{SUBSCRIPT TWO}"
-    uni_beta3 = "\N{GREEK SMALL LETTER SIGMA}\N{SUBSCRIPT THREE}"
-    uni_beta4 = "\N{GREEK SMALL LETTER SIGMA}\N{SUBSCRIPT FOUR}"
+    uni_beta2 = "\N{GREEK SMALL LETTER BETA}\N{SUBSCRIPT TWO}"
+    uni_beta3 = "\N{GREEK SMALL LETTER BETA}\N{SUBSCRIPT THREE}"
+    uni_beta4 = "\N{GREEK SMALL LETTER BETA}\N{SUBSCRIPT FOUR}"
 
     if n_x == 1:
         return [uni_beta0, uni_beta1, uni_sigma2]
